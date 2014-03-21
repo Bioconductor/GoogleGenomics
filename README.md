@@ -7,8 +7,8 @@ turns it into a GAlignments object provided by the
 <a href="http://master.bioconductor.org/packages/release/bioc/html/GenomicRanges.html">GenomicRanges package.</a>
 
 This GAlignments object is then plotted using
-<a href="http://master.bioconductor.org/packages/release/bioc/html/ggbio.html">ggbio</a>
-- but it can also be integrated with any of the other R packages that support GAlignments or GRanges.
+<a href="http://master.bioconductor.org/packages/release/bioc/html/ggbio.html">ggbio</a> - but 
+it can also be integrated with any of the other R packages that support GAlignments or GRanges.
 
 ###Getting started
 
@@ -26,12 +26,12 @@ setup("<client ID>", "<client secret>")
 getReadData()
 ```
 
-* The setup function only needs to be run once. After it has been called, the
-getReadData function can then be run repeatedly. It gets data from the API
+`setup` only needs to be run once. After it has been called, `getReadData`
+can then be run repeatedly. It fetches data from the API
 and can be used to search over any set of reads. You can pull up a different
-sequence position my specifying additional arguments:
+sequence position by specifying additional arguments:
 ```
-getReadData(chromosome="chr3", start="121459049", end="124")
+getReadData(chromosome="chr3", start="121458049", end="121459049")
 ```
 
 Or, you can use the readsetId argument to query a different readset entirely:
@@ -40,4 +40,5 @@ getReadData(readsetId="<myreadset>")
 ```
 
 Both `reads` and `alignments` are exported as global variables so that you
-can use other bioconductor tools to modify the data as you wish.
+can use other <a href="http://www.bioconductor.org/">Bioconductor</a> 
+tools to modify the data as you wish.
