@@ -75,4 +75,7 @@ plotAlignments <- function() {
   # You could also display the spot on the chromosome these alignments came from     
   # p2 <- plotIdeogram(genome="hg19", subchr=chromosome)  
   # p2 + xlim(as(alignments, 'GRanges'))
+  
+  # You could also plot the coverage
+  # ggplot(as(alignments, 'GRanges')) + stat_coverage()
 }    
