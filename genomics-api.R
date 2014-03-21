@@ -14,7 +14,7 @@
 
 # This is a "client ID for native application" id and secret from the Google Developer's console
 # (console.developers.google.com). Make sure you pass in your own values.
-setup <- function(clientKey="...googleusercontent.com", clientSecret) {
+setup <- function(clientId="...googleusercontent.com", clientSecret) {
   install.packages("rjson")
   install.packages("devtools")
   devtools::install_github("hadley/httr") # We need the dev version of httr for now
@@ -30,15 +30,15 @@ setup <- function(clientKey="...googleusercontent.com", clientSecret) {
   library(ggbio)
   library(Rsamtools)
 
-  app <- oauth_app("google", clientKey, clientSecret)
+  app <- oauth_app("google", clientId, clientSecret)
   google_token <<- oauth2.0_token(oauth_endpoints("google"), app,
       scope = "https://www.googleapis.com/auth/genomics")
 }
 
 # By default, this function encompasses 2 chromosome positions which relate to ApoE
 # (http://www.snpedia.com/index.php/Rs429358 and http://www.snpedia.com/index.php/Rs7412)
-getReadData <- function(chromosome = "chr19", start = 45411941, end = 45412079,
-    readsetId = "CJ_ppJ-WCxDxrtDr5fGIhBA=", endpoint="https://www.googleapis.com/genomics/v1beta/") {
+getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
+    readsetId="CJ_ppJ-WCxDxrtDr5fGIhBA=", endpoint="https://www.googleapis.com/genomics/v1beta/") {
     	
   # Fetch data from the Genomics API  	
   body <- list(readsetIds=list(readsetId), sequenceName=chromosome, sequenceStart=start, sequenceEnd=end)  	
