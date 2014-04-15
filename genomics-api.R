@@ -17,8 +17,8 @@
 setup <- function(clientId="...googleusercontent.com", clientSecret) {
   install.packages("rjson")
   install.packages("devtools")
-  devtools::install_github("hadley/httr") # We need the dev version of httr for now
-    
+  install.packages("httr")
+      
   # Bioconductor packages
   source("http://bioconductor.org/biocLite.R")
   biocLite("GenomicRanges")
