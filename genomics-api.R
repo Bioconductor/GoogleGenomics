@@ -22,6 +22,7 @@ setup <- function(clientId="...googleusercontent.com", clientSecret) {
   # Bioconductor packages
   source("http://bioconductor.org/biocLite.R")
   biocLite("GenomicRanges")
+  biocLite("GenomicAlignments")
   biocLite("ggbio")
   biocLite("Rsamtools")
 
@@ -32,7 +33,7 @@ setup <- function(clientId="...googleusercontent.com", clientSecret) {
 
   app <- oauth_app("google", clientId, clientSecret)
   google_token <<- oauth2.0_token(oauth_endpoints("google"), app,
-      scope = "https://www.googleapis.com/auth/genomics")
+      scope = "https://www.googleapis.com/auth/genomics")
 }
 
 # By default, this function encompasses 2 chromosome positions which relate to ApoE
