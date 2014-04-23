@@ -15,21 +15,23 @@
 # This is a "client ID for native application" id and secret from the Google Developer's console
 # (console.developers.google.com). Make sure you pass in your own values.
 setup <- function(clientId="...googleusercontent.com", clientSecret) {
-  install.packages("rjson")
-  install.packages("devtools")
-  install.packages("httr")
-      
+  # Cran packages
+  update.packages()
+  cranPkgs <- c("rjson", "httr")
+  cranInstallPkgs <- c(cranPkgs, "jsonlite", "httpuv") # Runtime dependencies
+  cranInstallPkgs <- cranInstallPkgs[!cranInstallPkgs %in% installed.packages()]
+  if (length(cranInstallPkgs) > 0)
+    install.packages(cranInstallPkgs, type="both")
+  sapply(cranPkgs, library, character.only=TRUE)
+ 
   # Bioconductor packages
   source("http://bioconductor.org/biocLite.R")
-  biocLite("GenomicRanges")
-  biocLite("GenomicAlignments")
-  biocLite("ggbio")
-  biocLite("Rsamtools")
-
-  library(rjson)
-  library(httr)
-  library(ggbio)
-  library(Rsamtools)
+  biocLite() # Update all packages
+  biocLitePkgs <- c("GenomicRanges", "ggbio", "Rsamtools")
+  biocLiteInstallPkgs <- biocLitePkgs[!biocLitePkgs %in% installed.packages()]
+  if (length(biocLiteInstallPkgs) > 0)
+    biocLite(biocLiteInstallPkgs, type="both")
+  sapply(biocLitePkgs, library, character.only=TRUE)
 
   app <- oauth_app("google", clientId, clientSecret)
   google_token <<- oauth2.0_token(oauth_endpoints("google"), app,
@@ -45,14 +47,14 @@ getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
   # Fetch data from the Genomics API  	
   body <- list(readsetIds=list(readsetId), sequenceName=chromosome, sequenceStart=start, sequenceEnd=end, pageToken=pageToken)  	
     	
-  message("Fetching read data")
+  message("Fetching read data page")
     	
   res <- POST(paste(endpoint, "reads/search", sep=""),
     query=list(fields="nextPageToken,reads(name,cigar,position,originalBases,flags)"),
     body=toJSON(body), config(token=google_token), add_headers("Content-Type"="application/json"))  
   stop_for_status(res)
   
-  message("Parsing read data")
+  message("Parsing read data page")
   res_content <- content(res)
   reads <<- res_content$reads
 
@@ -81,7 +83,7 @@ getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
   	getReadData(chromosome=chromosome, start=start, end=end, readsetId=readsetId, 
   	    endpoint=endpoint, pageToken=res_content$nextPageToken)
   } else {
-    plotAlignments(xlab=chromosome)   
+    message("Read data is now available")
   }
 }
 
