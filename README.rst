@@ -87,3 +87,23 @@ matches our testing environment.
   [34] splines_3.0.3            stats4_3.0.3             stringr_0.6.2           
   [37] survival_2.37-7          tcltk_3.0.3              tools_3.0.3             
   [40] VariantAnnotation_1.8.13 XML_3.95-0.2             zlibbioc_1.8.0 
+
+
+
+Project status
+--------------
+
+Goals
+~~~~~
+* Provide an R library that hooks up the Genomics APIs to all of the other
+  great existing R tools for biology. This library should be consumable by
+  R developers.
+* In addition, for non-developers, provide many Read and Variant analysis
+  samples that can easily be run on API data without requiring a lot of prior
+  biology or cs knowledge.
+
+
+Current status
+~~~~~~~~~~~~~~
+This project is in active development - the current code is very minimal and
+a lot or work is left. See GitHub issues for more details.
