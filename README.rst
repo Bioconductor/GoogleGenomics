@@ -1,7 +1,7 @@
 .. role:: r(code)
    :language: r
 
-client-r
+api-client-r
 ========
 
 This R client fetches data from the `Google Genomics API`_ and turns it into a
