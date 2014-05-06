@@ -27,7 +27,12 @@ setup <- function(clientId="...googleusercontent.com", clientSecret) {
   # Bioconductor packages
   source("http://bioconductor.org/biocLite.R")
   biocLite() # Update all packages
-  biocLitePkgs <- c("GenomicRanges", "ggbio", "Rsamtools")
+  if (biocVersion() >= "2.14") {
+    biocLitePkgs <- c("GenomicAlignments", "ggbio", "Rsamtools")
+  } else {
+    biocLitePkgs <- c("GenomicRanges", "ggbio", "Rsamtools")
+  }
+
   biocLiteInstallPkgs <- biocLitePkgs[!biocLitePkgs %in% installed.packages()]
   if (length(biocLiteInstallPkgs) > 0)
     biocLite(biocLiteInstallPkgs, type="both")
