@@ -18,8 +18,8 @@ Getting started
 ---------------
 
 * First you'll need to setup an `R environment <http://www.r-project.org/>`_.
-  We have currently only tested with R 3.0.3. There are known issues in R 3.0.2
-  and R 3.1.0.
+  We have currently only tested with R 3.0.3 and R 3.1.0. There are known issues
+  in R 3.0.2.
 
 * Then you'll need a valid client ID and secret. Follow the `authentication
   instructions <https://developers.google.com/genomics#authenticate>`_,
