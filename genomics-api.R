@@ -15,13 +15,19 @@
 # This is a "client ID for native application" id and secret from the Google Developer's console
 # (console.developers.google.com). Make sure you pass in your own values.
 setup <- function(clientId="...googleusercontent.com", clientSecret) {
+  # Package type as determined by the platform. Source for Linux, and preference to binary for others.
+  pkgType <- getOption("pkgType")
+  if (grepl(pkgType, "binary")) {
+    pkgType <- "both"
+  }
+
   # Cran packages
   update.packages()
   cranPkgs <- c("rjson", "httr")
   cranInstallPkgs <- c(cranPkgs, "jsonlite", "httpuv") # Runtime dependencies
   cranInstallPkgs <- cranInstallPkgs[!cranInstallPkgs %in% installed.packages()]
   if (length(cranInstallPkgs) > 0)
-    install.packages(cranInstallPkgs, type="both")
+    install.packages(cranInstallPkgs, type=pkgType)
   sapply(cranPkgs, library, character.only=TRUE)
  
   # Bioconductor packages
@@ -35,12 +41,12 @@ setup <- function(clientId="...googleusercontent.com", clientSecret) {
 
   biocLiteInstallPkgs <- biocLitePkgs[!biocLitePkgs %in% installed.packages()]
   if (length(biocLiteInstallPkgs) > 0)
-    biocLite(biocLiteInstallPkgs, type="both")
+    biocLite(biocLiteInstallPkgs, type=pkgType)
   sapply(biocLitePkgs, library, character.only=TRUE)
 
   app <- oauth_app("google", clientId, clientSecret)
   google_token <<- oauth2.0_token(oauth_endpoints("google"), app,
-      scope = "https://www.googleapis.com/auth/genomics")
+      scope = "https://www.googleapis.com/auth/genomics", use_oob=TRUE)
 }
 
 # By default, this function encompasses 2 chromosome positions which relate to ApoE
@@ -50,7 +56,8 @@ getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
     pageToken=NULL) {
     	
   # Fetch data from the Genomics API  	
-  body <- list(readsetIds=list(readsetId), sequenceName=chromosome, sequenceStart=start, sequenceEnd=end, pageToken=pageToken)  	
+  body <- list(readsetIds=list(readsetId), sequenceName=chromosome, sequenceStart=start,
+      sequenceEnd=end, pageToken=pageToken)
     	
   message("Fetching read data page")
     	
