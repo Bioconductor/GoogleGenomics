@@ -34,9 +34,9 @@ setup <- function(clientId="...googleusercontent.com", clientSecret) {
   source("http://bioconductor.org/biocLite.R")
   biocLite() # Update all packages
   if (biocVersion() >= "2.14") {
-    biocLitePkgs <- c("GenomicAlignments", "ggbio", "Rsamtools")
+    biocLitePkgs <- c("GenomicAlignments", "ggbio", "Rsamtools", "VariantAnnotation")
   } else {
-    biocLitePkgs <- c("GenomicRanges", "ggbio", "Rsamtools")
+    biocLitePkgs <- c("GenomicRanges", "ggbio", "Rsamtools", "VariantAnnotation")
   }
 
   biocLiteInstallPkgs <- biocLitePkgs[!biocLitePkgs %in% installed.packages()]
@@ -91,7 +91,7 @@ getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
       pos=positions, cigar=cigars, names=names, flag=flags), alignments)      
   
   if (!is.null(res_content$nextPageToken)) {
- 	message(paste("Continuing read query with the nextPageToken:", res_content$nextPageToken))  	
+ 	  message(paste("Continuing read query with the nextPageToken:", res_content$nextPageToken))
   	getReadData(chromosome=chromosome, start=start, end=end, readsetId=readsetId, 
   	    endpoint=endpoint, pageToken=res_content$nextPageToken)
   } else {
@@ -111,3 +111,65 @@ plotAlignments <- function(xlab="") {
   # p3 <- plotIdeogram(genome="hg19", subchr=chromosome)  
   # p3 + xlim(as(alignments, 'GRanges'))
 }    
+
+# By default, this function gets variant data from a small section of 1000 genomes
+getVariantData <- function(datasetId="376902546192", chromosome="22", start=16051400, end=16051500,
+    endpoint="https://www.googleapis.com/genomics/v1beta/", pageToken=NULL) {
+    	
+  # Fetch data from the Genomics API  	
+  body <- list(datasetId=datasetId, contig=chromosome, startPosition=start,
+      endPosition=end, pageToken=pageToken)
+    	
+  message("Fetching variant data page")
+
+  res <- POST(paste(endpoint, "variants/search", sep=""),
+    query=list(fields="nextPageToken,variants(names,referenceBases,alternateBases,position,info,calls(callsetName))"),
+    body=toJSON(body), config(token=google_token), add_headers("Content-Type"="application/json"))  
+  stop_for_status(res)
+  
+  message("Parsing variant data page")
+  res_content <- content(res)
+  variants <<- res_content$variants
+
+  # Transform the Genomics API data into a VRanges object
+
+  if (is.null(pageToken)) {
+  	# If this is the first getVariantData request, clear out any existing ranges
+  	# Otherwise we will append our data to what we've retrieved before
+  	variantdata <<- NULL
+  }
+      
+  # Each variant gets a VRanges object
+  for (v in variants) {
+    name = v[["names"]] # TODO: Use this field
+  	refs = v[["referenceBases"]]
+  	alts = v[["alternateBases"]]
+  	position = as.integer(v[["position"]])
+  	  	
+    calls = v[["calls"]]
+  	samples = factor(sapply(calls, "[[", "callsetName"))
+  	# TODO: Can we put genotype in here somewhere?
+  	reflength = length(refs)
+  	
+    info = data.frame(variants[["info"]]) # TODO: Add the info tags to the ranges
+    
+  	ranges = VRanges(
+        seqnames=Rle(chromosome, 1), 
+        ranges=IRanges(position, width=reflength),
+        ref=refs, alt=alts[[1]], sampleNames=samples)
+
+    if (is.null(variantdata)) {
+      variantdata <<- ranges
+    } else {
+      variantdata <<- c(variantdata, ranges)
+    }
+  }
+  
+  if (!is.null(res_content$nextPageToken)) {
+ 	  message(paste("Continuing variant query with the nextPageToken:", res_content$nextPageToken))
+  	getVariantData(datasetId=datasetId, chromosome=chromosome, start=start, end=end, 
+  	    endpoint=endpoint, pageToken=res_content$nextPageToken)
+  } else {
+    message("Variant data is now available")
+  }
+}
