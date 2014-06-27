@@ -95,8 +95,8 @@ Project status
 
 Goals
 ~~~~~
-* Provide an R library that hooks up the Genomics APIs to all of the other
-  great existing R tools for biology. This library should be consumable by
+* Provide an R package that hooks up the Genomics APIs to all of the other
+  great existing R tools for biology. This package should be consumable by
   R developers.
 * In addition, for non-developers, provide many Read and Variant analysis
   samples that can easily be run on API data without requiring a lot of prior
