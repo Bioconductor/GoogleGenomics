@@ -21,8 +21,8 @@ Getting started
   We have currently only tested with R 3.0.3 and R 3.1.0. There are known issues
   in R 3.0.2.
 
-* Then you'll need a valid client ID and secret. Follow the `authentication
-  instructions <https://developers.google.com/genomics#authenticate>`_,
+* Then you'll need a valid client ID and secret. Follow the `sign up
+  instructions <https://developers.google.com/genomics>`_,
   but instead of downloading the JSON file, you'll pass the ``Client ID`` and
   ``Client secret`` values into the setup function.
 
