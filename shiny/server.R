@@ -17,6 +17,7 @@ library(jsonlite)
 library(httpuv)
 library(ggbio)
 library(GenomicRanges)
+library(Rsamtools)
 
 shinyServer(function(input, output) {
 
