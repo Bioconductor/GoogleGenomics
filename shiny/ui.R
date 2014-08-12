@@ -13,8 +13,6 @@
 # limitations under the License.
 library(shiny)
 
-dataset <- diamonds
-
 shinyUI(fluidPage(
 
   titlePanel("Google Genomics Read Viewer"),
