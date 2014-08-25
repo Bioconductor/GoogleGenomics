@@ -89,6 +89,17 @@ matches our testing environment.
   [40] VariantAnnotation_1.8.13 XML_3.95-0.2             zlibbioc_1.8.0 
 
 
+Shiny
+-----
+
+Inside of the `shiny` directory, the genomics-api.R file has 
+been turned into a Shiny app. You can view the hosted version of the 
+application on shinyapps.io:
+
+http://googlegenomics.shinyapps.io/reads
+
+See the `README <https://github.com/googlegenomics/api-client-r/tree/master/shiny>`_ for more information.
+
 
 Project status
 --------------
