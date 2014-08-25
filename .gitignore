@@ -1,3 +1,5 @@
 .idea
 *~
 .Rapp.history
+.httr-oauth
+shiny/shinyapps
