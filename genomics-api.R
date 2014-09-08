@@ -64,6 +64,9 @@ getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
   res <- POST(paste(endpoint, "reads/search", sep=""),
     query=list(fields="nextPageToken,reads(name,cigar,position,originalBases,flags)"),
     body=toJSON(body), config(token=google_token), add_headers("Content-Type"="application/json"))
+  if("error" %in% names(content(res))) {
+    print(paste("ERROR:", content(res)$error$message))
+  }
   stop_for_status(res)
 
   message("Parsing read data page")
@@ -125,6 +128,9 @@ getVariantData <- function(datasetId="376902546192", chromosome="22", start=1605
   res <- POST(paste(endpoint, "variants/search", sep=""),
     query=list(fields="nextPageToken,variants(names,referenceBases,alternateBases,position,info,calls(callsetName))"),
     body=toJSON(body), config(token=google_token), add_headers("Content-Type"="application/json"))
+  if("error" %in% names(content(res))) {
+    print(paste("ERROR:", content(res)$error$message))
+  }
   stop_for_status(res)
 
   message("Parsing variant data page")
