@@ -120,7 +120,7 @@ getVariantData <- function(datasetId="376902546192", chromosome="22", start=1605
     endpoint="https://www.googleapis.com/genomics/v1beta/", pageToken=NULL) {
 
   # Fetch data from the Genomics API
-  body <- list(datasetId=datasetId, contig=chromosome, startPosition=start,
+  body <- list(variantsetId=datasetId, contig=chromosome, startPosition=start,
       endPosition=end, pageToken=pageToken)
 
   message("Fetching variant data page")
