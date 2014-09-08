@@ -13,7 +13,36 @@
 # limitations under the License.
 
 # This is a "client ID for native application" id and secret from the Google Developer's console
-# (console.developers.google.com). Make sure you pass in your own values.
+# (console.developers.google.com). You can pass in your own values or it will
+# attempt to read from the file client_secrets.json in the current working directory.
+configure <- function(clientId="...googleusercontent.com", clientSecret) {
+  # Ensure the needed packages are loaded.
+  require(rjson)
+  require(httr)
+  source("http://bioconductor.org/biocLite.R")
+  if (biocVersion() >= "2.14") {
+    biocLitePkgs <- c("GenomicAlignments", "ggbio", "Rsamtools", "VariantAnnotation")
+  } else {
+    biocLitePkgs <- c("GenomicRanges", "ggbio", "Rsamtools", "VariantAnnotation")
+  }
+  sapply(biocLitePkgs, require, character.only=TRUE)
+
+  # Read our oauth config from an external file if not passed in.
+  if(missing(clientSecret)) {
+    fileName <- "client_secrets.json"
+    clientSecrets <- rjson::fromJSON(readChar(fileName, file.info(fileName)$size))
+    clientId <- clientSecrets$installed$client_id
+    clientSecret <- clientSecrets$installed$client_secret
+  }
+
+  # Get our oauth token.
+  app <- oauth_app("google", clientId, clientSecret)
+  google_token <<- oauth2.0_token(oauth_endpoints("google"), app,
+                                  scope = "https://www.googleapis.com/auth/genomics", use_oob=TRUE)
+}
+
+# Note: this method will attempt to update all installed R packages.  If you prefer
+# to upgrade R packages as needed, see method configure instead.
 setup <- function(clientId="...googleusercontent.com", clientSecret) {
   # Package type as determined by the platform. Source for Linux, and preference to binary for others.
   pkgType <- getOption("pkgType")
@@ -44,9 +73,7 @@ setup <- function(clientId="...googleusercontent.com", clientSecret) {
     biocLite(biocLiteInstallPkgs, type=pkgType)
   sapply(biocLitePkgs, library, character.only=TRUE)
 
-  app <- oauth_app("google", clientId, clientSecret)
-  google_token <<- oauth2.0_token(oauth_endpoints("google"), app,
-      scope = "https://www.googleapis.com/auth/genomics", use_oob=TRUE)
+  configure(clientId, clientSecret)
 }
 
 # By default, this function encompasses 2 chromosome positions which relate to ApoE
@@ -63,7 +90,8 @@ getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
 
   res <- POST(paste(endpoint, "reads/search", sep=""),
     query=list(fields="nextPageToken,reads(name,cigar,position,originalBases,flags)"),
-    body=toJSON(body), config(token=google_token), add_headers("Content-Type"="application/json"))
+    body=rjson::toJSON(body), config(token=google_token),
+    add_headers("Content-Type"="application/json"))
   if("error" %in% names(content(res))) {
     print(paste("ERROR:", content(res)$error$message))
   }
@@ -121,13 +149,14 @@ getVariantData <- function(datasetId="376902546192", chromosome="22", start=1605
 
   # Fetch data from the Genomics API
   body <- list(variantsetId=datasetId, contig=chromosome, startPosition=start,
-      endPosition=end, pageToken=pageToken)
+               endPosition=end, pageToken=pageToken)
 
   message("Fetching variant data page")
 
   res <- POST(paste(endpoint, "variants/search", sep=""),
     query=list(fields="nextPageToken,variants(names,referenceBases,alternateBases,position,info,calls(callsetName))"),
-    body=toJSON(body), config(token=google_token), add_headers("Content-Type"="application/json"))
+    body=rjson::toJSON(body), config(token=google_token),
+    add_headers("Content-Type"="application/json"))
   if("error" %in% names(content(res))) {
     print(paste("ERROR:", content(res)$error$message))
   }
