@@ -29,7 +29,7 @@ setup <- function(clientId="...googleusercontent.com", clientSecret) {
   if (length(cranInstallPkgs) > 0)
     install.packages(cranInstallPkgs, type=pkgType)
   sapply(cranPkgs, library, character.only=TRUE)
- 
+
   # Bioconductor packages
   source("http://bioconductor.org/biocLite.R")
   biocLite() # Update all packages
@@ -52,20 +52,20 @@ setup <- function(clientId="...googleusercontent.com", clientSecret) {
 # By default, this function encompasses 2 chromosome positions which relate to ApoE
 # (http://www.snpedia.com/index.php/Rs429358 and http://www.snpedia.com/index.php/Rs7412)
 getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
-    readsetId="CJ_ppJ-WCxDxrtDr5fGIhBA=", endpoint="https://www.googleapis.com/genomics/v1beta/", 
+    readsetId="CJ_ppJ-WCxDxrtDr5fGIhBA=", endpoint="https://www.googleapis.com/genomics/v1beta/",
     pageToken=NULL) {
-    	
-  # Fetch data from the Genomics API  	
+
+  # Fetch data from the Genomics API
   body <- list(readsetIds=list(readsetId), sequenceName=chromosome, sequenceStart=start,
       sequenceEnd=end, pageToken=pageToken)
-    	
+
   message("Fetching read data page")
-    	
+
   res <- POST(paste(endpoint, "reads/search", sep=""),
     query=list(fields="nextPageToken,reads(name,cigar,position,originalBases,flags)"),
-    body=toJSON(body), config(token=google_token), add_headers("Content-Type"="application/json"))  
+    body=toJSON(body), config(token=google_token), add_headers("Content-Type"="application/json"))
   stop_for_status(res)
-  
+
   message("Parsing read data page")
   res_content <- content(res)
   reads <<- res_content$reads
@@ -75,10 +75,10 @@ getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
   cigars = sapply(reads, '[[', 'cigar')
   positions = as.integer(sapply(reads, '[[', 'position'))
   flags = sapply(reads, '[[', 'flags')
-  
+
   isMinusStrand = bamFlagAsBitMatrix(as.integer(flags), bitnames="isMinusStrand")
   total_reads = length(positions)
-  
+
   if (is.null(pageToken)) {
   	# If this is the first getReadData request, clear out any existing alignments
   	# Otherwise we will append our data to what we've retrieved before
@@ -86,47 +86,47 @@ getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
   }
 
   alignments <<- c(GAlignments(
-      seqnames=Rle(c(chromosome), c(total_reads)), 
-      strand=strand(as.vector(ifelse(isMinusStrand, '-', '+'))), 
-      pos=positions, cigar=cigars, names=names, flag=flags), alignments)      
-  
+      seqnames=Rle(c(chromosome), c(total_reads)),
+      strand=strand(as.vector(ifelse(isMinusStrand, '-', '+'))),
+      pos=positions, cigar=cigars, names=names, flag=flags), alignments)
+
   if (!is.null(res_content$nextPageToken)) {
  	  message(paste("Continuing read query with the nextPageToken:", res_content$nextPageToken))
-  	getReadData(chromosome=chromosome, start=start, end=end, readsetId=readsetId, 
+  	getReadData(chromosome=chromosome, start=start, end=end, readsetId=readsetId,
   	    endpoint=endpoint, pageToken=res_content$nextPageToken)
   } else {
     message("Read data is now available")
   }
 }
 
-plotAlignments <- function(xlab="") {      
-  # Display the basic alignments    
-  p1 <- autoplot(alignments, aes(color=strand, fill=strand))   
-  
+plotAlignments <- function(xlab="") {
+  # Display the basic alignments
+  p1 <- autoplot(alignments, aes(color=strand, fill=strand))
+
   # And coverage data
   p2 <- ggplot(as(alignments, 'GRanges')) + stat_coverage(color="gray40", fill="skyblue")
   tracks(p1, p2, xlab=xlab)
 
-  # You could also display the spot on the chromosome these alignments came from     
-  # p3 <- plotIdeogram(genome="hg19", subchr=chromosome)  
+  # You could also display the spot on the chromosome these alignments came from
+  # p3 <- plotIdeogram(genome="hg19", subchr=chromosome)
   # p3 + xlim(as(alignments, 'GRanges'))
-}    
+}
 
 # By default, this function gets variant data from a small section of 1000 genomes
 getVariantData <- function(datasetId="376902546192", chromosome="22", start=16051400, end=16051500,
     endpoint="https://www.googleapis.com/genomics/v1beta/", pageToken=NULL) {
-    	
-  # Fetch data from the Genomics API  	
+
+  # Fetch data from the Genomics API
   body <- list(datasetId=datasetId, contig=chromosome, startPosition=start,
       endPosition=end, pageToken=pageToken)
-    	
+
   message("Fetching variant data page")
 
   res <- POST(paste(endpoint, "variants/search", sep=""),
     query=list(fields="nextPageToken,variants(names,referenceBases,alternateBases,position,info,calls(callsetName))"),
-    body=toJSON(body), config(token=google_token), add_headers("Content-Type"="application/json"))  
+    body=toJSON(body), config(token=google_token), add_headers("Content-Type"="application/json"))
   stop_for_status(res)
-  
+
   message("Parsing variant data page")
   res_content <- content(res)
   variants <<- res_content$variants
@@ -138,23 +138,23 @@ getVariantData <- function(datasetId="376902546192", chromosome="22", start=1605
   	# Otherwise we will append our data to what we've retrieved before
   	variantdata <<- NULL
   }
-      
+
   # Each variant gets a VRanges object
   for (v in variants) {
     name = v[["names"]] # TODO: Use this field
   	refs = v[["referenceBases"]]
   	alts = v[["alternateBases"]]
   	position = as.integer(v[["position"]])
-  	  	
+
     calls = v[["calls"]]
   	samples = factor(sapply(calls, "[[", "callsetName"))
   	# TODO: Can we put genotype in here somewhere?
   	reflength = length(refs)
-  	
+
     info = data.frame(variants[["info"]]) # TODO: Add the info tags to the ranges
-    
+
   	ranges = VRanges(
-        seqnames=Rle(chromosome, 1), 
+        seqnames=Rle(chromosome, 1),
         ranges=IRanges(position, width=reflength),
         ref=refs, alt=alts[[1]], sampleNames=samples)
 
@@ -164,10 +164,10 @@ getVariantData <- function(datasetId="376902546192", chromosome="22", start=1605
       variantdata <<- c(variantdata, ranges)
     }
   }
-  
+
   if (!is.null(res_content$nextPageToken)) {
  	  message(paste("Continuing variant query with the nextPageToken:", res_content$nextPageToken))
-  	getVariantData(datasetId=datasetId, chromosome=chromosome, start=start, end=end, 
+  	getVariantData(datasetId=datasetId, chromosome=chromosome, start=start, end=end,
   	    endpoint=endpoint, pageToken=res_content$nextPageToken)
   } else {
     message("Variant data is now available")
