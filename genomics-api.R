@@ -92,13 +92,13 @@ getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
     query=list(fields="nextPageToken,reads(name,cigar,position,originalBases,flags)"),
     body=rjson::toJSON(body), config(token=google_token),
     add_headers("Content-Type"="application/json"))
-  if("error" %in% names(content(res))) {
-    print(paste("ERROR:", content(res)$error$message))
+  if("error" %in% names(httr::content(res))) {
+    print(paste("ERROR:", httr::content(res)$error$message))
   }
   stop_for_status(res)
 
   message("Parsing read data page")
-  res_content <- content(res)
+  res_content <- httr::content(res)
   reads <<- res_content$reads
 
   # Transform the Genomics API data into a GAlignments object
@@ -157,13 +157,13 @@ getVariantData <- function(datasetId="376902546192", chromosome="22", start=1605
     query=list(fields="nextPageToken,variants(names,referenceBases,alternateBases,position,info,calls(callsetName))"),
     body=rjson::toJSON(body), config(token=google_token),
     add_headers("Content-Type"="application/json"))
-  if("error" %in% names(content(res))) {
-    print(paste("ERROR:", content(res)$error$message))
+  if("error" %in% names(httr::content(res))) {
+    print(paste("ERROR:", httr::content(res)$error$message))
   }
   stop_for_status(res)
 
   message("Parsing variant data page")
-  res_content <- content(res)
+  res_content <- httr::content(res)
   variants <<- res_content$variants
 
   # Transform the Genomics API data into a VRanges object
