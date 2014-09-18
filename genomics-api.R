@@ -148,13 +148,13 @@ getVariantData <- function(datasetId="376902546192", chromosome="22", start=1605
     endpoint="https://www.googleapis.com/genomics/v1beta/", pageToken=NULL) {
 
   # Fetch data from the Genomics API
-  body <- list(variantsetId=datasetId, contig=chromosome, startPosition=start,
-               endPosition=end, pageToken=pageToken)
+  body <- list(variantSetIds=list(datasetId), referenceName=chromosome, start=start,
+               end=end, pageToken=pageToken)
 
   message("Fetching variant data page")
 
   res <- POST(paste(endpoint, "variants/search", sep=""),
-    query=list(fields="nextPageToken,variants(names,referenceBases,alternateBases,position,info,calls(callsetName))"),
+    query=list(fields="nextPageToken,variants(names,referenceBases,alternateBases,start,info,calls(callSetName))"),
     body=rjson::toJSON(body), config(token=google_token),
     add_headers("Content-Type"="application/json"))
   if("error" %in% names(httr::content(res))) {
@@ -179,10 +179,10 @@ getVariantData <- function(datasetId="376902546192", chromosome="22", start=1605
     name = v[["names"]] # TODO: Use this field
   	refs = v[["referenceBases"]]
   	alts = v[["alternateBases"]]
-  	position = as.integer(v[["position"]])
+  	position = as.integer(v[["start"]])
 
     calls = v[["calls"]]
-  	samples = factor(sapply(calls, "[[", "callsetName"))
+  	samples = factor(sapply(calls, "[[", "callSetName"))
   	# TODO: Can we put genotype in here somewhere?
   	reflength = length(refs)
 
