@@ -144,7 +144,7 @@ plotAlignments <- function(xlab="") {
 }
 
 # By default, this function gets variant data from a small section of 1000 genomes
-getVariantData <- function(datasetId="376902546192", chromosome="22", start=16051400, end=16051500,
+getVariantData <- function(datasetId="10473108253681171589", chromosome="22", start=16051400, end=16051500,
     endpoint="https://www.googleapis.com/genomics/v1beta/", pageToken=NULL) {
 
   # Fetch data from the Genomics API
