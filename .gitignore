@@ -1,6 +1,7 @@
 .idea
 *~
 .Rapp.history
+.Rhistory
 .httr-oauth
 shiny/shinyapps
 .Rproj.user
