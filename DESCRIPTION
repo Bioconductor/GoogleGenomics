@@ -1,0 +1,31 @@
+Package: GoogleGenomics
+Version: 0.1.0
+Date: 2014-06-01
+Title: R Client for Google Genomics API
+Authors@R: c(person("Cassie", "Doll", role = c("aut")),
+             person("Nicole", "Deflaux", role = c("aut")),
+             person("Siddhartha", "Bagaria", role = c("aut")),
+             person("Google", "Genomics", role = "cre",
+                     email="google-genomics-contact@googlegroups.com"))
+Depends:
+    R (>= 3.1.0),
+    GenomicAlignments (>= 1.0.1),
+    VariantAnnotation
+Imports:
+    rjson,
+    httr,
+    jsonlite,
+    httpuv,
+    Rsamtools,
+    ggbio,
+    ggplot2
+Suggests:
+    RUnit,
+    testthat,
+    BiocCheck,
+    BiocGenerics
+Description: Provides an R package that hooks up the Genomics APIs to all of
+    the other great existing R tools for biology.
+License: Apache License (== 2.0) | file LICENSE
+URL: https://developers.google.com/genomics/
+BugReports: https://github.com/googlegenomics/api-client-r/issues
