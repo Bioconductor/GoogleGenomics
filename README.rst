@@ -1,7 +1,7 @@
 GoogleGenomics  |Build Status|_
 ==============================
 
-.. |Build Status| image:: https://travis-ci.org/googlegenomics/api-client-r?branch=master
+.. |Build Status| image:: http://img.shields.io/travis/googlegenomics/api-client-r.svg?style=flat
 .. _Build Status: https://travis-ci.org/googlegenomics/api-client-r
 
 .. role:: r(code)
