@@ -17,6 +17,8 @@
 #' Environment where the most recently read variants are stored.
 #'   Variants can be accessed by \code{variantStore$variants}.
 #'   Detailed variants data can be accessed by \code{variantStore$variantsData}.
+#'   
+#' @format An R environment.
 variantStore <- new.env()
 
 #' Get variants data from Google Genomics.

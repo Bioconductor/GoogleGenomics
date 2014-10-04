@@ -3,8 +3,7 @@
 \name{variantStore}
 \alias{variantStore}
 \title{Variants Store.}
-\format{\preformatted{<environment: 0x7fd36bf1bd08> 
-}}
+\format{An R environment.}
 \usage{
 variantStore
 }

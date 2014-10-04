@@ -17,6 +17,8 @@
 #' Environment where the most recently read alignments and reads are stored.
 #'   Reads can be accessed by \code{readStore$reads}.
 #'   Alignments can be accessed by \code{readStore$alignments}.
+#'   
+#' @format An R environment.
 readStore <- new.env()
 
 #' Get reads data from Google Genomics.

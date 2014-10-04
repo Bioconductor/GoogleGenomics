@@ -3,8 +3,7 @@
 \name{readStore}
 \alias{readStore}
 \title{Read Store.}
-\format{\preformatted{<environment: 0x7fd36bf269f8> 
-}}
+\format{An R environment.}
 \usage{
 readStore
 }

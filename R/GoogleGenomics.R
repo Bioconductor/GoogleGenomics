@@ -20,5 +20,5 @@
 #' For more details, read the package README.
 #'
 #' @docType package
-#' @name roxygen2
+#' @name GoogleGenomics
 NULL
