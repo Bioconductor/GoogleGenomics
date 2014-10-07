@@ -22,7 +22,7 @@ shinyUI(fluidPage(
     sidebarPanel(
       textInput('clientId', label = 'Client ID'),
       textInput('clientSecret', label = 'Client Secret'),
-      textInput('readsetId', label = 'Readset ID', value = 'CJDmkYn8ChCh4IH4hOf4gacB'),
+      textInput('readsetId', label = 'Readset ID', value = 'CMvnhpKTFhD04eLE-q2yxnU'),
       textInput('chr', label = 'Sequence name', value = '19'),
       numericInput('position', label = 'Position', value = '29564500'),
       div(a(href = "http://github.com/googlegenomics/api-client-r",
