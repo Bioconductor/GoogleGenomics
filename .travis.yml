@@ -1,5 +1,10 @@
 language: objective-c
 
+env:
+  global:
+    # Adds an API_KEY_SERVER environment variable that can be used to call the Genomics API from server-side applications
+    - secure: "earkQV0JSYqk/COq0IxQLI6aRgXQiA6Lb/3wkX9XCrg0sV6LGrvYYd3+TurZg9zqhJcKEobdnWdJIHhEv4r9tx8eRlCApqxdZ/kYFRha/KNaoAxO3Siu2YxKxN9Vz2BBpqOHPqjXen+UhzD6TArPfjfyUEglmdl+1jROFqg1Fc0="
+
 before_install:
   - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
   - chmod 755 ./travis-tool.sh
