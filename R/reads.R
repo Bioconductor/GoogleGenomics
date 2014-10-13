@@ -43,9 +43,16 @@ getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
   
   message("Fetching read data page")
   
+  queryParams <- list(fields="nextPageToken,reads(name,cigar,position,originalBases,flags)")
+  queryConfig <- config()
+  if (.authStore$use_api_key) {
+    queryParams <- c(queryParams, key=.authStore$api_key)
+  } else {
+    queryConfig <- config(token=.authStore$google_token)
+  }
   res <- POST(paste(endpoint, "reads/search", sep=""),
-    query=list(fields="nextPageToken,reads(name,cigar,position,originalBases,flags)"),
-    body=rjson::toJSON(body), config(token=.authStore$google_token),
+    query=queryParams,
+    body=rjson::toJSON(body), queryConfig,
     add_headers("Content-Type"="application/json"))
   if("error" %in% names(httr::content(res))) {
     print(paste("ERROR:", httr::content(res)$error$message))

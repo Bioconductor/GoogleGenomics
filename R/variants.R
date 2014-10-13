@@ -41,9 +41,16 @@ getVariantData <- function(datasetId="10473108253681171589", chromosome="22", st
   
   message("Fetching variant data page")
   
+  queryParams <- list(fields="nextPageToken,variants(names,referenceBases,alternateBases,start,info,calls(callSetName))")
+  queryConfig <- config()
+  if (.authStore$use_api_key) {
+    queryParams <- c(queryParams, key=.authStore$api_key)
+  } else {
+    queryConfig <- config(token=.authStore$google_token)
+  }
   res <- POST(paste(endpoint, "variants/search", sep=""),
-    query=list(fields="nextPageToken,variants(names,referenceBases,alternateBases,start,info,calls(callSetName))"),
-    body=toJSON(body), config(token=.authStore$google_token),
+    query=queryParams,
+    body=toJSON(body), queryConfig,
     add_headers("Content-Type"="application/json"))
   if("error" %in% names(content(res))) {
     print(paste("ERROR:", content(res)$error$message))

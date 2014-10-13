@@ -14,7 +14,7 @@
 
 .authStore <- new.env()
 
-#' Obtain auth token for Google Genomics API.
+#' Configure how to authenticate for Google Genomics API.
 #' 
 #' Follow the sign up instructions at \url{https://developers.google.com/genomics} to download
 #'   the client secrets file, or note the clientId and clientSecret pair.
@@ -27,8 +27,19 @@
 #'   If false, a URL is output which needs to be copy pasted in a browser.
 #'   With both the options, you will still need to login to your Google account if not logged
 #'   in already, and paste back the token key.
+#' @param apiKey Public API key that can be used to call the Genomics API for public datasets.
+#'   Providing this key overrides all other arguments.
 #' @export
-authenticate <- function(file, clientId, clientSecret, invokeBrowser=TRUE) {
+authenticate <- function(file, clientId, clientSecret, invokeBrowser=TRUE, apiKey) {
+  # If API key is provided, use it and ignore everything else.
+  if(!missing(apiKey)) {
+    .authStore$use_api_key <- TRUE
+    .authStore$api_key <- apiKey
+
+    return("Configured public API key.")
+  } else {
+    .authStore$use_api_key <- FALSE
+  }
 
   # Read our oauth config from an external file if not passed in.
   if(!missing(file)) {
@@ -36,10 +47,12 @@ authenticate <- function(file, clientId, clientSecret, invokeBrowser=TRUE) {
     clientId <- clientSecrets$installed$client_id
     clientSecret <- clientSecrets$installed$client_secret
   }
-  
+
   # Get our oauth token.
   app <- oauth_app("google", clientId, clientSecret)
   .authStore$google_token <- oauth2.0_token(oauth_endpoints("google"), app,
                                            scope = "https://www.googleapis.com/auth/genomics",
                                            use_oob=!invokeBrowser)
+
+  return("Configured OAuth token.")
 }

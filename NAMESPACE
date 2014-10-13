@@ -3,6 +3,8 @@
 import("httr")
 importFrom("rjson", fromJSON, toJSON)
 importFrom("ggplot2", aes)
+import("GenomicAlignments")
+import("VariantAnnotation")
 
 import("ggbio")
 import("Rsamtools")
