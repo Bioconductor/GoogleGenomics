@@ -12,7 +12,10 @@ import("Rsamtools")
 export(authenticate)
 export(getReadData)
 export(plotAlignments)
-export(getVariantData)
+
+export(getVariantsPage)
+export(getVariants)
+export(variantsToVRanges)
+export(variantsToVCF)
 
 export(readStore)
-export(variantStore)
