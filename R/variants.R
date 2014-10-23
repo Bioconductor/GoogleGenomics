@@ -12,30 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Variants Store.
+#' Get one page of variants from Google Genomics.
 #'
-#' Environment where the most recently read variants are stored.
-#'   Variants can be accessed by \code{variantStore$variants}.
-#'   Detailed variants data can be accessed by \code{variantStore$variantsData}.
+#' In general, use the getVariants method instead.  It calls this method,
+#' returning variants from all of the pages that comprise the requested
+#' genomic range.
 #'
-#' @format An R environment.
-
-#' Get variants data from Google Genomics.
-#'
-#' By default, this function gets variant data from a small section of 1000 Genomes
+#' By default, this function gets variants from a small section of 1000
+#' Genomes phase 1 variants.
 #'
 #' @param datasetId The dataset ID.
 #' @param chromosome The chromosome.
 #' @param start Start position on the chromosome.
 #' @param end End position on the chromosome.
-#' @param endpoint The Google API endpoint. You should not be changing this.
+#' @param oneBasedCoord Interpret start and end as 1-based coordinates.
+#' @param fields A subset of fields to retrieve.  The default (NULL) will
+#'      return all fields.
 #' @param pageToken The page token. This can be NULL (default) for the first page.
+#' @return A two-element list is returned by the function.
+#'
+#'     variants: A list of R objects corresponding to the JSON objects returned
+#'               by the Google Genomics Variants API.
+#'
+#'     nextPageToken: The token to be used to retrieve the next page of
+#'                    results, if applicable.
 #' @export
 getVariantsPage <- function(datasetId="10473108253681171589",
                             chromosome="22",
                             start=16051400,
                             end=16051500,
-                            endpoint="https://www.googleapis.com/genomics/v1beta/",
                             oneBasedCoord=FALSE,
                             fields=NULL,
                             pageToken=NULL) {
@@ -48,7 +53,7 @@ getVariantsPage <- function(datasetId="10473108253681171589",
     start <- start - 1
   }
 
-  # Fetch data from the Genomics API
+  # Fetch variants from the Genomics API
   body <- list(variantSetIds=list(datasetId), referenceName=chromosome,
                start=start, end=end, pageToken=pageToken)
   queryConfig <- httr::config()
@@ -69,8 +74,9 @@ getVariantsPage <- function(datasetId="10473108253681171589",
     queryConfig <- httr::config(token=GoogleGenomics:::.authStore$google_token)
   }
 
-  message("Fetching variant data page")
-  res <- httr::POST(paste(endpoint, "variants/search", sep=""),
+  message("Fetching variant page")
+  res <- httr::POST(paste(getOption("google_genomics_endpoint"),
+                          "variants/search", sep=""),
     query=queryParams,
     body=rjson::toJSON(body),
     queryConfig,
@@ -80,16 +86,39 @@ getVariantsPage <- function(datasetId="10473108253681171589",
   }
   httr::stop_for_status(res)
 
-  message("Parsing variant data page")
+  message("Parsing variant page")
   res_content <- httr::content(res)
   list(variants=res_content$variants, nextPageToken=res_content$nextPageToken)
 }
 
+#' Get variants from Google Genomics.
+#'
+#' This function will return all of the variants that comprise the requested
+#' genomic range, iterating over paginated results as necessary.
+#'
+#' By default, this function gets variants from a small section of 1000
+#' Genomes phase 1 variants.
+#'
+#' Optionally pass a converter as appropriate for your use case.  By passing it
+#' to this method, only the converted objects will be accumulated in memory.
+#'
+#' @param datasetId The dataset ID.
+#' @param chromosome The chromosome.
+#' @param start Start position on the chromosome.
+#' @param end End position on the chromosome.
+#' @param oneBasedCoord Interpret start and end as 1-based coordinates.
+#' @param fields A subset of fields to retrieve.  The default (NULL) will
+#'               return all fields.
+#' @param converter A function that takes a list of variant R objects and returns
+#'                  them converted to the desired type.
+#' @return By default, the return value is a list of R objects corresponding to the JSON objects
+#'  returned by the Google Genomics Variants API.  If a converter is passed,
+#'  object(s) of the type returned by the converter will be returned by this function.
+#' @export
 getVariants <- function(datasetId="10473108253681171589",
                         chromosome="22",
                         start=16051400,
                         end=16051500,
-                        endpoint="https://www.googleapis.com/genomics/v1beta/",
                         oneBasedCoord=FALSE,
                         fields=NULL,
                         converter=c) {
@@ -100,10 +129,9 @@ getVariants <- function(datasetId="10473108253681171589",
                               chromosome=chromosome,
                               start=start,
                               end=end,
-                              endpoint=endpoint,
                               oneBasedCoord=oneBasedCoord,
-                              pageToken=pageToken,
-                              fields=fields)
+                              fields=fields,
+                              pageToken=pageToken)
     pageToken <- result$nextPageToken
     variants <- c(variants, converter(result$variants))
     if(is.null(pageToken)) {
@@ -111,10 +139,16 @@ getVariants <- function(datasetId="10473108253681171589",
     }
     message(paste("Continuing variant query with the nextPageToken:", pageToken))
   }
-  message("Variant data is now available")
+  message("Variants are now available")
   variants
 }
 
+#' Convert variants to VRanges.
+#'
+#' @param variants A list of R objects corresponding to the JSON objects
+#'  returned by the Google Genomics Variants API.
+#' @return VRanges
+#' @references VRanges
 variantsToVRanges <- function(variants) {
   if(missing(variants)) {
     return(VRanges())
@@ -144,6 +178,47 @@ variantsToVRanges <- function(variants) {
   vranges
 }
 
+#' Convert variants to GRanges.
+#'
+#' @param variants A list of R objects corresponding to the JSON objects
+#'  returned by the Google Genomics Variants API.
+#' @return GRanges
+#' @references GRanges
+variantsToGRanges <- function(variants) {
+  if(missing(variants)) {
+    return(GRanges())
+  }
+
+  granges <- do.call("c", lapply(variants, function(v) {
+    # Pseudo-code to convert variants from 0-based coordinates to 1-based coordinates:
+    # if (type=SNV){start=start+1; end=end;}
+    # if (type=DEL){start=start+1; end=end;}
+    # if (type=INS){start=start; end=end+1;}
+    # TODO don't do this if an insert
+    position <- as.integer(v[["start"]])+ 1
+
+    ranges <- GRanges(
+      seqnames=Rle(as.character(v[["referenceName"]]), 1),
+      ranges=IRanges(start=position,
+                     end=as.integer(v[["end"]])),
+      REF=DNAStringSet(v[["referenceBases"]]),
+      ALT=DNAStringSetList(v[["alternateBases"]]),
+      QUAL=as.numeric(v[["quality"]]),
+      FILTER=as.character(v[["filter"]]))
+
+    names(ranges) <- as.character(v[["names"]][1])
+
+    ranges
+  }))
+  granges
+}
+
+#' Convert variants to VCF.
+#'
+#' @param variants A list of R objects corresponding to the JSON objects
+#'  returned by the Google Genomics Variants API.
+#' @return VCF
+#' @references VCF
 variantsToVCF <- function(variants) {
   stop("method not yet implemented")
 }

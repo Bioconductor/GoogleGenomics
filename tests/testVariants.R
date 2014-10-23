@@ -18,6 +18,14 @@ testVariants <- function() {
                                       "referenceBases", "alternateBases", "quality",
                                       "filter", "info", "calls"))
 
+  # Get GRanges from the Variants API
+  granges <- getVariants(datasetId="10473108253681171589", chromosome="22",
+                         start=50300077, end=50301500, oneBasedCoord=TRUE,
+                         converter=variantsToGRanges)
+  expect_equal(length(granges), 27)
+  expect_equal(mode(granges), "S4")
+  expect_equal(class(granges)[1], "GRanges")
+
   # Get VRanges from the Variants API
   vranges <- getVariants(datasetId="10473108253681171589", chromosome="22",
               start=50300077, end=50301500, oneBasedCoord=TRUE, converter=variantsToVRanges)

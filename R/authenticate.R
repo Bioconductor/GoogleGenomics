@@ -13,13 +13,14 @@
 # limitations under the License.
 
 .authStore <- new.env()
+.authStore$use_api_key <- FALSE
 
 #' Configure how to authenticate for Google Genomics API.
-#' 
+#'
 #' Follow the sign up instructions at \url{https://developers.google.com/genomics} to download
 #'   the client secrets file, or note the clientId and clientSecret pair.
-#' 
-#' @param file Client secrets file obtained from Google Developer Console. 
+#'
+#' @param file Client secrets file obtained from Google Developer Console.
 #'   If this file is not present, clientId and clientSecret must be provided.
 #' @param clientId Client ID from Google Developer Console.
 #' @param clientSecret Client Secret from Google Developer Console.

@@ -15,6 +15,7 @@ export(plotAlignments)
 
 export(getVariantsPage)
 export(getVariants)
+export(variantsToGRanges)
 export(variantsToVRanges)
 export(variantsToVCF)
 
