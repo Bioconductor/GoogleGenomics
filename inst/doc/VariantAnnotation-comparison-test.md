@@ -64,8 +64,8 @@ The file `chr22.vcf.gz` within package VariantAnnotation holds data for 5 of the
 ### Google Genomics Data
 
 Important data differences to note:
- 1 VCF data is 1-based but data from the GA4GH APIs is 0-based, for more information see (https://www.biostars.org/p/84686/)
- 1 There are two variants in the Google Genomics copy of 1,000 Genomes phase 1 variants that are not in `chr22.vcf.gz`.  They are the only two variants within the genomic range tiwh `ALT == <DEL>`.
+* VCF data is 1-based but data from the GA4GH APIs is 0-based, for more information see (https://www.biostars.org/p/84686/)
+* There are two variants in the Google Genomics copy of 1,000 Genomes phase 1 variants that are not in `chr22.vcf.gz`.  They are the only two variants within the genomic range with `ALT == <DEL>`.
 
 
 ```r
@@ -99,7 +99,7 @@ granges <- getVariants(datasetId="10473108253681171589",
 
 ```
 ##    user  system elapsed 
-##   6.161   0.194  13.489
+##   6.074   0.225  12.256
 ```
 
 ### Compare the Loaded Data
@@ -122,27 +122,6 @@ Now locate the protein coding variants in each:
 
 ```r
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-```
-
-```
-## Loading required package: GenomicFeatures
-## Loading required package: AnnotationDbi
-## Loading required package: Biobase
-## Welcome to Bioconductor
-## 
-##     Vignettes contain introductory material; view with
-##     'browseVignettes()'. To cite Bioconductor, see
-##     'citation("Biobase")', and for packages 'citation("pkgname")'.
-## 
-## 
-## Attaching package: 'AnnotationDbi'
-## 
-## The following object is masked from 'package:GenomeInfoDb':
-## 
-##     species
-```
-
-```r
 txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
 
 vcf <- renameSeqlevels(vcf, c("22"="chr22"))
@@ -232,14 +211,6 @@ And predict the effect of the protein coding variants:
 
 ```r
 library(BSgenome.Hsapiens.UCSC.hg19)
-```
-
-```
-## Loading required package: BSgenome
-## Loading required package: rtracklayer
-```
-
-```r
 vcf_coding <- predictCoding(vcf, txdb, seqSource=Hsapiens)
 vcf_coding
 ```
@@ -371,6 +342,52 @@ expect_equal(granges_coding$GENEID, vcf_coding$GENEID)
 expect_equal(granges_coding$CONSEQUENCE, vcf_coding$CONSEQUENCE)
 ```
 
+Add gene information:
+
+```r
+require('org.Hs.eg.db')
+annots <- select(org.Hs.eg.db,
+                 keys=granges_coding$GENEID,
+                 keytype="ENTREZID",
+                 columns=c("SYMBOL", "GENENAME","ENSEMBL"))
+cbind(elementMetadata(granges_coding), annots)
+```
+
+```
+##   REF ALT QUAL FILTER varAllele CDSLOC.start CDSLOC.end CDSLOC.width
+## 1   G   A  100   PASS         T          939        939            1
+## 2   T   C  100   PASS         G          885        885            1
+## 3   C   T  100   PASS         A          873        873            1
+## 4   G   A  100   PASS         T          867        867            1
+## 5   C   T  100   PASS         A          777        777            1
+## 6   C   T  100   PASS         A          698        698            1
+## 7   C   G  100   PASS         C          665        665            1
+##   CDSLOC.names PROTEINLOC QUERYID  TXID  CDSID GENEID   CONSEQUENCE
+## 1  rs114335781        313      24 75253 218562  79087    synonymous
+## 2    rs8135963        295      25 75253 218562  79087    synonymous
+## 3  rs200080075        291      26 75253 218562  79087    synonymous
+## 4  rs147801200        289      27 75253 218562  79087    synonymous
+## 5  rs138060012        259      28 75253 218562  79087    synonymous
+## 6  rs114264124        233      57 75253 218563  79087 nonsynonymous
+## 7  rs149209714        222      58 75253 218563  79087 nonsynonymous
+##   REFCODON VARCODON REFAA VARAA ENTREZID SYMBOL
+## 1      ATC      ATT     I     I    79087  ALG12
+## 2      GCA      GCG     A     A    79087  ALG12
+## 3      CCG      CCA     P     P    79087  ALG12
+## 4      CAC      CAT     H     H    79087  ALG12
+## 5      CCG      CCA     P     P    79087  ALG12
+## 6      CGG      CAG     R     Q    79087  ALG12
+## 7      GGA      GCA     G     A    79087  ALG12
+##                               GENENAME         ENSEMBL
+## 1 ALG12, alpha-1,6-mannosyltransferase ENSG00000182858
+## 2 ALG12, alpha-1,6-mannosyltransferase ENSG00000182858
+## 3 ALG12, alpha-1,6-mannosyltransferase ENSG00000182858
+## 4 ALG12, alpha-1,6-mannosyltransferase ENSG00000182858
+## 5 ALG12, alpha-1,6-mannosyltransferase ENSG00000182858
+## 6 ALG12, alpha-1,6-mannosyltransferase ENSG00000182858
+## 7 ALG12, alpha-1,6-mannosyltransferase ENSG00000182858
+```
+
 ### Provenance
 Package versions used:
 
@@ -390,47 +407,50 @@ sessionInfo()
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] BSgenome.Hsapiens.UCSC.hg19_1.3.99     
-##  [2] BSgenome_1.34.0                        
-##  [3] rtracklayer_1.26.1                     
-##  [4] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
-##  [5] GenomicFeatures_1.18.1                 
-##  [6] AnnotationDbi_1.28.0                   
-##  [7] Biobase_2.26.0                         
-##  [8] knitr_1.7                              
-##  [9] testthat_0.9.1                         
-## [10] GoogleGenomics_0.1.0                   
-## [11] VariantAnnotation_1.12.1               
-## [12] GenomicAlignments_1.2.0                
-## [13] Rsamtools_1.18.0                       
-## [14] Biostrings_2.34.0                      
-## [15] XVector_0.6.0                          
-## [16] GenomicRanges_1.18.1                   
-## [17] GenomeInfoDb_1.2.0                     
-## [18] IRanges_2.0.0                          
-## [19] S4Vectors_0.4.0                        
-## [20] BiocGenerics_0.12.0                    
+##  [1] org.Hs.eg.db_3.0.0                     
+##  [2] RSQLite_0.11.4                         
+##  [3] DBI_0.3.1                              
+##  [4] BSgenome.Hsapiens.UCSC.hg19_1.3.99     
+##  [5] BSgenome_1.34.0                        
+##  [6] rtracklayer_1.26.1                     
+##  [7] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
+##  [8] GenomicFeatures_1.18.1                 
+##  [9] AnnotationDbi_1.28.0                   
+## [10] Biobase_2.26.0                         
+## [11] knitr_1.7                              
+## [12] testthat_0.9.1                         
+## [13] GoogleGenomics_0.1.0                   
+## [14] VariantAnnotation_1.12.1               
+## [15] GenomicAlignments_1.2.0                
+## [16] Rsamtools_1.18.0                       
+## [17] Biostrings_2.34.0                      
+## [18] XVector_0.6.0                          
+## [19] GenomicRanges_1.18.1                   
+## [20] GenomeInfoDb_1.2.0                     
+## [21] IRanges_2.0.0                          
+## [22] S4Vectors_0.4.0                        
+## [23] BiocGenerics_0.12.0                    
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] acepack_1.3-3.3     base64enc_0.1-2     BatchJobs_1.4      
 ##  [4] BBmisc_1.7          BiocParallel_1.0.0  biomaRt_2.22.0     
 ##  [7] biovizBase_1.14.0   bitops_1.0-6        brew_1.0-6         
 ## [10] checkmate_1.5.0     cluster_1.15.3      codetools_0.2-9    
-## [13] colorspace_1.2-4    DBI_0.3.1           dichromat_2.0-0    
-## [16] digest_0.6.4        evaluate_0.5.5      fail_1.2           
-## [19] foreach_1.4.2       foreign_0.8-61      formatR_1.0        
-## [22] Formula_1.1-2       GGally_0.4.8        ggbio_1.14.0       
-## [25] ggplot2_1.0.0       graph_1.44.0        grid_3.1.1         
-## [28] gridExtra_0.9.1     gtable_0.1.2        Hmisc_3.14-5       
+## [13] colorspace_1.2-4    dichromat_2.0-0     digest_0.6.4       
+## [16] evaluate_0.5.5      fail_1.2            foreach_1.4.2      
+## [19] foreign_0.8-61      formatR_1.0         Formula_1.1-2      
+## [22] GGally_0.4.8        ggbio_1.14.0        ggplot2_1.0.0      
+## [25] graph_1.44.0        grid_3.1.1          gridExtra_0.9.1    
+## [28] gtable_0.1.2        Hmisc_3.14-5        htmltools_0.2.6    
 ## [31] httr_0.5            iterators_1.0.7     jsonlite_0.9.13    
 ## [34] lattice_0.20-29     latticeExtra_0.6-26 MASS_7.3-35        
 ## [37] munsell_0.4.2       nnet_7.3-8          OrganismDbi_1.8.0  
 ## [40] plyr_1.8.1          proto_0.3-10        RBGL_1.42.0        
 ## [43] RColorBrewer_1.0-5  Rcpp_0.11.3         RCurl_1.95-4.3     
 ## [46] reshape_0.8.5       reshape2_1.4        rjson_0.2.14       
-## [49] rpart_4.1-8         RSQLite_0.11.4      scales_0.2.4       
+## [49] rmarkdown_0.3.3     rpart_4.1-8         scales_0.2.4       
 ## [52] sendmailR_1.2-1     splines_3.1.1       stringr_0.6.2      
 ## [55] survival_2.37-7     tools_3.1.1         XML_3.98-1.1       
-## [58] zlibbioc_1.12.0
+## [58] yaml_2.1.13         zlibbioc_1.12.0
 ```
 
