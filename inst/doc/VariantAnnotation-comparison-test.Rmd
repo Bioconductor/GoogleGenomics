@@ -23,7 +23,7 @@ The file `chr22.vcf.gz` within package VariantAnnotation holds data for 5 of the
 ### Google Genomics Data
 
 Important data differences to note:
-* VCF data is 1-based but data from the GA4GH APIs is 0-based, for more information see (https://www.biostars.org/p/84686/)
+* VCF data uses 1-based coordinates but data from the GA4GH APIs is 0-based.
 * There are two variants in the Google Genomics copy of 1,000 Genomes phase 1 variants that are not in `chr22.vcf.gz`.  They are the only two variants within the genomic range with `ALT == <DEL>`.
 
 ```{r}

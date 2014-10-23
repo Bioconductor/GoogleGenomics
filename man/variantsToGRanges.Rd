@@ -13,7 +13,7 @@ returned by the Google Genomics Variants API.}
 GRanges
 }
 \description{
-Convert variants to GRanges.
+Note that genomic coordinates are converted from 0-based to 1-based.
 }
 \references{
 GRanges

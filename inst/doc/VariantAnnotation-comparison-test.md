@@ -64,7 +64,7 @@ The file `chr22.vcf.gz` within package VariantAnnotation holds data for 5 of the
 ### Google Genomics Data
 
 Important data differences to note:
-* VCF data is 1-based but data from the GA4GH APIs is 0-based, for more information see (https://www.biostars.org/p/84686/)
+* VCF data uses 1-based coordinates but data from the GA4GH APIs is 0-based.
 * There are two variants in the Google Genomics copy of 1,000 Genomes phase 1 variants that are not in `chr22.vcf.gz`.  They are the only two variants within the genomic range with `ALT == <DEL>`.
 
 
@@ -84,6 +84,7 @@ granges <- getVariants(datasetId="10473108253681171589",
 
 ```
 ## Fetching variant page
+## Auto-refreshing stale OAuth token.
 ## Parsing variant page
 ## Continuing variant query with the nextPageToken: CPmR_hcQl5DAzMmGoeht
 ## Fetching variant page
@@ -99,7 +100,7 @@ granges <- getVariants(datasetId="10473108253681171589",
 
 ```
 ##    user  system elapsed 
-##   6.074   0.225  12.256
+##   5.387   0.242  11.114
 ```
 
 ### Compare the Loaded Data

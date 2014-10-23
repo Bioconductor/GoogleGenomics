@@ -46,10 +46,6 @@ getVariantsPage <- function(datasetId="10473108253681171589",
                             pageToken=NULL) {
 
   if(TRUE == oneBasedCoord) {
-    # Pseudo-code to convert variants from 1-based coordinates to 0-based coordinates:
-    # if (type=SNV){start=start-1; end=end;}
-    # if (type=DEL){start=start-1; end=end;}
-    # if (type=INS){start=start; end=end-1;}
     start <- start - 1
   }
 
@@ -145,6 +141,8 @@ getVariants <- function(datasetId="10473108253681171589",
 
 #' Convert variants to VRanges.
 #'
+#' Note that genomic coordinates are converted from 0-based to 1-based.
+#'
 #' @param variants A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Variants API.
 #' @return VRanges
@@ -155,12 +153,9 @@ variantsToVRanges <- function(variants) {
   }
 
   vranges <- do.call("c", lapply(variants, function(v) {
-    # Pseudo-code to convert variants from 0-based coordinates to 1-based coordinates:
-    # if (type=SNV){start=start+1; end=end;}
-    # if (type=DEL){start=start+1; end=end;}
-    # if (type=INS){start=start; end=end+1;}
-    # TODO don't do this if an insert
-    position <- as.integer(v[["start"]])+ 1
+    # Convert variants from 0-based coordinates to 1-based coordinates for
+    # use with BioConductor.
+    position <- as.integer(v[["start"]]) + 1
 
     ranges <- VRanges(
       seqnames=Rle(as.character(v[["referenceName"]]), 1),
@@ -180,6 +175,8 @@ variantsToVRanges <- function(variants) {
 
 #' Convert variants to GRanges.
 #'
+#' Note that genomic coordinates are converted from 0-based to 1-based.
+#'
 #' @param variants A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Variants API.
 #' @return GRanges
@@ -190,12 +187,9 @@ variantsToGRanges <- function(variants) {
   }
 
   granges <- do.call("c", lapply(variants, function(v) {
-    # Pseudo-code to convert variants from 0-based coordinates to 1-based coordinates:
-    # if (type=SNV){start=start+1; end=end;}
-    # if (type=DEL){start=start+1; end=end;}
-    # if (type=INS){start=start; end=end+1;}
-    # TODO don't do this if an insert
-    position <- as.integer(v[["start"]])+ 1
+    # Convert variants from 0-based coordinates to 1-based coordinates for
+    # use with BioConductor.
+    position <- as.integer(v[["start"]]) + 1
 
     ranges <- GRanges(
       seqnames=Rle(as.character(v[["referenceName"]]), 1),

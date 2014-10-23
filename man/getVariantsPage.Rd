@@ -24,11 +24,13 @@ return all fields.}
 \item{pageToken}{The page token. This can be NULL (default) for the first page.}
 }
 \value{
-a two-element list
-    variants: a list of R objects corresponding to the JSON objects returned
-              by the Google Genomics Variants API
-    nextPageToken: the token to be used to retrieve the next page of
-                   results, if applicable
+A two-element list is returned by the function.
+
+    variants: A list of R objects corresponding to the JSON objects returned
+              by the Google Genomics Variants API.
+
+    nextPageToken: The token to be used to retrieve the next page of
+                   results, if applicable.
 }
 \description{
 In general, use the getVariants method instead.  It calls this method,
