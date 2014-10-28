@@ -40,5 +40,13 @@ genomic range.
 \details{
 By default, this function gets variants from a small section of 1000
 Genomes phase 1 variants.
+
+Note that the Global Alliance for Genomics and Health API uses a 0-based
+coordinate system.  For more detail, please see GA4GH discussions such
+as the following:
+\itemize{
+   \item\url{https://github.com/ga4gh/schemas/issues/168}
+   \item\url{https://github.com/ga4gh/schemas/issues/121}
+}
 }
 

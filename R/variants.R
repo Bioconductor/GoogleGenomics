@@ -21,6 +21,14 @@
 #' By default, this function gets variants from a small section of 1000
 #' Genomes phase 1 variants.
 #'
+#' Note that the Global Alliance for Genomics and Health API uses a 0-based
+#' coordinate system.  For more detail, please see GA4GH discussions such
+#' as the following:
+#' \itemize{
+#'    \item\url{https://github.com/ga4gh/schemas/issues/168}
+#'    \item\url{https://github.com/ga4gh/schemas/issues/121}
+#'}
+#'
 #' @param datasetId The dataset ID.
 #' @param chromosome The chromosome.
 #' @param start Start position on the chromosome.
@@ -52,8 +60,7 @@ getVariantsPage <- function(datasetId="10473108253681171589",
   # Fetch variants from the Genomics API
   body <- list(variantSetIds=list(datasetId), referenceName=chromosome,
                start=start, end=end, pageToken=pageToken)
-  queryConfig <- httr::config()
-  queryParams <- list()
+  queryConfig <- config()
 
   if(is.null(fields)) {
     fields <- "nextPageToken,variants"
@@ -62,28 +69,27 @@ getVariantsPage <- function(datasetId="10473108253681171589",
       fields <- paste(fields, "nextPageToken", sep=",")
     }
   }
-  queryParams <- c(queryParams, fields=fields)
+  queryParams <- list(fields=fields)
 
-  if (GoogleGenomics:::.authStore$use_api_key) {
+  if (.authStore$use_api_key) {
     queryParams <- c(queryParams, key=.authStore$api_key)
   } else {
-    queryConfig <- httr::config(token=GoogleGenomics:::.authStore$google_token)
+    queryConfig <- config(token=.authStore$google_token)
   }
 
   message("Fetching variant page")
-  res <- httr::POST(paste(getOption("google_genomics_endpoint"),
+  res <- POST(paste(getOption("google_genomics_endpoint"),
                           "variants/search", sep=""),
     query=queryParams,
-    body=rjson::toJSON(body),
+    body=toJSON(body),
     queryConfig,
-    httr::add_headers("Content-Type"="application/json"))
-  if("error" %in% names(httr::content(res))) {
-    print(paste("ERROR:", httr::content(res)$error$message))
+    add_headers("Content-Type"="application/json"))
+  if("error" %in% names(content(res))) {
+    print(paste("ERROR:", content(res)$error$message))
   }
-  httr::stop_for_status(res)
+  stop_for_status(res)
 
-  message("Parsing variant page")
-  res_content <- httr::content(res)
+  res_content <- content(res)
   list(variants=res_content$variants, nextPageToken=res_content$nextPageToken)
 }
 
@@ -96,7 +102,17 @@ getVariantsPage <- function(datasetId="10473108253681171589",
 #' Genomes phase 1 variants.
 #'
 #' Optionally pass a converter as appropriate for your use case.  By passing it
-#' to this method, only the converted objects will be accumulated in memory.
+#' to this method, only the converted objects will be accumulated in memory. The
+#' converter function should return an empty container of the desired type
+#' if called without any arguments.
+#'
+#' Note that the Global Alliance for Genomics and Health API uses a 0-based
+#' coordinate system.  For more detail, please see GA4GH discussions such
+#' as the following:
+#' \itemize{
+#'    \item\url{https://github.com/ga4gh/schemas/issues/168}
+#'    \item\url{https://github.com/ga4gh/schemas/issues/121}
+#'}
 #'
 #' @param datasetId The dataset ID.
 #' @param chromosome The chromosome.
@@ -135,6 +151,7 @@ getVariants <- function(datasetId="10473108253681171589",
     }
     message(paste("Continuing variant query with the nextPageToken:", pageToken))
   }
+
   message("Variants are now available")
   variants
 }
@@ -145,8 +162,7 @@ getVariants <- function(datasetId="10473108253681171589",
 #'
 #' @param variants A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Variants API.
-#' @return VRanges
-#' @references VRanges
+#' @return \link[VariantAnnotation]{VRanges}
 variantsToVRanges <- function(variants) {
   if(missing(variants)) {
     return(VRanges())
@@ -155,21 +171,22 @@ variantsToVRanges <- function(variants) {
   vranges <- do.call("c", lapply(variants, function(v) {
     # Convert variants from 0-based coordinates to 1-based coordinates for
     # use with BioConductor.
-    position <- as.integer(v[["start"]]) + 1
+    position <- as.integer(v$start) + 1
 
     ranges <- VRanges(
-      seqnames=Rle(as.character(v[["referenceName"]]), 1),
+      seqnames=Rle(as.character(v$referenceName), 1),
       ranges=IRanges(start=position,
-                     end=as.integer(v[["end"]])),
-      ref=as.character(v[["referenceBases"]]),
-      alt=as.character(v[["alternateBases"]][1]), # TODO flatten per alt
-      qual=as.numeric(v[["quality"]]),
-      filter=as.character(v[["filter"]]))
+                     end=as.integer(v$end)),
+      ref=as.character(v$referenceBases),
+      alt=as.character(v$alternateBases[1]), # TODO flatten per alt
+      qual=as.numeric(v$quality),
+      filter=as.character(v$filter))
 
-    names(ranges) <- as.character(v[["names"]][1])
+    names(ranges) <- as.character(v$names[1])
 
     ranges
   }))
+
   vranges
 }
 
@@ -179,8 +196,7 @@ variantsToVRanges <- function(variants) {
 #'
 #' @param variants A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Variants API.
-#' @return GRanges
-#' @references GRanges
+#' @return \link[GenomicRanges]{GRanges}
 variantsToGRanges <- function(variants) {
   if(missing(variants)) {
     return(GRanges())
@@ -189,21 +205,22 @@ variantsToGRanges <- function(variants) {
   granges <- do.call("c", lapply(variants, function(v) {
     # Convert variants from 0-based coordinates to 1-based coordinates for
     # use with BioConductor.
-    position <- as.integer(v[["start"]]) + 1
+    position <- as.integer(v$start) + 1
 
     ranges <- GRanges(
-      seqnames=Rle(as.character(v[["referenceName"]]), 1),
+      seqnames=Rle(as.character(v$referenceName), 1),
       ranges=IRanges(start=position,
-                     end=as.integer(v[["end"]])),
-      REF=DNAStringSet(v[["referenceBases"]]),
-      ALT=DNAStringSetList(v[["alternateBases"]]),
-      QUAL=as.numeric(v[["quality"]]),
-      FILTER=as.character(v[["filter"]]))
+                     end=as.integer(v$end)),
+      REF=DNAStringSet(v$referenceBases),
+      ALT=DNAStringSetList(v$alternateBases),
+      QUAL=as.numeric(v$quality),
+      FILTER=as.character(v$filter))
 
-    names(ranges) <- as.character(v[["names"]][1])
+    names(ranges) <- as.character(v$names[1])
 
     ranges
   }))
+
   granges
 }
 
@@ -211,8 +228,7 @@ variantsToGRanges <- function(variants) {
 #'
 #' @param variants A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Variants API.
-#' @return VCF
-#' @references VCF
+#' @return \link[VariantAnnotation]{VCF}
 variantsToVCF <- function(variants) {
   stop("method not yet implemented")
 }

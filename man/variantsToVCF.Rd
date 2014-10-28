@@ -10,12 +10,9 @@ variantsToVCF(variants)
 returned by the Google Genomics Variants API.}
 }
 \value{
-VCF
+\link[VariantAnnotation]{VCF}
 }
 \description{
 Convert variants to VCF.
-}
-\references{
-VCF
 }
 

@@ -10,12 +10,9 @@ variantsToVRanges(variants)
 returned by the Google Genomics Variants API.}
 }
 \value{
-VRanges
+\link[VariantAnnotation]{VRanges}
 }
 \description{
 Note that genomic coordinates are converted from 0-based to 1-based.
-}
-\references{
-VRanges
 }
 

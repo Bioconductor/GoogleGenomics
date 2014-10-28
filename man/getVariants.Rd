@@ -38,6 +38,16 @@ By default, this function gets variants from a small section of 1000
 Genomes phase 1 variants.
 
 Optionally pass a converter as appropriate for your use case.  By passing it
-to this method, only the converted objects will be accumulated in memory.
+to this method, only the converted objects will be accumulated in memory. The
+converter function should return an empty container of the desired type
+if called without any arguments.
+
+Note that the Global Alliance for Genomics and Health API uses a 0-based
+coordinate system.  For more detail, please see GA4GH discussions such
+as the following:
+\itemize{
+   \item\url{https://github.com/ga4gh/schemas/issues/168}
+   \item\url{https://github.com/ga4gh/schemas/issues/121}
+}
 }
 
