@@ -12,6 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+.onLoad <- function(libname, pkgname) {
+  currentOptions <- options()
+  defaultOptions <- list(
+    google_genomics_endpoint="https://www.googleapis.com/genomics/v1beta/"
+  )
+  toset <- !(names(defaultOptions) %in% names(currentOptions))
+  if(any(toset)) options(defaultOptions[toset])
+
+  invisible()
+}
+
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage(paste0(pkgname, ": Do not forget to authenticate.\n",
     "\tUse ", pkgname, "::authenticate(file=\"secretsFile.json\").\n",

@@ -2,31 +2,56 @@
 # This test is only run if there is an environment variable called API_KEY_SERVER containing the public API key.
 
 library(GoogleGenomics)
+library(testthat)
 
 testVariants <- function() {
   authenticate(apiKey=apiKey)
-  
-  # Get variants data from API
-  getVariantData(datasetId="10473108253681171589", chromosome="22", start=50300077, end=50300187)
-  variantData <- variantStore$variantdata
-  hg96Rows <- which(sampleNames(variantData) == "HG00096")
-  variantData <- renameSeqlevels(variantData[hg96Rows], c("22"="chr22"))
-  
+
+  # Get raw variants from Variants API
+  variants <- getVariants(datasetId="10473108253681171589", chromosome="22",
+                          start=50300077, end=50301500, oneBasedCoord=TRUE)
+  expect_equal(length(variants), 27)
+  expect_equal(mode(variants), "list")
+  expect_equal(class(variants)[1], "list")
+  expect_equal(names(variants[[1]]), c("variantSetId", "id", "names", "created",
+                                      "referenceName", "start", "end",
+                                      "referenceBases", "alternateBases", "quality",
+                                      "filter", "info", "calls"))
+
+  # Get GRanges from the Variants API
+  granges <- getVariants(datasetId="10473108253681171589", chromosome="22",
+                         start=50300077, end=50301500, oneBasedCoord=TRUE,
+                         converter=variantsToGRanges)
+  expect_equal(length(granges), 27)
+  expect_equal(mode(granges), "S4")
+  expect_equal(class(granges)[1], "GRanges")
+
+  # Get VRanges from the Variants API
+  vranges <- getVariants(datasetId="10473108253681171589", chromosome="22",
+              start=50300077, end=50301500, oneBasedCoord=TRUE, converter=variantsToVRanges)
+  expect_equal(length(vranges), 27)
+  expect_equal(mode(vranges), "S4")
+  expect_equal(class(vranges)[1], "VRanges")
+
+  # Get VCF from the variants API [not yet implemented]
+  expect_error(getVariants(datasetId="10473108253681171589", chromosome="22",
+                           start=50300077, end=50301500, oneBasedCoord=TRUE,
+                           converter=variantsToVCF))
+
   # Get variants data from VariantAnnotation package
   fl <- system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
-  vcf <- readVcf(fl, "hg96")
-  variantDataReference <- as(vcf, "VRanges")[1:length(variantData)]
-  
+  vcf <- readVcf(fl, "hg19")
+  variantsReference <- as(vcf, "VRanges")[1:length(variants)]
+
   # Check start positions.
-  # variantData has 0-based indices and variantDataReference has 1-based indices.
-  testthat::expect_equal(start(variantData) + 1, start(variantDataReference))
-  
+  expect_equal(start(vranges), start(variantsReference))
+
   # Check reference alleles.
-  testthat::expect_equal(ref(variantData), ref(variantDataReference))
-  
+  expect_equal(ref(vranges), ref(variantsReference))
+
   # Check alternative allele after coercion from RLE.
-  testthat::expect_equal(as.character(alt(variantData)), as.character(alt(variantDataReference)))
-  
+  expect_equal(as.character(alt(vranges)), as.character(alt(variantsReference)))
+
   message("Variants tests pass.")
 }
 

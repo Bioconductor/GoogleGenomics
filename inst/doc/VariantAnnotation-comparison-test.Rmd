@@ -1,0 +1,111 @@
+
+Reproducing Variant Annotation Results
+---------------------------------------
+
+Below we compare the results of annotating variants via the [VariantAnnotation](http://www.bioconductor.org/packages/release/bioc/html/VariantAnnotation.html)  [BioConductor](http://www.bioconductor.org/) package.  We compare using data from 1,000 Genomes Phase 1 Variants:
+* as parsed from a VCF file
+* retrieved from the Google Genomics API
+
+### VCF Data
+
+First we read in the data from the VCF file:
+```{r}
+require(VariantAnnotation)
+fl <- system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
+vcf <- readVcf(fl, "hg19")
+vcf
+```
+
+The file `chr22.vcf.gz` within package VariantAnnotation holds data for 5 of the 1,092 individuals in 1,000 Genomes, starting at position 50300078 and ending at position 50999964.
+
+`HG00096 HG00097 HG00099 HG00100 HG00101`
+
+### Google Genomics Data
+
+Important data differences to note:
+* VCF data uses 1-based coordinates but data from the GA4GH APIs is 0-based.
+* There are two variants in the Google Genomics copy of 1,000 Genomes phase 1 variants that are not in `chr22.vcf.gz`.  They are the only two variants within the genomic range with `ALT == <DEL>`.
+
+```{r}
+require(GoogleGenomics)
+
+# TODO Right now we're just getting a few variants.  Later update this to retrieve them all.
+system.time({
+granges <- getVariants(datasetId="10473108253681171589",
+                       chromosome="22",
+                       start=50300078,
+                       end=50303000,         # TODO end=50999964
+                       oneBasedCoord=TRUE,
+                       converter=variantsToGRanges)
+})
+```
+
+### Compare the Loaded Data
+Ensure that the data retrieved by each matches:
+```{r}
+vcf <- vcf[1:length(granges)] # Truncate the VCF data
+
+require(testthat)
+expect_equal(start(granges), start(vcf))
+expect_equal(end(granges), end(vcf))
+expect_equal(as.character(granges$REF), as.character(ref(vcf)))
+expect_equal(as.character(unlist(granges$ALT)), as.character(unlist(alt(vcf))))
+expect_equal(granges$QUAL, qual(vcf))
+expect_equal(granges$FILTER, filt(vcf))
+```
+
+### Compare the Annotations
+Now locate the protein coding variants in each:
+```{r}
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+
+vcf <- renameSeqlevels(vcf, c("22"="chr22"))
+granges <- renameSeqlevels(granges, c("22"="chr22"))
+
+rd <- rowData(vcf)
+vcf_locations <- locateVariants(rd, txdb, CodingVariants())
+vcf_locations
+
+granges_locations <- locateVariants(granges, txdb, CodingVariants())
+granges_locations
+
+expect_equal(granges_locations, vcf_locations)
+```
+
+And predict the effect of the protein coding variants:
+```{r}
+library(BSgenome.Hsapiens.UCSC.hg19)
+vcf_coding <- predictCoding(vcf, txdb, seqSource=Hsapiens)
+vcf_coding
+
+granges_coding <- predictCoding(rep(granges, elementLengths(granges$ALT)),
+                                txdb,
+                                seqSource=Hsapiens,
+                                varAllele=unlist(granges$ALT, use.names=FALSE))
+
+granges_coding
+
+expect_equal(as.matrix(granges_coding$REFCODON), as.matrix(vcf_coding$REFCODON))
+expect_equal(as.matrix(granges_coding$VARCODON), as.matrix(vcf_coding$VARCODON))
+expect_equal(granges_coding$GENEID, vcf_coding$GENEID)
+expect_equal(granges_coding$CONSEQUENCE, vcf_coding$CONSEQUENCE)
+
+```
+
+Add gene information:
+```{r}
+require('org.Hs.eg.db')
+annots <- select(org.Hs.eg.db,
+                 keys=granges_coding$GENEID,
+                 keytype="ENTREZID",
+                 columns=c("SYMBOL", "GENENAME","ENSEMBL"))
+cbind(elementMetadata(granges_coding), annots)
+```
+
+### Provenance
+Package versions used:
+```{r}
+sessionInfo()
+```
+
