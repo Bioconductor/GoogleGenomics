@@ -21,9 +21,9 @@ getReadData(chromosome = "chr19", start = 45411941, end = 45412079,
 \item{endpoint}{The Google API endpoint. You should not be changing this.}
 
 \item{pageToken}{The page token. This can be NULL (default) for the first page.}
-}
 
 \item{slStyle}{Seqnames ('N', 'chrN', etc.) style.  Default is 'UCSC'.}
+}
 \description{
 By default, this function encompasses 2 chromosome positions which relate to ApoE
 (http://www.snpedia.com/index.php/Rs429358 and http://www.snpedia.com/index.php/Rs7412)
