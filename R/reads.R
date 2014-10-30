@@ -12,83 +12,130 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Read Store.
+#' Get one page of reads from Google Genomics.
 #'
-#' Environment where the most recently read alignments and reads are stored.
-#'   Reads can be accessed by \code{readStore$reads}.
-#'   Alignments can be accessed by \code{readStore$alignments}.
+#' In general, use the getReads method instead.  It calls this method,
+#' returning reads from all of the pages that comprise the requested
+#' genomic range.
 #'
-#' @format An R environment.
-readStore <- new.env()
-
-#' Get reads data from Google Genomics.
+#' By default, this function gets reads for a small genomic region for one
+#' sample in 1,000 Genomes.
 #'
-#' By default, this function encompasses 2 chromosome positions which relate to ApoE
-#' (http://www.snpedia.com/index.php/Rs429358 and http://www.snpedia.com/index.php/Rs7412)
+#' Note that the Global Alliance for Genomics and Health API uses a 0-based
+#' coordinate system.  For more detail, please see GA4GH discussions such
+#' as the following:
+#' \itemize{
+#'    \item\url{https://github.com/ga4gh/schemas/issues/168}
+#'    \item\url{https://github.com/ga4gh/schemas/issues/121}
+#'}
 #'
+#' @param readsetId The readset ID.
 #' @param chromosome The chromosome.
 #' @param start Start position on the chromosome.
 #' @param end End position on the chromosome.
-#' @param readsetId The readset ID.
-#' @param endpoint The Google API endpoint. You should not be changing this.
+#' @param fields A subset of fields to retrieve.  The default (NULL) will
+#'      return all fields.
 #' @param pageToken The page token. This can be NULL (default) for the first page.
+#' @return A two-element list is returned by the function.
+#'
+#'     reads: A list of R objects corresponding to the JSON objects returned
+#'               by the Google Genomics Variants API.
+#'
+#'     nextPageToken: The token to be used to retrieve the next page of
+#'                    results, if applicable.
 #' @export
-getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
-  readsetId="CJ_ppJ-WCxDxrtDr5fGIhBA=", endpoint="https://www.googleapis.com/genomics/v1beta/",
-  pageToken=NULL) {
+getReadsPage <- function(readsetId="CMvnhpKTFhDnk4_9zcKO3_YB",
+                         chromosome="22",
+                         start=16051400,
+                         end=16051500,
+                         fields=NULL,
+                         pageToken=NULL) {
 
-  # Fetch data from the Genomics API
-  body <- list(readsetIds=list(readsetId), sequenceName=chromosome, sequenceStart=start,
-    sequenceEnd=end, pageToken=pageToken)
+  body <- list(readsetIds=list(readsetId), sequenceName=chromosome,
+               sequenceStart=start, sequenceEnd=end, pageToken=pageToken)
 
-  message("Fetching read data page")
+  results <- getSearchPage("reads", body, fields, pageToken)
 
-  queryParams <- list(fields="nextPageToken,reads(name,cigar,position,originalBases,flags)")
-  queryConfig <- config()
-  if (.authStore$use_api_key) {
-    queryParams <- c(queryParams, key=.authStore$api_key)
-  } else {
-    queryConfig <- config(token=.authStore$google_token)
+  list(reads=results$reads, nextPageToken=results$nextPageToken)
+}
+
+#' Get reads from Google Genomics.
+#'
+#' This function will return all of the reads that comprise the requested
+#' genomic range, iterating over paginated results as necessary.
+#'
+#' By default, this function gets reads for a small genomic region for one
+#' sample in 1,000 Genomes.
+#'
+#' Optionally pass a converter as appropriate for your use case.  By passing it
+#' to this method, only the converted objects will be accumulated in memory. The
+#' converter function should return an empty container of the desired type
+#' if called without any arguments.
+#'
+#' @param readsetId The readset ID.
+#' @param chromosome The chromosome.
+#' @param start Start position on the chromosome.
+#' @param end End position on the chromosome.
+#' @param fields A subset of fields to retrieve.  The default (NULL) will
+#'               return all fields.
+#' @param converter A function that takes a list of read R objects and returns
+#'                  them converted to the desired type.
+#' @return By default, the return value is a list of R objects
+#' corresponding to the JSON objects returned by the Google Genomics
+#' Reads API.  If a converter is passed, object(s) of the type
+#' returned by the converter will be returned by this function.
+#' @export
+getReads <- function(readsetId="CMvnhpKTFhDnk4_9zcKO3_YB",
+                     chromosome="22",
+                     start=16051400,
+                     end=16051500,
+                     fields=NULL,
+                     converter=c) {
+  pageToken <- NULL
+  reads <- converter()
+  repeat {
+    result <- getReadsPage(readsetId=readsetId,
+                           chromosome=chromosome,
+                           start=start,
+                           end=end,
+                           fields=fields,
+                           pageToken=pageToken)
+    pageToken <- result$nextPageToken
+    reads <- c(reads, converter(result$reads))
+    if(is.null(pageToken)) {
+      break
+    }
+    message(paste("Continuing read query with the nextPageToken:", pageToken))
   }
-  res <- POST(paste(endpoint, "reads/search", sep=""),
-    query=queryParams,
-    body=rjson::toJSON(body), queryConfig,
-    add_headers("Content-Type"="application/json"))
-  if("error" %in% names(httr::content(res))) {
-    print(paste("ERROR:", httr::content(res)$error$message))
-  }
-  stop_for_status(res)
 
-  message("Parsing read data page")
-  res_content <- httr::content(res)
-  readStore$reads <- res_content$reads
+  message("Reads are now available")
+  reads
+}
+
+
+#' Convert reads to GAlignments.
+#'
+#' @param reads A list of R objects corresponding to the JSON objects
+#'  returned by the Google Genomics Variants API.
+#' @return \link[GAlignments]{GAlignments}
+#' @export
+readsToGAlignments <- function(reads) {
+  if(missing(reads)) {
+    return(GAlignments())
+  }
 
   # Transform the Genomics API data into a GAlignments object
-  names = sapply(readStore$reads, '[[', 'name')
-  cigars = sapply(readStore$reads, '[[', 'cigar')
-  positions = as.integer(sapply(readStore$reads, '[[', 'position'))
-  flags = sapply(readStore$reads, '[[', 'flags')
+  names = sapply(reads, '[[', 'name')
+  cigars = sapply(reads, '[[', 'cigar')
+  positions = as.integer(sapply(reads, '[[', 'position'))
+  flags = sapply(reads, '[[', 'flags')
+  chromosomes = sapply(reads, '[[', 'referenceSequenceName')
 
   isMinusStrand = bamFlagAsBitMatrix(as.integer(flags), bitnames="isMinusStrand")
   total_reads = length(positions)
 
-  if (is.null(pageToken)) {
-    # If this is the first getReadData request, clear out any existing alignments
-    # Otherwise we will append our data to what we've retrieved before
-    readStore$alignments <- NULL
-  }
-
-  readStore$alignments <- c(GAlignments(
-    seqnames=Rle(c(chromosome), c(total_reads)),
+  GAlignments(
+    seqnames=Rle(chromosomes),
     strand=strand(as.vector(ifelse(isMinusStrand, '-', '+'))),
-    pos=positions, cigar=cigars, names=names, flag=flags), readStore$alignments)
-
-  if (!is.null(res_content$nextPageToken)) {
-    message(paste("Continuing read query with the nextPageToken:", res_content$nextPageToken))
-    getReadData(chromosome=chromosome, start=start, end=end, readsetId=readsetId,
-      endpoint=endpoint, pageToken=res_content$nextPageToken)
-  } else {
-    message("Read data is now available")
-  }
-  readStore$alignments
+    pos=positions, cigar=cigars, names=names, flag=flags)
 }

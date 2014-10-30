@@ -57,40 +57,12 @@ getVariantsPage <- function(datasetId="10473108253681171589",
     start <- start - 1
   }
 
-  # Fetch variants from the Genomics API
   body <- list(variantSetIds=list(datasetId), referenceName=chromosome,
                start=start, end=end, pageToken=pageToken)
-  queryConfig <- config()
 
-  if(is.null(fields)) {
-    fields <- "nextPageToken,variants"
-  } else {
-    if(!grepl("nextPageToken", fields)) {
-      fields <- paste(fields, "nextPageToken", sep=",")
-    }
-  }
-  queryParams <- list(fields=fields)
+  results <- getSearchPage("variants", body, fields, pageToken)
 
-  if (.authStore$use_api_key) {
-    queryParams <- c(queryParams, key=.authStore$api_key)
-  } else {
-    queryConfig <- config(token=.authStore$google_token)
-  }
-
-  message("Fetching variant page")
-  res <- POST(paste(getOption("google_genomics_endpoint"),
-                          "variants/search", sep=""),
-    query=queryParams,
-    body=toJSON(body),
-    queryConfig,
-    add_headers("Content-Type"="application/json"))
-  if("error" %in% names(content(res))) {
-    print(paste("ERROR:", content(res)$error$message))
-  }
-  stop_for_status(res)
-
-  res_content <- content(res)
-  list(variants=res_content$variants, nextPageToken=res_content$nextPageToken)
+  list(variants=results$variants, nextPageToken=results$nextPageToken)
 }
 
 #' Get variants from Google Genomics.
@@ -123,9 +95,10 @@ getVariantsPage <- function(datasetId="10473108253681171589",
 #'               return all fields.
 #' @param converter A function that takes a list of variant R objects and returns
 #'                  them converted to the desired type.
-#' @return By default, the return value is a list of R objects corresponding to the JSON objects
-#'  returned by the Google Genomics Variants API.  If a converter is passed,
-#'  object(s) of the type returned by the converter will be returned by this function.
+#' @return By default, the return value is a list of R objects
+#' corresponding to the JSON objects returned by the Google Genomics
+#' Variants API.  If a converter is passed, object(s) of the type
+#' returned by the converter will be returned by this function.
 #' @export
 getVariants <- function(datasetId="10473108253681171589",
                         chromosome="22",
@@ -163,6 +136,7 @@ getVariants <- function(datasetId="10473108253681171589",
 #' @param variants A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Variants API.
 #' @return \link[VariantAnnotation]{VRanges}
+#' @export
 variantsToVRanges <- function(variants) {
   if(missing(variants)) {
     return(VRanges())
@@ -197,6 +171,7 @@ variantsToVRanges <- function(variants) {
 #' @param variants A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Variants API.
 #' @return \link[GenomicRanges]{GRanges}
+#' @export
 variantsToGRanges <- function(variants) {
   if(missing(variants)) {
     return(GRanges())
@@ -229,6 +204,7 @@ variantsToGRanges <- function(variants) {
 #' @param variants A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Variants API.
 #' @return \link[VariantAnnotation]{VCF}
+#' @export
 variantsToVCF <- function(variants) {
   stop("method not yet implemented")
 }

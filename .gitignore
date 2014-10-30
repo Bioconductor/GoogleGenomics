@@ -5,3 +5,6 @@
 .httr-oauth
 shiny/shinyapps
 .Rproj.user
+*.Rproj
+*.html
+*.tex
