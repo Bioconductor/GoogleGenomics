@@ -3,11 +3,12 @@
 \alias{variantsToGRanges}
 \title{Convert variants to GRanges.}
 \usage{
-variantsToGRanges(variants)
+variantsToGRanges(variants, slStyle='UCSC')
 }
 \arguments{
 \item{variants}{A list of R objects corresponding to the JSON objects
 returned by the Google Genomics Variants API.}
+\item{slStyle}{Seqnames ('N', 'chrN', etc.) style.  Default is 'UCSC'.}
 }
 \value{
 \link[GenomicRanges]{GRanges}
@@ -15,4 +16,3 @@ returned by the Google Genomics Variants API.}
 \description{
 Note that genomic coordinates are converted from 0-based to 1-based.
 }
-

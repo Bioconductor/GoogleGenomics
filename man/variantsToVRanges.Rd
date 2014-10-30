@@ -3,11 +3,12 @@
 \alias{variantsToVRanges}
 \title{Convert variants to VRanges.}
 \usage{
-variantsToVRanges(variants)
+variantsToVRanges(variants, slStyle='UCSC')
 }
 \arguments{
 \item{variants}{A list of R objects corresponding to the JSON objects
 returned by the Google Genomics Variants API.}
+\item{slStyle}{Seqnames ('N', 'chrN', etc.) style.  Default is 'UCSC'.}
 }
 \value{
 \link[VariantAnnotation]{VRanges}
