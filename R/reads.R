@@ -118,9 +118,11 @@ getReads <- function(readsetId="CMvnhpKTFhDnk4_9zcKO3_YB",
 #'
 #' @param reads A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Variants API.
+#' @param slStyle The style for seqnames (chrN or N or...).  Default is UCSC.
 #' @return \link[GAlignments]{GAlignments}
 #' @export
-readsToGAlignments <- function(reads) {
+readsToGAlignments <- function(reads, slStyle='UCSC') {
+
   if(missing(reads)) {
     return(GAlignments())
   }
@@ -139,4 +141,7 @@ readsToGAlignments <- function(reads) {
     seqnames=Rle(chromosomes),
     strand=strand(as.vector(ifelse(isMinusStrand, '-', '+'))),
     pos=positions, cigar=cigars, names=names, flag=flags)
+
+  seqlevelsStyle(alignments) <- slStyle
+  alignments
 }
