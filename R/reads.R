@@ -32,10 +32,11 @@ readStore <- new.env()
 #' @param readsetId The readset ID.
 #' @param endpoint The Google API endpoint. You should not be changing this.
 #' @param pageToken The page token. This can be NULL (default) for the first page.
+#' @param slStyle The style for seqnames (chrN or N or...).  Default is UCSC.
 #' @export
 getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
   readsetId="CJ_ppJ-WCxDxrtDr5fGIhBA=", endpoint="https://www.googleapis.com/genomics/v1beta/",
-  pageToken=NULL) {
+  pageToken=NULL, slStyle='UCSC') {
 
   # Fetch data from the Genomics API
   body <- list(readsetIds=list(readsetId), sequenceName=chromosome, sequenceStart=start,
@@ -82,6 +83,8 @@ getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
     seqnames=Rle(c(chromosome), c(total_reads)),
     strand=strand(as.vector(ifelse(isMinusStrand, '-', '+'))),
     pos=positions, cigar=cigars, names=names, flag=flags), readStore$alignments)
+  
+  seqlevelsStyle(readStore$alignments) <- slStyle 
 
   if (!is.null(res_content$nextPageToken)) {
     message(paste("Continuing read query with the nextPageToken:", res_content$nextPageToken))
@@ -90,5 +93,6 @@ getReadData <- function(chromosome="chr19", start=45411941, end=45412079,
   } else {
     message("Read data is now available")
   }
+
   readStore$alignments
 }

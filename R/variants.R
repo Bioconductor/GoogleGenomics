@@ -162,8 +162,9 @@ getVariants <- function(datasetId="10473108253681171589",
 #'
 #' @param variants A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Variants API.
+#' @param slStyle The style for seqnames (chrN or N or...).  Default is UCSC.
 #' @return \link[VariantAnnotation]{VRanges}
-variantsToVRanges <- function(variants) {
+variantsToVRanges <- function(variants, slStyle='UCSC') {
   if(missing(variants)) {
     return(VRanges())
   }
@@ -183,10 +184,10 @@ variantsToVRanges <- function(variants) {
       filter=as.character(v$filter))
 
     names(ranges) <- as.character(v$names[1])
-
     ranges
   }))
 
+  seqlevelsStyle(vranges) <- slStyle
   vranges
 }
 
@@ -196,8 +197,9 @@ variantsToVRanges <- function(variants) {
 #'
 #' @param variants A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Variants API.
+#' @param slStyle The style for seqnames (chrN or N or...).  Default is UCSC.
 #' @return \link[GenomicRanges]{GRanges}
-variantsToGRanges <- function(variants) {
+variantsToGRanges <- function(variants, slStyle='UCSC') {
   if(missing(variants)) {
     return(GRanges())
   }
@@ -221,6 +223,7 @@ variantsToGRanges <- function(variants) {
     ranges
   }))
 
+  seqlevelsStyle(granges) <- slStyle
   granges
 }
 

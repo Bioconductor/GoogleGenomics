@@ -1,6 +1,6 @@
 Package: GoogleGenomics
-Version: 0.1.0
-Date: 2014-06-01
+Version: 0.1.1
+Date: 2014-10-29
 Title: R Client for Google Genomics API
 Authors@R: c(person("Cassie", "Doll", role = c("aut")),
              person("Nicole", "Deflaux", role = c("aut")),
@@ -9,6 +9,7 @@ Authors@R: c(person("Cassie", "Doll", role = c("aut")),
                      email="google-genomics-discuss@googlegroups.com"))
 Depends:
     R (>= 3.1.0),
+    GenomeInfoDb, 
     GenomicAlignments (>= 1.0.1),
     VariantAnnotation
 Imports:

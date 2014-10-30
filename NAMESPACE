@@ -5,7 +5,7 @@ importFrom("rjson", fromJSON, toJSON)
 importFrom("ggplot2", aes)
 import("GenomicAlignments")
 import("VariantAnnotation")
-
+import("GenomeInfoDb")
 import("ggbio")
 import("Rsamtools")
 
