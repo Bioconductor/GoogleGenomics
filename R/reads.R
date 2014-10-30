@@ -101,6 +101,7 @@ getReads <- function(readsetId="CMvnhpKTFhDnk4_9zcKO3_YB",
                            fields=fields,
                            pageToken=pageToken)
     pageToken <- result$nextPageToken
+    # TODO improve performance https://github.com/googlegenomics/api-client-r/issues/17
     reads <- c(reads, converter(result$reads))
     if(is.null(pageToken)) {
       break

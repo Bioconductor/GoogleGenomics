@@ -118,6 +118,7 @@ getVariants <- function(datasetId="10473108253681171589",
                               fields=fields,
                               pageToken=pageToken)
     pageToken <- result$nextPageToken
+    # TODO improve performance https://github.com/googlegenomics/api-client-r/issues/17
     variants <- c(variants, converter(result$variants))
     if(is.null(pageToken)) {
       break

@@ -1,3 +1,18 @@
+<!-- R Markdown Documentation, DO NOT EDIT THE PLAIN MARKDOWN VERSION OF THIS FILE -->
+
+<!-- Copyright 2014 Google Inc. All rights reserved. -->
+
+<!-- Licensed under the Apache License, Version 2.0 (the "License"); -->
+<!-- you may not use this file except in compliance with the License. -->
+<!-- You may obtain a copy of the License at -->
+
+<!--     http://www.apache.org/licenses/LICENSE-2.0 -->
+
+<!-- Unless required by applicable law or agreed to in writing, software -->
+<!-- distributed under the License is distributed on an "AS IS" BASIS, -->
+<!-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. -->
+<!-- See the License for the specific language governing permissions and -->
+<!-- limitations under the License. -->
 
 Reproducing Variant Annotation Results
 ---------------------------------------
@@ -83,24 +98,19 @@ granges <- getVariants(datasetId="10473108253681171589",
 ```
 
 ```
-## Fetching variant page
-## Auto-refreshing stale OAuth token.
-## Parsing variant page
+## Fetching variants page
 ## Continuing variant query with the nextPageToken: CPmR_hcQl5DAzMmGoeht
-## Fetching variant page
-## Parsing variant page
+## Fetching variants page
 ## Continuing variant query with the nextPageToken: CKuZ_hcQ9pHXwa742bKgAQ
-## Fetching variant page
-## Parsing variant page
+## Fetching variants page
 ## Continuing variant query with the nextPageToken: CJqf_hcQ26CqjLiVvan2AQ
-## Fetching variant page
-## Parsing variant page
+## Fetching variants page
 ## Variants are now available
 ```
 
 ```
 ##    user  system elapsed 
-##   5.387   0.242  11.114
+##   5.178   0.195  12.248
 ```
 
 ### Compare the Loaded Data
@@ -122,7 +132,7 @@ expect_equal(granges$FILTER, filt(vcf))
 Now locate the protein coding variants in each:
 
 ```r
-library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+require(TxDb.Hsapiens.UCSC.hg19.knownGene)
 txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
 
 vcf <- renameSeqlevels(vcf, c("22"="chr22"))
@@ -211,7 +221,7 @@ expect_equal(granges_locations, vcf_locations)
 And predict the effect of the protein coding variants:
 
 ```r
-library(BSgenome.Hsapiens.UCSC.hg19)
+require(BSgenome.Hsapiens.UCSC.hg19)
 vcf_coding <- predictCoding(vcf, txdb, seqSource=Hsapiens)
 vcf_coding
 ```
@@ -408,29 +418,33 @@ sessionInfo()
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] org.Hs.eg.db_3.0.0                     
-##  [2] RSQLite_0.11.4                         
-##  [3] DBI_0.3.1                              
-##  [4] BSgenome.Hsapiens.UCSC.hg19_1.3.99     
-##  [5] BSgenome_1.34.0                        
-##  [6] rtracklayer_1.26.1                     
-##  [7] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
-##  [8] GenomicFeatures_1.18.1                 
-##  [9] AnnotationDbi_1.28.0                   
-## [10] Biobase_2.26.0                         
-## [11] knitr_1.7                              
-## [12] testthat_0.9.1                         
-## [13] GoogleGenomics_0.1.0                   
-## [14] VariantAnnotation_1.12.1               
-## [15] GenomicAlignments_1.2.0                
-## [16] Rsamtools_1.18.0                       
-## [17] Biostrings_2.34.0                      
-## [18] XVector_0.6.0                          
-## [19] GenomicRanges_1.18.1                   
-## [20] GenomeInfoDb_1.2.0                     
-## [21] IRanges_2.0.0                          
-## [22] S4Vectors_0.4.0                        
-## [23] BiocGenerics_0.12.0                    
+##  [1] ggbio_1.14.0                           
+##  [2] ggplot2_1.0.0                          
+##  [3] org.Hs.eg.db_3.0.0                     
+##  [4] RSQLite_0.11.4                         
+##  [5] DBI_0.3.1                              
+##  [6] BSgenome.Hsapiens.UCSC.hg19_1.3.99     
+##  [7] BSgenome_1.34.0                        
+##  [8] rtracklayer_1.26.1                     
+##  [9] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
+## [10] GenomicFeatures_1.18.1                 
+## [11] AnnotationDbi_1.28.0                   
+## [12] Biobase_2.26.0                         
+## [13] knitr_1.7                              
+## [14] testthat_0.9.1                         
+## [15] GoogleGenomics_0.1.0                   
+## [16] VariantAnnotation_1.12.1               
+## [17] GenomicAlignments_1.2.0                
+## [18] Rsamtools_1.18.0                       
+## [19] Biostrings_2.34.0                      
+## [20] XVector_0.6.0                          
+## [21] GenomicRanges_1.18.1                   
+## [22] GenomeInfoDb_1.2.0                     
+## [23] IRanges_2.0.0                          
+## [24] S4Vectors_0.4.0                        
+## [25] BiocGenerics_0.12.0                    
+## [26] devtools_1.6.1                         
+## [27] BiocInstaller_1.16.0                   
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] acepack_1.3-3.3     base64enc_0.1-2     BatchJobs_1.4      
@@ -440,18 +454,17 @@ sessionInfo()
 ## [13] colorspace_1.2-4    dichromat_2.0-0     digest_0.6.4       
 ## [16] evaluate_0.5.5      fail_1.2            foreach_1.4.2      
 ## [19] foreign_0.8-61      formatR_1.0         Formula_1.1-2      
-## [22] GGally_0.4.8        ggbio_1.14.0        ggplot2_1.0.0      
-## [25] graph_1.44.0        grid_3.1.1          gridExtra_0.9.1    
-## [28] gtable_0.1.2        Hmisc_3.14-5        htmltools_0.2.6    
-## [31] httr_0.5            iterators_1.0.7     jsonlite_0.9.13    
-## [34] lattice_0.20-29     latticeExtra_0.6-26 MASS_7.3-35        
-## [37] munsell_0.4.2       nnet_7.3-8          OrganismDbi_1.8.0  
-## [40] plyr_1.8.1          proto_0.3-10        RBGL_1.42.0        
-## [43] RColorBrewer_1.0-5  Rcpp_0.11.3         RCurl_1.95-4.3     
-## [46] reshape_0.8.5       reshape2_1.4        rjson_0.2.14       
-## [49] rmarkdown_0.3.3     rpart_4.1-8         scales_0.2.4       
-## [52] sendmailR_1.2-1     splines_3.1.1       stringr_0.6.2      
-## [55] survival_2.37-7     tools_3.1.1         XML_3.98-1.1       
-## [58] yaml_2.1.13         zlibbioc_1.12.0
+## [22] GGally_0.4.8        graph_1.44.0        grid_3.1.1         
+## [25] gridExtra_0.9.1     gtable_0.1.2        Hmisc_3.14-5       
+## [28] httr_0.5            iterators_1.0.7     jsonlite_0.9.13    
+## [31] labeling_0.3        lattice_0.20-29     latticeExtra_0.6-26
+## [34] MASS_7.3-35         munsell_0.4.2       nnet_7.3-8         
+## [37] OrganismDbi_1.8.0   plyr_1.8.1          proto_0.3-10       
+## [40] RBGL_1.42.0         RColorBrewer_1.0-5  Rcpp_0.11.3        
+## [43] RCurl_1.95-4.3      reshape_0.8.5       reshape2_1.4       
+## [46] rjson_0.2.14        rpart_4.1-8         scales_0.2.4       
+## [49] sendmailR_1.2-1     splines_3.1.1       stringr_0.6.2      
+## [52] survival_2.37-7     tools_3.1.1         XML_3.98-1.1       
+## [55] zlibbioc_1.12.0
 ```
 

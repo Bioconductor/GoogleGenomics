@@ -41,27 +41,23 @@ Getting started
   devtools::install_github("googlegenomics/api-client-r")
   library(GoogleGenomics)
 
-After loading the package, the function :r:`authenticate` needs to be called once. 
-Once authenticated, :r:`getReadData` can be run repeatedly. It fetches data from
-the API and can be used to search over any set of reads. You can pull up a different
-sequence position by specifying additional arguments::
+After loading the package, the function :r:`authenticate` needs to be called once.  Alternatively, the following can be placed in `.Rprofile`
+```
+setHook(packageEvent("GoogleGenomics", "attach"), function(...) {
+  GoogleGenomics::authenticate(file="YOUR/PATH/TO/client_secrets.json")
+})
+```
 
-  getReadData(chromosome="chr3", start="121458049", end="121459049")
-
-Or, you can use the ``readsetId`` argument to query a different readset entirely::
-
-  getReadData(readsetId="<myreadset>")
-
-Once run, the latest values are stored in :r:`readStore$reads` and :r:`readStore$alignments`
-
-Other functions of importance are :r:`getVariantData` and :r:`plotAlignments`.
-
+See the following examples for more detail:
+* [Working with Reads](./inst/doc/PlottingAlignments.md)
+* [Working with Variants](./inst/doc/VariantAnnotation-comparison-test.md)
+* and also the [integration tests](./tests)
 
 Shiny
 -----
 
-Inside of the `shiny` directory, the genomics-api.R file has 
-been turned into a Shiny app. You can view the hosted version of the 
+Inside of the `shiny` directory, the genomics-api.R file has
+been turned into a Shiny app. You can view the hosted version of the
 application on shinyapps.io:
 
 http://googlegenomics.shinyapps.io/reads

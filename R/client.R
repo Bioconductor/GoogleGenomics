@@ -64,9 +64,8 @@ getSearchPage <- function(entityType, body, fields, pageToken) {
     body=toJSON(body),
     queryConfig,
     add_headers("Content-Type"="application/json"))
-  if("errors" %in% names(content(res))) {
-    print(paste("ERROR:", content(res)$errors$message))
-    print(paste("ERROR:", content(res)))
+  if("error" %in% names(content(res))) {
+    print(paste("ERROR:", content(res)$error[[3]]))
   }
   stop_for_status(res)
 

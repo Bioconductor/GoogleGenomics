@@ -79,6 +79,7 @@ testReads <- function() {
   expect_equal(mode(galignments), "S4")
   expect_equal(class(galignments)[1], "GAlignments")
 
+  message("Reads tests pass.")
 }
 
 # Configure authentication
