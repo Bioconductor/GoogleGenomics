@@ -2,21 +2,18 @@
 
 import("httr")
 importFrom("rjson", fromJSON, toJSON)
-importFrom("ggplot2", aes)
 import("GenomicAlignments")
 import("VariantAnnotation")
 
-import("ggbio")
-import("Rsamtools")
-
 export(authenticate)
-export(getReadData)
-export(plotAlignments)
+export(getSearchPage)
+
+export(getReadsPage)
+export(getReads)
+export(readsToGAlignments)
 
 export(getVariantsPage)
 export(getVariants)
 export(variantsToGRanges)
 export(variantsToVRanges)
 export(variantsToVCF)
-
-export(readStore)

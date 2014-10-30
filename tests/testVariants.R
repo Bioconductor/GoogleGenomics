@@ -5,8 +5,6 @@ library(GoogleGenomics)
 library(testthat)
 
 testVariants <- function() {
-  authenticate(apiKey=apiKey)
-
   # Get raw variants from Variants API
   variants <- getVariants(datasetId="10473108253681171589", chromosome="22",
                           start=50300077, end=50301500, oneBasedCoord=TRUE)
@@ -55,11 +53,42 @@ testVariants <- function() {
   message("Variants tests pass.")
 }
 
+testReads <- function() {
+  # Get raw reads from Reads API
+  reads <- getReads(readsetId="CMvnhpKTFhDnk4_9zcKO3_YB",
+                    chromosome="22",
+                    start=16051000,
+                    end=16055000)
+
+  expect_equal(length(reads), 419)
+  expect_equal(mode(reads), "list")
+  expect_equal(class(reads)[1], "list")
+  expect_equal(names(reads[[1]]),
+               c("id", "name", "readsetId", "flags", "referenceSequenceName",
+                 "position", "mappingQuality", "cigar", "mateReferenceSequenceName",
+                 "matePosition", "templateLength", "originalBases", "alignedBases",
+                 "baseQuality", "tags"))
+
+  # Get GAlignments from the Reads API
+  galignments <- getReads(readsetId="CMvnhpKTFhDnk4_9zcKO3_YB",
+                          chromosome="22",
+                          start=16051000,
+                          end=16055000,
+                          converter=readsToGAlignments)
+  expect_equal(length(galignments), 419)
+  expect_equal(mode(galignments), "S4")
+  expect_equal(class(galignments)[1], "GAlignments")
+
+  message("Reads tests pass.")
+}
+
 # Configure authentication
 apiKey <- Sys.getenv("API_KEY_SERVER", unset=NA)
 if (!is.na(apiKey) && nchar(apiKey)>0) {
-  # Perform the test
+  authenticate(apiKey=apiKey)
+  # Perform the tests
   testVariants()
+  testReads()
 } else {
   # Skip the test
   message("Public key unavailable for authentication with Google Genomics. Skipping tests...")

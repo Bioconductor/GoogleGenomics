@@ -25,9 +25,10 @@ return all fields.}
 them converted to the desired type.}
 }
 \value{
-By default, the return value is a list of R objects corresponding to the JSON objects
- returned by the Google Genomics Variants API.  If a converter is passed,
- object(s) of the type returned by the converter will be returned by this function.
+By default, the return value is a list of R objects
+corresponding to the JSON objects returned by the Google Genomics
+Variants API.  If a converter is passed, object(s) of the type
+returned by the converter will be returned by this function.
 }
 \description{
 This function will return all of the variants that comprise the requested
