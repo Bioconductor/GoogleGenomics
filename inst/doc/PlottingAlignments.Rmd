@@ -33,7 +33,7 @@ require(ggplot2)
 require(ggbio)
 alignmentPlot <- autoplot(alignments, aes(color=strand, fill=strand))
 coveragePlot <- ggplot(as(alignments, 'GRanges')) + stat_coverage(color="gray40", fill="skyblue")
-tracks(alignmentPlot, coveragePlot, xlab="foo")
+tracks(alignmentPlot, coveragePlot, xlab="Reads overlapping rs9536314 for NA12893")
 ```
 
 You could also display the spot on the chromosome these alignments came from:
