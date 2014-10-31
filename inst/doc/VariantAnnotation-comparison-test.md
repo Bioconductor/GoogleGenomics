@@ -29,6 +29,7 @@ First we read in the data from the VCF file:
 require(VariantAnnotation)
 fl <- system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
 vcf <- readVcf(fl, "hg19")
+vcf <- renameSeqlevels(vcf, c("22"="chr22"))
 vcf
 ```
 
@@ -90,9 +91,8 @@ require(GoogleGenomics)
 system.time({
 granges <- getVariants(datasetId="10473108253681171589",
                        chromosome="22",
-                       start=50300078,
+                       start=50300077,
                        end=50303000,         # TODO end=50999964
-                       oneBasedCoord=TRUE,
                        converter=variantsToGRanges)
 })
 ```
@@ -110,7 +110,7 @@ granges <- getVariants(datasetId="10473108253681171589",
 
 ```
 ##    user  system elapsed 
-##   5.178   0.195  12.248
+##   8.472   0.296  13.821
 ```
 
 ### Compare the Loaded Data
@@ -135,8 +135,6 @@ Now locate the protein coding variants in each:
 require(TxDb.Hsapiens.UCSC.hg19.knownGene)
 txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
 
-vcf <- renameSeqlevels(vcf, c("22"="chr22"))
-granges <- renameSeqlevels(granges, c("22"="chr22"))
 
 rd <- rowData(vcf)
 vcf_locations <- locateVariants(rd, txdb, CodingVariants())
@@ -418,21 +416,21 @@ sessionInfo()
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] ggbio_1.14.0                           
-##  [2] ggplot2_1.0.0                          
-##  [3] org.Hs.eg.db_3.0.0                     
-##  [4] RSQLite_0.11.4                         
-##  [5] DBI_0.3.1                              
-##  [6] BSgenome.Hsapiens.UCSC.hg19_1.3.99     
-##  [7] BSgenome_1.34.0                        
-##  [8] rtracklayer_1.26.1                     
-##  [9] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
-## [10] GenomicFeatures_1.18.1                 
-## [11] AnnotationDbi_1.28.0                   
-## [12] Biobase_2.26.0                         
+##  [1] org.Hs.eg.db_3.0.0                     
+##  [2] RSQLite_0.11.4                         
+##  [3] DBI_0.3.1                              
+##  [4] BSgenome.Hsapiens.UCSC.hg19_1.3.99     
+##  [5] BSgenome_1.34.0                        
+##  [6] rtracklayer_1.26.1                     
+##  [7] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
+##  [8] GenomicFeatures_1.18.1                 
+##  [9] AnnotationDbi_1.28.0                   
+## [10] Biobase_2.26.0                         
+## [11] ggbio_1.14.0                           
+## [12] ggplot2_1.0.0                          
 ## [13] knitr_1.7                              
 ## [14] testthat_0.9.1                         
-## [15] GoogleGenomics_0.1.0                   
+## [15] GoogleGenomics_0.1.1                   
 ## [16] VariantAnnotation_1.12.1               
 ## [17] GenomicAlignments_1.2.0                
 ## [18] Rsamtools_1.18.0                       
@@ -443,8 +441,7 @@ sessionInfo()
 ## [23] IRanges_2.0.0                          
 ## [24] S4Vectors_0.4.0                        
 ## [25] BiocGenerics_0.12.0                    
-## [26] devtools_1.6.1                         
-## [27] BiocInstaller_1.16.0                   
+## [26] BiocInstaller_1.16.0                   
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] acepack_1.3-3.3     base64enc_0.1-2     BatchJobs_1.4      

@@ -3,14 +3,16 @@
 \alias{readsToGAlignments}
 \title{Convert reads to GAlignments.}
 \usage{
-readsToGAlignments(reads)
+readsToGAlignments(reads, slStyle = "UCSC")
 }
 \arguments{
 \item{reads}{A list of R objects corresponding to the JSON objects
 returned by the Google Genomics Variants API.}
+
+\item{slStyle}{The style for seqnames (chrN or N or...).  Default is UCSC.}
 }
 \value{
-\link[GAlignments]{GAlignments}
+\link[GenomicAlignments]{GAlignments}
 }
 \description{
 Convert reads to GAlignments.

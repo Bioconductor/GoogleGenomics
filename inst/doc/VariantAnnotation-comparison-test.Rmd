@@ -28,6 +28,7 @@ First we read in the data from the VCF file:
 require(VariantAnnotation)
 fl <- system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
 vcf <- readVcf(fl, "hg19")
+vcf <- renameSeqlevels(vcf, c("22"="chr22"))
 vcf
 ```
 
@@ -48,9 +49,8 @@ require(GoogleGenomics)
 system.time({
 granges <- getVariants(datasetId="10473108253681171589",
                        chromosome="22",
-                       start=50300078,
+                       start=50300077,
                        end=50303000,         # TODO end=50999964
-                       oneBasedCoord=TRUE,
                        converter=variantsToGRanges)
 })
 ```
@@ -75,8 +75,6 @@ Now locate the protein coding variants in each:
 require(TxDb.Hsapiens.UCSC.hg19.knownGene)
 txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
 
-vcf <- renameSeqlevels(vcf, c("22"="chr22"))
-granges <- renameSeqlevels(granges, c("22"="chr22"))
 
 rd <- rowData(vcf)
 vcf_locations <- locateVariants(rd, txdb, CodingVariants())

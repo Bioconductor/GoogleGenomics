@@ -4,19 +4,16 @@
 \title{Get variants from Google Genomics.}
 \usage{
 getVariants(datasetId = "10473108253681171589", chromosome = "22",
-  start = 16051400, end = 16051500, oneBasedCoord = FALSE,
-  fields = NULL, converter = c)
+  start = 16051400, end = 16051500, fields = NULL, converter = c)
 }
 \arguments{
 \item{datasetId}{The dataset ID.}
 
 \item{chromosome}{The chromosome.}
 
-\item{start}{Start position on the chromosome.}
+\item{start}{Start position on the chromosome in 0-based coordinates.}
 
-\item{end}{End position on the chromosome.}
-
-\item{oneBasedCoord}{Interpret start and end as 1-based coordinates.}
+\item{end}{End position on the chromosome in 0-based coordinates.}
 
 \item{fields}{A subset of fields to retrieve.  The default (NULL) will
 return all fields.}
@@ -42,13 +39,5 @@ Optionally pass a converter as appropriate for your use case.  By passing it
 to this method, only the converted objects will be accumulated in memory. The
 converter function should return an empty container of the desired type
 if called without any arguments.
-
-Note that the Global Alliance for Genomics and Health API uses a 0-based
-coordinate system.  For more detail, please see GA4GH discussions such
-as the following:
-\itemize{
-   \item\url{https://github.com/ga4gh/schemas/issues/168}
-   \item\url{https://github.com/ga4gh/schemas/issues/121}
-}
 }
 

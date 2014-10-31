@@ -3,16 +3,26 @@
 \alias{variantsToGRanges}
 \title{Convert variants to GRanges.}
 \usage{
-variantsToGRanges(variants, slStyle='UCSC')
+variantsToGRanges(variants, oneBasedCoord = TRUE, slStyle = "UCSC")
 }
 \arguments{
 \item{variants}{A list of R objects corresponding to the JSON objects
 returned by the Google Genomics Variants API.}
-\item{slStyle}{Seqnames ('N', 'chrN', etc.) style.  Default is 'UCSC'.}
+
+\item{oneBasedCoord}{Convert genomic positions to 1-based coordinates.}
+
+\item{slStyle}{The style for seqnames (chrN or N or...).  Default is UCSC.}
 }
 \value{
 \link[GenomicRanges]{GRanges}
 }
 \description{
-Note that genomic coordinates are converted from 0-based to 1-based.
+Note that the Global Alliance for Genomics and Health API uses a 0-based
+coordinate system.  For more detail, please see GA4GH discussions such
+as the following:
+\itemize{
+   \item\url{https://github.com/ga4gh/schemas/issues/168}
+   \item\url{https://github.com/ga4gh/schemas/issues/121}
 }
+}
+

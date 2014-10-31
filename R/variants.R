@@ -21,19 +21,10 @@
 #' By default, this function gets variants from a small section of 1000
 #' Genomes phase 1 variants.
 #'
-#' Note that the Global Alliance for Genomics and Health API uses a 0-based
-#' coordinate system.  For more detail, please see GA4GH discussions such
-#' as the following:
-#' \itemize{
-#'    \item\url{https://github.com/ga4gh/schemas/issues/168}
-#'    \item\url{https://github.com/ga4gh/schemas/issues/121}
-#'}
-#'
 #' @param datasetId The dataset ID.
 #' @param chromosome The chromosome.
-#' @param start Start position on the chromosome.
-#' @param end End position on the chromosome.
-#' @param oneBasedCoord Interpret start and end as 1-based coordinates.
+#' @param start Start position on the chromosome in 0-based coordinates.
+#' @param end End position on the chromosome in 0-based coordinates.
 #' @param fields A subset of fields to retrieve.  The default (NULL) will
 #'      return all fields.
 #' @param pageToken The page token. This can be NULL (default) for the first page.
@@ -49,13 +40,8 @@ getVariantsPage <- function(datasetId="10473108253681171589",
                             chromosome="22",
                             start=16051400,
                             end=16051500,
-                            oneBasedCoord=FALSE,
                             fields=NULL,
                             pageToken=NULL) {
-
-  if(TRUE == oneBasedCoord) {
-    start <- start - 1
-  }
 
   body <- list(variantSetIds=list(datasetId), referenceName=chromosome,
                start=start, end=end, pageToken=pageToken)
@@ -78,19 +64,10 @@ getVariantsPage <- function(datasetId="10473108253681171589",
 #' converter function should return an empty container of the desired type
 #' if called without any arguments.
 #'
-#' Note that the Global Alliance for Genomics and Health API uses a 0-based
-#' coordinate system.  For more detail, please see GA4GH discussions such
-#' as the following:
-#' \itemize{
-#'    \item\url{https://github.com/ga4gh/schemas/issues/168}
-#'    \item\url{https://github.com/ga4gh/schemas/issues/121}
-#'}
-#'
 #' @param datasetId The dataset ID.
 #' @param chromosome The chromosome.
-#' @param start Start position on the chromosome.
-#' @param end End position on the chromosome.
-#' @param oneBasedCoord Interpret start and end as 1-based coordinates.
+#' @param start Start position on the chromosome in 0-based coordinates.
+#' @param end End position on the chromosome in 0-based coordinates.
 #' @param fields A subset of fields to retrieve.  The default (NULL) will
 #'               return all fields.
 #' @param converter A function that takes a list of variant R objects and returns
@@ -104,7 +81,6 @@ getVariants <- function(datasetId="10473108253681171589",
                         chromosome="22",
                         start=16051400,
                         end=16051500,
-                        oneBasedCoord=FALSE,
                         fields=NULL,
                         converter=c) {
   pageToken <- NULL
@@ -114,7 +90,6 @@ getVariants <- function(datasetId="10473108253681171589",
                               chromosome=chromosome,
                               start=start,
                               end=end,
-                              oneBasedCoord=oneBasedCoord,
                               fields=fields,
                               pageToken=pageToken)
     pageToken <- result$nextPageToken
@@ -132,22 +107,31 @@ getVariants <- function(datasetId="10473108253681171589",
 
 #' Convert variants to VRanges.
 #'
-#' Note that genomic coordinates are converted from 0-based to 1-based.
+#' Note that the Global Alliance for Genomics and Health API uses a 0-based
+#' coordinate system.  For more detail, please see GA4GH discussions such
+#' as the following:
+#' \itemize{
+#'    \item\url{https://github.com/ga4gh/schemas/issues/168}
+#'    \item\url{https://github.com/ga4gh/schemas/issues/121}
+#'}
 #'
 #' @param variants A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Variants API.
+#' @param oneBasedCoord Convert genomic positions to 1-based coordinates.
 #' @param slStyle The style for seqnames (chrN or N or...).  Default is UCSC.
 #' @return \link[VariantAnnotation]{VRanges}
 #' @export
-variantsToVRanges <- function(variants, slStyle='UCSC') {
+variantsToVRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
   if(missing(variants)) {
     return(VRanges())
   }
 
   vranges <- do.call("c", lapply(variants, function(v) {
-    # Convert variants from 0-based coordinates to 1-based coordinates for
-    # use with BioConductor.
-    position <- as.integer(v$start) + 1
+    if(TRUE == oneBasedCoord) {
+      position <- as.integer(v$start) + 1
+    } else {
+      position <- as.integer(v$start)
+    }
 
     ranges <- VRanges(
       seqnames=Rle(as.character(v$referenceName), 1),
@@ -168,22 +152,31 @@ variantsToVRanges <- function(variants, slStyle='UCSC') {
 
 #' Convert variants to GRanges.
 #'
-#' Note that genomic coordinates are converted from 0-based to 1-based.
+#' Note that the Global Alliance for Genomics and Health API uses a 0-based
+#' coordinate system.  For more detail, please see GA4GH discussions such
+#' as the following:
+#' \itemize{
+#'    \item\url{https://github.com/ga4gh/schemas/issues/168}
+#'    \item\url{https://github.com/ga4gh/schemas/issues/121}
+#'}
 #'
 #' @param variants A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Variants API.
+#' @param oneBasedCoord Convert genomic positions to 1-based coordinates.
 #' @param slStyle The style for seqnames (chrN or N or...).  Default is UCSC.
 #' @return \link[GenomicRanges]{GRanges}
 #' @export
-variantsToGRanges <- function(variants, slStyle='UCSC') {
+variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
   if(missing(variants)) {
     return(GRanges())
   }
 
   granges <- do.call("c", lapply(variants, function(v) {
-    # Convert variants from 0-based coordinates to 1-based coordinates for
-    # use with BioConductor.
-    position <- as.integer(v$start) + 1
+    if(TRUE == oneBasedCoord) {
+      position <- as.integer(v$start) + 1
+    } else {
+      position <- as.integer(v$start)
+    }
 
     ranges <- GRanges(
       seqnames=Rle(as.character(v$referenceName), 1),
