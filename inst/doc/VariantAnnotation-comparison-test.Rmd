@@ -70,6 +70,15 @@ expect_equal(granges$FILTER, filt(vcf))
 ```
 
 ### Compare the Annotations
+
+```{r eval=FALSE}
+# To install annotation database packages (only need to do this once)
+source("http://bioconductor.org/biocLite.R")
+biocLite("TxDb.Hsapiens.UCSC.hg19.knownGene")
+biocLite("BSgenome.Hsapiens.UCSC.hg19")
+biocLite("org.Hs.eg.db")
+```
+
 Now locate the protein coding variants in each:
 ```{r}
 require(TxDb.Hsapiens.UCSC.hg19.knownGene)
@@ -108,7 +117,7 @@ expect_equal(granges_coding$CONSEQUENCE, vcf_coding$CONSEQUENCE)
 
 Add gene information:
 ```{r}
-require('org.Hs.eg.db')
+require(org.Hs.eg.db)
 annots <- select(org.Hs.eg.db,
                  keys=granges_coding$GENEID,
                  keytype="ENTREZID",

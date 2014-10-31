@@ -27,6 +27,12 @@ reads <- getReads(readsetId="CMvnhpKTFhDyy__v0qfPpkw",
 alignments <- readsToGAlignments(reads)
 ```
 
+```{r eval=FALSE}
+# To install plotting package (only need to do this once)
+source("http://bioconductor.org/biocLite.R")
+biocLite("ggbio")
+```
+
 Display the basic alignments and coverage data:
 ```{r coverage}
 require(ggplot2)
