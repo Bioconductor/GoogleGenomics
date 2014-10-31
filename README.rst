@@ -41,13 +41,7 @@ Getting started
   devtools::install_github("googlegenomics/api-client-r")
   library(GoogleGenomics)
 
-After loading the package, the function :r:`authenticate` needs to be called once.  Alternatively, the following can be placed in ``.Rprofile``::
-
-.. code:: r
-
-  setHook(packageEvent("GoogleGenomics", "attach"), function(...) {
-    GoogleGenomics::authenticate(file="YOUR/PATH/TO/client_secrets.json")
-  })
+After loading the package, the function :r:`authenticate` needs to be called once.  
 
 See the following examples for more detail:
 
