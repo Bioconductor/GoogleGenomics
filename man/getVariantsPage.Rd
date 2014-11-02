@@ -4,19 +4,16 @@
 \title{Get one page of variants from Google Genomics.}
 \usage{
 getVariantsPage(datasetId = "10473108253681171589", chromosome = "22",
-  start = 16051400, end = 16051500, oneBasedCoord = FALSE,
-  fields = NULL, pageToken = NULL)
+  start = 16051400, end = 16051500, fields = NULL, pageToken = NULL)
 }
 \arguments{
 \item{datasetId}{The dataset ID.}
 
 \item{chromosome}{The chromosome.}
 
-\item{start}{Start position on the chromosome.}
+\item{start}{Start position on the chromosome in 0-based coordinates.}
 
-\item{end}{End position on the chromosome.}
-
-\item{oneBasedCoord}{Interpret start and end as 1-based coordinates.}
+\item{end}{End position on the chromosome in 0-based coordinates.}
 
 \item{fields}{A subset of fields to retrieve.  The default (NULL) will
 return all fields.}
@@ -40,13 +37,5 @@ genomic range.
 \details{
 By default, this function gets variants from a small section of 1000
 Genomes phase 1 variants.
-
-Note that the Global Alliance for Genomics and Health API uses a 0-based
-coordinate system.  For more detail, please see GA4GH discussions such
-as the following:
-\itemize{
-   \item\url{https://github.com/ga4gh/schemas/issues/168}
-   \item\url{https://github.com/ga4gh/schemas/issues/121}
-}
 }
 

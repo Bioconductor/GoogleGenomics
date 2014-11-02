@@ -7,7 +7,7 @@ library(testthat)
 testVariants <- function() {
   # Get raw variants from Variants API
   variants <- getVariants(datasetId="10473108253681171589", chromosome="22",
-                          start=50300077, end=50301500, oneBasedCoord=TRUE)
+                          start=50300077, end=50301500)
   expect_equal(length(variants), 27)
   expect_equal(mode(variants), "list")
   expect_equal(class(variants)[1], "list")
@@ -18,7 +18,7 @@ testVariants <- function() {
 
   # Get GRanges from the Variants API
   granges <- getVariants(datasetId="10473108253681171589", chromosome="22",
-                         start=50300077, end=50301500, oneBasedCoord=TRUE,
+                         start=50300077, end=50301500,
                          converter=variantsToGRanges)
   expect_equal(length(granges), 27)
   expect_equal(mode(granges), "S4")
@@ -26,14 +26,14 @@ testVariants <- function() {
 
   # Get VRanges from the Variants API
   vranges <- getVariants(datasetId="10473108253681171589", chromosome="22",
-              start=50300077, end=50301500, oneBasedCoord=TRUE, converter=variantsToVRanges)
+              start=50300077, end=50301500, converter=variantsToVRanges)
   expect_equal(length(vranges), 27)
   expect_equal(mode(vranges), "S4")
   expect_equal(class(vranges)[1], "VRanges")
 
   # Get VCF from the variants API [not yet implemented]
   expect_error(getVariants(datasetId="10473108253681171589", chromosome="22",
-                           start=50300077, end=50301500, oneBasedCoord=TRUE,
+                           start=50300077, end=50301500,
                            converter=variantsToVCF))
 
   # Get variants data from VariantAnnotation package

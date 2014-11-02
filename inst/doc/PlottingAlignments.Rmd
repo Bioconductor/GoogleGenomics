@@ -15,7 +15,7 @@
 <!-- limitations under the License. -->
 
 Plotting Alignments
-==============
+-------------------
 
 Let's take a look at the reads that overlap rs9536314 for sample NA12893 within the [Illumina Platinum Genomes](https://cloud.google.com/genomics/data/platinum-genomes) dataset.
 ```{r}
@@ -27,17 +27,29 @@ reads <- getReads(readsetId="CMvnhpKTFhDyy__v0qfPpkw",
 alignments <- readsToGAlignments(reads)
 ```
 
+```{r eval=FALSE}
+# To install plotting package (only need to do this once)
+source("http://bioconductor.org/biocLite.R")
+biocLite("ggbio")
+```
+
 Display the basic alignments and coverage data:
 ```{r coverage}
 require(ggplot2)
 require(ggbio)
 alignmentPlot <- autoplot(alignments, aes(color=strand, fill=strand))
 coveragePlot <- ggplot(as(alignments, 'GRanges')) + stat_coverage(color="gray40", fill="skyblue")
-tracks(alignmentPlot, coveragePlot, xlab="foo")
+tracks(alignmentPlot, coveragePlot, xlab="Reads overlapping rs9536314 for NA12893")
 ```
 
 You could also display the spot on the chromosome these alignments came from:
 ```{r ideogram}
 ideogramPlot <- plotIdeogram(genome="hg19", subchr="chr13")
 ideogramPlot + xlim(as(alignments, 'GRanges'))
+```
+
+### Provenance
+Package versions used:
+```{r}
+sessionInfo()
 ```
