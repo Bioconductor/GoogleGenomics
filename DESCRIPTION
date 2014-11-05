@@ -13,7 +13,7 @@ Depends:
     VariantAnnotation
 Imports:
     rjson,
-    httpuv, # Runtime dependency for httr methods.
+    httpuv,
     httr,
 Suggests:
     testthat,
