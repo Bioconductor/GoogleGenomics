@@ -20,10 +20,10 @@ Plotting Alignments
 Let's take a look at the reads that overlap rs9536314 for sample NA12893 within the [Illumina Platinum Genomes](https://cloud.google.com/genomics/data/platinum-genomes) dataset.
 ```{r}
 require(GoogleGenomics)
-reads <- getReads(readsetId="CMvnhpKTFhDyy__v0qfPpkw",
+reads <- getReads(readGroupSetId="CMvnhpKTFhDyy__v0qfPpkw",
                   chromosome="chr13",
-                  start=33053995,
-                  end=33054010)
+                  start=33053994,
+                  end=33054009)
 alignments <- readsToGAlignments(reads)
 ```
 

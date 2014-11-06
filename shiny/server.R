@@ -80,6 +80,7 @@ shinyServer(function(input, output) {
   }
 
   # Transformation helpers
+  # TODO: Use the code from the main GoogleGenomics package
   cigar_enum_map = list(
       ALIGNMENT_MATCH="M",
       CLIP_HARD="H",
@@ -103,43 +104,43 @@ shinyServer(function(input, output) {
   }
 
   getFlags <- function(read) {
-    flags = 0
+    flags <- 0
 
-    if (read$numberReads == 2) {
-      flags = flags + 1 #read_paired
+    if (isTRUE(read$numberReads == 2)) {
+      flags <- flags + 1 #read_paired
     }
     if (isTRUE(read$properPlacement)) {
-      flags = flags + 2 #read_proper_pair
+      flags <- flags + 2 #read_proper_pair
     }
     if (is.null(getPosition(read))) {
-      flags = flags + 4 #read_unmapped
+      flags <- flags + 4 #read_unmapped
     }
     if (is.null(read$nextMatePosition$position)) {
-      flags = flags + 8 #mate_unmapped
+      flags <- flags + 8 #mate_unmapped
     }
     if (isTRUE(read$alignment$position$reverseStrand)) {
-      flags = flags + 16 #read_reverse_strand
+      flags <- flags + 16 #read_reverse_strand
     }
     if (isTRUE(read$nextMatePosition$reverseStrand)) {
-      flags = flags + 32 #mate_reverse_strand
+      flags <- flags + 32 #mate_reverse_strand
     }
-    if (read$readNumber == 0) {
-      flags = flags + 64 #first_in_pair
+    if (isTRUE(read$readNumber == 0)) {
+      flags <- flags + 64 #first_in_pair
     }
-    if (read$readNumber == 1) {
-      flags = flags + 128 #second_in_pair
+    if (isTRUE(read$readNumber == 1)) {
+      flags <- flags + 128 #second_in_pair
     }
     if (isTRUE(read$secondaryAlignment)) {
-      flags = flags + 256 #secondary_alignment
+      flags <- flags + 256 #secondary_alignment
     }
     if (isTRUE(read$failedVendorQualityChecks)) {
-      flags = flags + 512 #failed_quality_check
+      flags <- flags + 512 #failed_quality_check
     }
     if (isTRUE(read$duplicateFragment)) {
-      flags = flags + 1024 #duplicate_read
+      flags <- flags + 1024 #duplicate_read
     }
     if (isTRUE(read$supplementaryAlignment)) {
-      flags = flags + 2048 #supplementary_alignment
+      flags <- flags + 2048 #supplementary_alignment
     }
     flags
   }
