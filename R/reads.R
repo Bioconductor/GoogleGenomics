@@ -193,6 +193,7 @@ getFlags <- function(read) {
 #'
 #' @param reads A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Reads API.
+#' @param oneBasedCoord Convert genomic positions to 1-based coordinates.
 #' @param slStyle The style for seqnames (chrN or N or...).  Default is UCSC.
 #' @return \link[GenomicAlignments]{GAlignments}
 #' @export

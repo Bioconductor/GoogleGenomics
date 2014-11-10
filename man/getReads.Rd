@@ -3,17 +3,17 @@
 \alias{getReads}
 \title{Get reads from Google Genomics.}
 \usage{
-getReads(readsetId = "CMvnhpKTFhDnk4_9zcKO3_YB", chromosome = "22",
+getReads(readGroupSetId = "CMvnhpKTFhDnk4_9zcKO3_YB", chromosome = "22",
   start = 16051400, end = 16051500, fields = NULL, converter = c)
 }
 \arguments{
-\item{readsetId}{The readset ID.}
+\item{readGroupSetId}{The read group set ID.}
 
 \item{chromosome}{The chromosome.}
 
-\item{start}{Start position on the chromosome.}
+\item{start}{Start position on the chromosome in 0-based coordinates.}
 
-\item{end}{End position on the chromosome.}
+\item{end}{End position on the chromosome in 0-based coordinates.}
 
 \item{fields}{A subset of fields to retrieve.  The default (NULL) will
 return all fields.}

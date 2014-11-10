@@ -3,17 +3,17 @@
 \alias{getReadsPage}
 \title{Get one page of reads from Google Genomics.}
 \usage{
-getReadsPage(readsetId = "CMvnhpKTFhDnk4_9zcKO3_YB", chromosome = "22",
+getReadsPage(readGroupSetId = "CMvnhpKTFhDnk4_9zcKO3_YB", chromosome = "22",
   start = 16051400, end = 16051500, fields = NULL, pageToken = NULL)
 }
 \arguments{
-\item{readsetId}{The readset ID.}
+\item{readGroupSetId}{The read group set ID.}
 
 \item{chromosome}{The chromosome.}
 
-\item{start}{Start position on the chromosome.}
+\item{start}{Start position on the chromosome in 0-based coordinates.}
 
-\item{end}{End position on the chromosome.}
+\item{end}{End position on the chromosome in 0-based coordinates.}
 
 \item{fields}{A subset of fields to retrieve.  The default (NULL) will
 return all fields.}
@@ -24,7 +24,7 @@ return all fields.}
 A two-element list is returned by the function.
 
     reads: A list of R objects corresponding to the JSON objects returned
-              by the Google Genomics Variants API.
+              by the Google Genomics Reads API.
 
     nextPageToken: The token to be used to retrieve the next page of
                    results, if applicable.

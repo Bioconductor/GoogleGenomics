@@ -3,11 +3,13 @@
 \alias{readsToGAlignments}
 \title{Convert reads to GAlignments.}
 \usage{
-readsToGAlignments(reads, slStyle = "UCSC")
+readsToGAlignments(reads, oneBasedCoord = TRUE, slStyle = "UCSC")
 }
 \arguments{
 \item{reads}{A list of R objects corresponding to the JSON objects
-returned by the Google Genomics Variants API.}
+returned by the Google Genomics Reads API.}
+
+\item{oneBasedCoord}{Convert genomic positions to 1-based coordinates.}
 
 \item{slStyle}{The style for seqnames (chrN or N or...).  Default is UCSC.}
 }
@@ -15,6 +17,12 @@ returned by the Google Genomics Variants API.}
 \link[GenomicAlignments]{GAlignments}
 }
 \description{
-Convert reads to GAlignments.
+Note that the Global Alliance for Genomics and Health API uses a 0-based
+coordinate system.  For more detail, please see GA4GH discussions such
+as the following:
+\itemize{
+   \item\url{https://github.com/ga4gh/schemas/issues/168}
+   \item\url{https://github.com/ga4gh/schemas/issues/121}
+}
 }
 
