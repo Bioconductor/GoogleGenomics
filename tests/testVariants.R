@@ -63,12 +63,8 @@ testReads <- function() {
   expect_equal(length(reads), 419)
   expect_equal(mode(reads), "list")
   expect_equal(class(reads)[1], "list")
-#  TODO: This test is fragile, replace with a finer grained assertion
-#  expect_equal(names(reads[[1]]),
-#               c("id", "name", "readsetId", "flags", "referenceSequenceName",
-#                 "position", "mappingQuality", "cigar", "mateReferenceSequenceName",
-#                 "matePosition", "templateLength", "originalBases", "alignedBases",
-#                 "baseQuality", "tags"))
+  expect_equal(0, length(setdiff(c("id", "fragmentName", "readGroupSetId"),
+      names(reads[[1]]))))
 
   # Get GAlignments from the Reads API
   galignments <- getReads(readGroupSetId="CMvnhpKTFhDnk4_9zcKO3_YB",
