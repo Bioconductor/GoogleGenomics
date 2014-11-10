@@ -21,10 +21,10 @@ Let's take a look at the reads that overlap rs9536314 for sample NA12893 within 
 
 ```r
 require(GoogleGenomics)
-reads <- getReads(readsetId="CMvnhpKTFhDyy__v0qfPpkw",
+reads <- getReads(readGroupSetId="CMvnhpKTFhDyy__v0qfPpkw",
                   chromosome="chr13",
-                  start=33053995,
-                  end=33054010)
+                  start=33053994,
+                  end=33054009)
 ```
 
 ```
@@ -80,8 +80,8 @@ sessionInfo()
 ```
 
 ```
-## R version 3.1.1 (2014-07-10)
-## Platform: x86_64-apple-darwin13.1.0 (64-bit)
+## R version 3.1.2 (2014-10-31)
+## Platform: x86_64-apple-darwin13.4.0 (64-bit)
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -91,51 +91,47 @@ sessionInfo()
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] org.Hs.eg.db_3.0.0                     
-##  [2] RSQLite_0.11.4                         
-##  [3] DBI_0.3.1                              
-##  [4] BSgenome.Hsapiens.UCSC.hg19_1.3.99     
-##  [5] BSgenome_1.34.0                        
-##  [6] rtracklayer_1.26.1                     
-##  [7] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
-##  [8] GenomicFeatures_1.18.1                 
-##  [9] AnnotationDbi_1.28.0                   
-## [10] Biobase_2.26.0                         
-## [11] testthat_0.9.1                         
-## [12] ggbio_1.14.0                           
-## [13] ggplot2_1.0.0                          
-## [14] GoogleGenomics_0.1.1                   
-## [15] VariantAnnotation_1.12.1               
-## [16] GenomicAlignments_1.2.0                
-## [17] Rsamtools_1.18.0                       
-## [18] Biostrings_2.34.0                      
-## [19] XVector_0.6.0                          
-## [20] GenomicRanges_1.18.1                   
-## [21] GenomeInfoDb_1.2.0                     
-## [22] IRanges_2.0.0                          
-## [23] S4Vectors_0.4.0                        
-## [24] BiocGenerics_0.12.0                    
-## [25] knitr_1.7                              
-## [26] BiocInstaller_1.16.0                   
+##  [1] BSgenome.Hsapiens.UCSC.hg19_1.3.99     
+##  [2] BSgenome_1.34.0                        
+##  [3] rtracklayer_1.26.1                     
+##  [4] TxDb.Hsapiens.UCSC.hg19.knownGene_3.0.0
+##  [5] GenomicFeatures_1.18.2                 
+##  [6] AnnotationDbi_1.28.1                   
+##  [7] Biobase_2.26.0                         
+##  [8] ggbio_1.14.0                           
+##  [9] ggplot2_1.0.0                          
+## [10] knitr_1.7                              
+## [11] GoogleGenomics_0.1.2                   
+## [12] VariantAnnotation_1.12.3               
+## [13] GenomicAlignments_1.2.1                
+## [14] Rsamtools_1.18.1                       
+## [15] Biostrings_2.34.0                      
+## [16] XVector_0.6.0                          
+## [17] GenomicRanges_1.18.1                   
+## [18] GenomeInfoDb_1.2.2                     
+## [19] IRanges_2.0.0                          
+## [20] S4Vectors_0.4.0                        
+## [21] BiocGenerics_0.12.0                    
+## [22] BiocInstaller_1.16.1                   
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] acepack_1.3-3.3     base64enc_0.1-2     BatchJobs_1.4      
-##  [4] BBmisc_1.7          BiocParallel_1.0.0  biomaRt_2.22.0     
+##  [1] acepack_1.3-3.3     base64enc_0.1-2     BatchJobs_1.5      
+##  [4] BBmisc_1.8          BiocParallel_1.0.0  biomaRt_2.22.0     
 ##  [7] biovizBase_1.14.0   bitops_1.0-6        brew_1.0-6         
 ## [10] checkmate_1.5.0     cluster_1.15.3      codetools_0.2-9    
-## [13] colorspace_1.2-4    dichromat_2.0-0     digest_0.6.4       
-## [16] evaluate_0.5.5      fail_1.2            foreach_1.4.2      
-## [19] foreign_0.8-61      formatR_1.0         Formula_1.1-2      
-## [22] GGally_0.4.8        graph_1.44.0        grid_3.1.1         
-## [25] gridExtra_0.9.1     gtable_0.1.2        Hmisc_3.14-5       
-## [28] htmltools_0.2.6     httr_0.5            iterators_1.0.7    
+## [13] colorspace_1.2-4    DBI_0.3.1           dichromat_2.0-0    
+## [16] digest_0.6.4        evaluate_0.5.5      fail_1.2           
+## [19] foreach_1.4.2       foreign_0.8-61      formatR_1.0        
+## [22] Formula_1.1-2       GGally_0.4.8        graph_1.44.0       
+## [25] grid_3.1.2          gridExtra_0.9.1     gtable_0.1.2       
+## [28] Hmisc_3.14-5        httr_0.5            iterators_1.0.7    
 ## [31] jsonlite_0.9.13     labeling_0.3        lattice_0.20-29    
 ## [34] latticeExtra_0.6-26 MASS_7.3-35         munsell_0.4.2      
 ## [37] nnet_7.3-8          OrganismDbi_1.8.0   plyr_1.8.1         
 ## [40] proto_0.3-10        RBGL_1.42.0         RColorBrewer_1.0-5 
 ## [43] Rcpp_0.11.3         RCurl_1.95-4.3      reshape_0.8.5      
-## [46] reshape2_1.4        rjson_0.2.14        rmarkdown_0.3.3    
-## [49] rpart_4.1-8         scales_0.2.4        sendmailR_1.2-1    
-## [52] splines_3.1.1       stringr_0.6.2       survival_2.37-7    
-## [55] tools_3.1.1         XML_3.98-1.1        zlibbioc_1.12.0
+## [46] reshape2_1.4        rjson_0.2.15        rpart_4.1-8        
+## [49] RSQLite_1.0.0       scales_0.2.4        sendmailR_1.2-1    
+## [52] splines_3.1.2       stringr_0.6.2       survival_2.37-7    
+## [55] tools_3.1.2         XML_3.98-1.1        zlibbioc_1.12.0
 ```
