@@ -39,15 +39,15 @@ getSearchPage <- function(entityType, body, fields, pageToken) {
       stop("Missing required parameter pageToken")
   }
 
+  queryParams <- list()
   queryConfig <- config()
 
-  if(is.null(fields)) {
-    fields <- paste("nextPageToken", entityType, sep=",")
-  } else if(!grepl("nextPageToken", fields)) {
-    fields <- paste(fields, "nextPageToken", sep=",")
+  if(!is.null(fields)) {
+    if(!grepl("nextPageToken", fields)) {
+      fields <- paste(fields, "nextPageToken", sep=",")
+    }
+    queryParams <- list(fields=fields)
   }
-
-  queryParams <- list(fields=fields)
 
   if (.authStore$use_api_key) {
     queryParams <- c(queryParams, key=.authStore$api_key)
