@@ -17,13 +17,13 @@
 Plotting Alignments
 -------------------
 
-Let's take a look at the reads that overlap rs9536314 for sample NA12893 within the [Illumina Platinum Genomes](https://cloud.google.com/genomics/data/platinum-genomes) dataset.
+Let's take a look at the reads that overlap [rs9536314](http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=9536314) for sample NA12893 within the [Illumina Platinum Genomes](https://cloud.google.com/genomics/data/platinum-genomes) dataset.  This SNP resides on chromosome 13 at position 33628137 in 0-based coordinates.
 ```{r}
 require(GoogleGenomics)
 reads <- getReads(readGroupSetId="CMvnhpKTFhDyy__v0qfPpkw",
                   chromosome="chr13",
-                  start=33053994,
-                  end=33054009)
+                  start=33628130,
+                  end=33628145)
 alignments <- readsToGAlignments(reads)
 ```
 
