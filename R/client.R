@@ -82,12 +82,12 @@ checkResponse <- function(response) {
   # Check for specific status codes for which we would like to return specific messages
   if(403 == status_code(response)) {
     messages <- c(messages, "Do not forget to authenticate.",
-                  "Use GoogleGenomics::authenticate(file='secretsFile.json').",
+                  "Use authenticate(file='secretsFile.json').",
                   "See method documentation on how to obtain the secretsFile.")
   }
 
   if(0 != length(messages)) {
-    warning(paste(messages, collapse='\n'))
+    warning(paste(messages, collapse='\n'), immediate=TRUE)
   }
 
   # Lastly, emit a general message and stop for status code >= 300
