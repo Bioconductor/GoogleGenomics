@@ -56,7 +56,7 @@ getSearchPage <- function(entityType, body, fields, pageToken) {
   }
 
   message(paste("Fetching", entityType, "page"))
-  res <- POST(paste(getOption("google_genomics_endpoint"),
+  response <- POST(paste(getOption("google_genomics_endpoint"),
                     tolower(entityType),
                     "search",
                     sep="/"),
@@ -64,10 +64,32 @@ getSearchPage <- function(entityType, body, fields, pageToken) {
     body=toJSON(body),
     queryConfig,
     add_headers("Content-Type"="application/json"))
-  if("error" %in% names(content(res))) {
-    print(paste("ERROR:", content(res)$error[[3]]))
-  }
-  stop_for_status(res)
 
-  content(res)
+  checkResponse(response)
+
+  content(response)
+}
+
+checkResponse <- function(response) {
+  messages = list()
+
+  # Check for error messages in response body
+  # TODO: other API responses can succeed but still include warnings.  Emit those here as well.
+  if("error" %in% names(content(response))) {
+    messages <- c(messages, paste("ERROR:", content(response)$error[[3]]))
+  }
+
+  # Check for specific status codes for which we would like to return specific messages
+  if(403 == status_code(response)) {
+    messages <- c(messages, "Do not forget to authenticate.",
+                  "Use authenticate(file='secretsFile.json').",
+                  "See method documentation on how to obtain the secretsFile.")
+  }
+
+  if(0 != length(messages)) {
+    warning(paste(messages, collapse='\n'), immediate=TRUE)
+  }
+
+  # Lastly, emit a general message and stop for status code >= 300
+  stop_for_status(response)
 }
