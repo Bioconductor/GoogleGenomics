@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Get one page of search results for a particular entity type from Google Genomics.
+#' Get one page of search results for a particular entity type from Google
+#'   Genomics.
 #'
 #' In general, use higher level methods such as getReads and getVariants
 #' instead.
 #'
-#' @param entityType Entities with a search API such as reads, variants, variantSets, etc...
+#' @param entityType Entities with a search API such as reads, variants,
+#'   variantSets, etc...
 #' @param body The body of the message to POST to the search endpoint.
 #' @param fields The fields to be returned in the search response.
 #' @param pageToken The page token. This can be NULL for the first page.
@@ -26,24 +28,24 @@
 #' @export
 getSearchPage <- function(entityType, body, fields, pageToken) {
 
-  if(missing(entityType)) {
-      stop("Missing required parameter entityType")
+  if (missing(entityType)) {
+    stop("Missing required parameter entityType")
   }
-  if(missing(body)) {
-      stop("Missing required parameter body")
+  if (missing(body)) {
+    stop("Missing required parameter body")
   }
-  if(missing(fields)) {
-      stop("Missing required parameter fields")
+  if (missing(fields)) {
+    stop("Missing required parameter fields")
   }
-  if(missing(pageToken)) {
-      stop("Missing required parameter pageToken")
+  if (missing(pageToken)) {
+    stop("Missing required parameter pageToken")
   }
 
   queryParams <- list()
   queryConfig <- config()
 
-  if(!is.null(fields)) {
-    if(!grepl("nextPageToken", fields)) {
+  if (!is.null(fields)) {
+    if (!grepl("nextPageToken", fields)) {
       fields <- paste(fields, "nextPageToken", sep=",")
     }
     queryParams <- list(fields=fields)
@@ -57,13 +59,13 @@ getSearchPage <- function(entityType, body, fields, pageToken) {
 
   message(paste("Fetching", entityType, "page"))
   response <- POST(paste(getOption("google_genomics_endpoint"),
-                    tolower(entityType),
-                    "search",
-                    sep="/"),
-    query=queryParams,
-    body=toJSON(body),
-    queryConfig,
-    add_headers("Content-Type"="application/json"))
+                         tolower(entityType),
+                         "search",
+                         sep="/"),
+                   query=queryParams,
+                   body=toJSON(body),
+                   queryConfig,
+                   add_headers("Content-Type"="application/json"))
 
   checkResponse(response)
 
@@ -73,23 +75,25 @@ getSearchPage <- function(entityType, body, fields, pageToken) {
 checkResponse <- function(response) {
   messages = list()
 
-  # Check for error messages in response body
-  # TODO: other API responses can succeed but still include warnings.  Emit those here as well.
-  if("error" %in% names(content(response))) {
+  # Check for error messages in response body.
+  # TODO: other API responses can succeed but still include warnings.
+  #   Emit those here as well.
+  if ("error" %in% names(content(response))) {
     messages <- c(messages, paste("ERROR:", content(response)$error[[3]]))
   }
 
-  # Check for specific status codes for which we would like to return specific messages
-  if(403 == status_code(response)) {
+  # Check for specific status codes for which we would like to return specific
+  #   messages.
+  if (403 == status_code(response)) {
     messages <- c(messages, "Do not forget to authenticate.",
                   "Use authenticate(file='secretsFile.json').",
                   "See method documentation on how to obtain the secretsFile.")
   }
 
-  if(0 != length(messages)) {
+  if (0 != length(messages)) {
     warning(paste(messages, collapse='\n'), immediate=TRUE)
   }
 
-  # Lastly, emit a general message and stop for status code >= 300
+  # Lastly, emit a general message and stop for status code >= 300.
   stop_for_status(response)
 }
