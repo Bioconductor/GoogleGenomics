@@ -26,8 +26,9 @@
 #' @param start Start position on the chromosome in 0-based coordinates.
 #' @param end End position on the chromosome in 0-based coordinates.
 #' @param fields A subset of fields to retrieve.  The default (NULL) will
-#'      return all fields.
-#' @param pageToken The page token. This can be NULL (default) for the first page.
+#'   return all fields.
+#' @param pageToken The page token. This can be NULL (default) for the first
+#'   page.
 #' @return A two-element list is returned by the function.
 #'
 #'     variants: A list of R objects corresponding to the JSON objects returned
@@ -60,8 +61,8 @@ getVariantsPage <- function(datasetId="10473108253681171589",
 #' Genomes phase 1 variants.
 #'
 #' Optionally pass a converter as appropriate for your use case.  By passing it
-#' to this method, only the converted objects will be accumulated in memory. The
-#' converter function should return an empty container of the desired type
+#' to this method, only the converted objects will be accumulated in memory.
+#' The converter function should return an empty container of the desired type
 #' if called without any arguments.
 #'
 #' @param datasetId The dataset ID.
@@ -70,8 +71,8 @@ getVariantsPage <- function(datasetId="10473108253681171589",
 #' @param end End position on the chromosome in 0-based coordinates.
 #' @param fields A subset of fields to retrieve.  The default (NULL) will
 #'               return all fields.
-#' @param converter A function that takes a list of variant R objects and returns
-#'                  them converted to the desired type.
+#' @param converter A function that takes a list of variant R objects and
+#'                  returns them converted to the desired type.
 #' @return By default, the return value is a list of R objects
 #' corresponding to the JSON objects returned by the Google Genomics
 #' Variants API.  If a converter is passed, object(s) of the type
@@ -95,10 +96,11 @@ getVariants <- function(datasetId="10473108253681171589",
     pageToken <- result$nextPageToken
     # TODO improve performance https://github.com/googlegenomics/api-client-r/issues/17
     variants <- c(variants, converter(result$variants))
-    if(is.null(pageToken)) {
+    if (is.null(pageToken)) {
       break
     }
-    message(paste("Continuing variant query with the nextPageToken:", pageToken))
+    message(paste("Continuing variant query with the nextPageToken:",
+                  pageToken))
   }
 
   message("Variants are now available")
@@ -122,29 +124,30 @@ getVariants <- function(datasetId="10473108253681171589",
 #' @return \link[VariantAnnotation]{VRanges}
 #' @export
 variantsToVRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
-  if(missing(variants)) {
+  if (missing(variants)) {
     return(VRanges())
   }
 
-  vranges <- do.call("c", lapply(variants, function(v) {
-    if(TRUE == oneBasedCoord) {
+  variantsToVRangesHelper <- function(v) {
+    if (TRUE == oneBasedCoord) {
       position <- as.integer(v$start) + 1
     } else {
       position <- as.integer(v$start)
     }
 
     ranges <- VRanges(
-      seqnames=Rle(as.character(v$referenceName), 1),
-      ranges=IRanges(start=position,
-                     end=as.integer(v$end)),
-      ref=as.character(v$referenceBases),
-      alt=as.character(v$alternateBases[1]), # TODO flatten per alt
-      qual=as.numeric(v$quality),
-      filter=as.character(v$filter))
+        seqnames=Rle(as.character(v$referenceName), 1),
+        ranges=IRanges(start=position,
+                       end=as.integer(v$end)),
+        ref=as.character(v$referenceBases),
+        alt=as.character(v$alternateBases[1]),  # TODO flatten per alt
+        qual=as.numeric(v$quality),
+        filter=as.character(v$filter))
 
     names(ranges) <- as.character(v$names[1])
     ranges
-  }))
+  }
+  vranges <- do.call("c", lapply(variants, variantsToVRangesHelper))
 
   seqlevelsStyle(vranges) <- slStyle
   vranges
@@ -161,36 +164,37 @@ variantsToVRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
 #'}
 #'
 #' @param variants A list of R objects corresponding to the JSON objects
-#'  returned by the Google Genomics Variants API.
+#'   returned by the Google Genomics Variants API.
 #' @param oneBasedCoord Convert genomic positions to 1-based coordinates.
 #' @param slStyle The style for seqnames (chrN or N or...).  Default is UCSC.
 #' @return \link[GenomicRanges]{GRanges}
 #' @export
 variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
-  if(missing(variants)) {
+  if (missing(variants)) {
     return(GRanges())
   }
 
-  granges <- do.call("c", lapply(variants, function(v) {
-    if(TRUE == oneBasedCoord) {
+  variantsToGRangesHelper <- function(v) {
+    if (TRUE == oneBasedCoord) {
       position <- as.integer(v$start) + 1
     } else {
       position <- as.integer(v$start)
     }
 
     ranges <- GRanges(
-      seqnames=Rle(as.character(v$referenceName), 1),
-      ranges=IRanges(start=position,
-                     end=as.integer(v$end)),
-      REF=DNAStringSet(v$referenceBases),
-      ALT=DNAStringSetList(v$alternateBases),
-      QUAL=as.numeric(v$quality),
-      FILTER=as.character(v$filter))
+        seqnames=Rle(as.character(v$referenceName), 1),
+        ranges=IRanges(start=position,
+                       end=as.integer(v$end)),
+        REF=DNAStringSet(v$referenceBases),
+        ALT=DNAStringSetList(v$alternateBases),
+        QUAL=as.numeric(v$quality),
+        FILTER=as.character(v$filter))
 
     names(ranges) <- as.character(v$names[1])
 
     ranges
-  }))
+  }
+  granges <- do.call("c", lapply(variants, variantsToGRangesHelper))
 
   seqlevelsStyle(granges) <- slStyle
   granges
@@ -199,7 +203,7 @@ variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
 #' Convert variants to VCF.
 #'
 #' @param variants A list of R objects corresponding to the JSON objects
-#'  returned by the Google Genomics Variants API.
+#'   returned by the Google Genomics Variants API.
 #' @return \link[VariantAnnotation]{VCF}
 #' @export
 variantsToVCF <- function(variants) {

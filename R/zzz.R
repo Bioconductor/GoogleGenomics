@@ -15,10 +15,9 @@
 .onLoad <- function(libname, pkgname) {
   currentOptions <- options()
   defaultOptions <- list(
-    google_genomics_endpoint="https://www.googleapis.com/genomics/v1beta2"
-  )
+      google_genomics_endpoint="https://www.googleapis.com/genomics/v1beta2")
   toset <- !(names(defaultOptions) %in% names(currentOptions))
-  if(any(toset)) options(defaultOptions[toset])
+  if (any(toset)) options(defaultOptions[toset])
 
   invisible()
 }
