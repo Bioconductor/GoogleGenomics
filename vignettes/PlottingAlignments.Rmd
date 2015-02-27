@@ -1,4 +1,8 @@
-<!-- R Markdown Documentation, DO NOT EDIT THE PLAIN MARKDOWN VERSION OF THIS FILE -->
+---
+title: Plotting Alignments
+output:
+  BiocStyle::html_document
+---
 
 <!-- Copyright 2014 Google Inc. All rights reserved. -->
 
@@ -14,12 +18,22 @@
 <!-- See the License for the specific language governing permissions and -->
 <!-- limitations under the License. -->
 
-Plotting Alignments
--------------------
+<!--
+%% \VignetteEngine{knitr::rmarkdown}
+%% \VignetteIndexEntry{Plotting Alignments}
+-->
+
+```{r style, echo = FALSE, results = 'asis'}
+BiocStyle::markdown()
+```
+
+# Plotting Alignments
 
 Let's take a look at the reads that overlap [rs9536314](http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=9536314) for sample NA12893 within the [Illumina Platinum Genomes](https://cloud.google.com/genomics/data/platinum-genomes) dataset.  This SNP resides on chromosome 13 at position 33628137 in 0-based coordinates.
 ```{r}
-require(GoogleGenomics)
+# Authenticated on package load from the env variable GOOGLE_API_KEY.
+suppressPackageStartupMessages(library(GoogleGenomics))
+
 reads <- getReads(readGroupSetId="CMvnhpKTFhDyy__v0qfPpkw",
                   chromosome="chr13",
                   start=33628130,
@@ -27,16 +41,10 @@ reads <- getReads(readGroupSetId="CMvnhpKTFhDyy__v0qfPpkw",
 alignments <- readsToGAlignments(reads)
 ```
 
-```{r eval=FALSE}
-# To install plotting package (only need to do this once)
-source("http://bioconductor.org/biocLite.R")
-biocLite("ggbio")
-```
-
 Display the basic alignments and coverage data:
 ```{r coverage}
-require(ggplot2)
-require(ggbio)
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(ggbio))
 alignmentPlot <- autoplot(alignments, aes(color=strand, fill=strand))
 coveragePlot <- ggplot(as(alignments, 'GRanges')) + stat_coverage(color="gray40", fill="skyblue")
 tracks(alignmentPlot, coveragePlot, xlab="Reads overlapping rs9536314 for NA12893")

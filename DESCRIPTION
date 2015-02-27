@@ -11,19 +11,14 @@ Depends:
     GenomicAlignments (>= 1.0.1),
     VariantAnnotation
 Imports:
-    Biostrings,
-    GenomeInfoDb,
-    GenomicRanges,
-    IRanges,
-    httr,
-    rjson,
-    Rsamtools,
+    Biostrings, GenomeInfoDb, GenomicRanges, IRanges, httr, rjson, Rsamtools,
     S4Vectors
 Suggests:
-    httpuv,
-    testthat
-Description: Provides an R package that hooks up the Genomics APIs to all of
-    the other great existing R tools for biology.
+    BiocStyle, httpuv, knitr, rmarkdown, testthat,
+    ggbio, ggplot2,
+    BSgenome.Hsapiens.UCSC.hg19, org.Hs.eg.db, TxDb.Hsapiens.UCSC.hg19.knownGene
+Description: Provides an R package to interact with the Google Genomics API.
+VignetteBuilder: knitr
 License: Apache License (== 2.0) | file LICENSE
 URL: https://developers.google.com/genomics/
 BugReports: https://github.com/googlegenomics/api-client-r/issues
