@@ -25,6 +25,14 @@
 #' @param pageToken The page token. This can be NULL for the first page.
 #'
 #' @return The raw response converted from JSON to an R object.
+#' @family page fetch functions
+#' @examples
+#' # Authenticated on package load from the env variable GOOGLE_API_KEY.
+#' body <- list(readGroupSetIds=list("CMvnhpKTFhDnk4_9zcKO3_YB"),
+#'              referenceName="22",
+#'              start=16051400, end=16051500, pageToken=NULL)
+#' reads <- getSearchPage("reads", body, NULL, NULL)
+#' summary(reads)
 #' @export
 getSearchPage <- function(entityType, body, fields, pageToken) {
 
@@ -57,7 +65,7 @@ getSearchPage <- function(entityType, body, fields, pageToken) {
     queryConfig <- config(token=.authStore$google_token)
   }
 
-  message(paste("Fetching", entityType, "page"))
+  message(paste("Fetching", entityType, "page."))
   response <- POST(paste(getOption("google_genomics_endpoint"),
                          tolower(entityType),
                          "search",

@@ -44,6 +44,12 @@
 #'
 #'     nextPageToken: The token to be used to retrieve the next page of
 #'                    results, if applicable.
+#' @family page fetch functions
+#' @examples
+#' # Authenticated on package load from the env variable GOOGLE_API_KEY.
+#' readsPage <- getReadsPage()
+#' summary(readsPage)
+#' summary(readsPage$reads[[1]])
 #' @export
 getReadsPage <- function(readGroupSetId="CMvnhpKTFhDnk4_9zcKO3_YB",
                          chromosome="22",
@@ -85,6 +91,12 @@ getReadsPage <- function(readGroupSetId="CMvnhpKTFhDnk4_9zcKO3_YB",
 #' corresponding to the JSON objects returned by the Google Genomics
 #' Reads API.  If a converter is passed, object(s) of the type
 #' returned by the converter will be returned by this function.
+#' @seealso \code{\link{getVariants}}
+#' @examples
+#' # Authenticated on package load from the env variable GOOGLE_API_KEY.
+#' reads <- getReads()
+#' summary(reads)
+#' summary(reads[[1]])
 #' @export
 getReads <- function(readGroupSetId="CMvnhpKTFhDnk4_9zcKO3_YB",
                      chromosome="22",
@@ -110,7 +122,7 @@ getReads <- function(readGroupSetId="CMvnhpKTFhDnk4_9zcKO3_YB",
     message(paste("Continuing read query with the nextPageToken:", pageToken))
   }
 
-  message("Reads are now available")
+  message("Reads are now available.")
   reads
 }
 
@@ -194,13 +206,20 @@ getFlags <- function(read) {
 #' \itemize{
 #'    \item\url{https://github.com/ga4gh/schemas/issues/168}
 #'    \item\url{https://github.com/ga4gh/schemas/issues/121}
-#'}
+#' }
 #'
 #' @param reads A list of R objects corresponding to the JSON objects
 #'  returned by the Google Genomics Reads API.
 #' @param oneBasedCoord Convert genomic positions to 1-based coordinates.
 #' @param slStyle The style for seqnames (chrN or N or...).  Default is UCSC.
 #' @return \link[GenomicAlignments]{GAlignments}
+#' @family reads converter functions
+#' @examples
+#' # Authenticated on package load from the env variable GOOGLE_API_KEY.
+#' alignments1 <- getReads(converter=readsToGAlignments)
+#' summary(alignments1)
+#' alignments2 <- readsToGAlignments(getReads())
+#' print(identical(alignments1, alignments2))
 #' @export
 readsToGAlignments <- function(reads, oneBasedCoord=TRUE, slStyle='UCSC') {
 
