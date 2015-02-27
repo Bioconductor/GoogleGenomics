@@ -27,6 +27,17 @@ output:
 BiocStyle::markdown()
 ```
 
+```{r, echo = FALSE}
+apiKey <- Sys.getenv("GOOGLE_API_KEY")
+if (nchar(apiKey) == 0) {
+  warning(paste("To build this vignette, please setup the environment variable",
+                "GOOGLE_API_KEY with the public API key from your Google",
+                "Developer Console before loading the GoogleGenomics package,",
+                "or run GoogleGenomics::authenticate."))
+  knitr::knit_exit()
+}
+```
+
 # Reproducing Variant Annotation Results
 
 Below we compare the results of annotating variants via `r Biocpkg("VariantAnnotation")`.  We compare using data from 1,000 Genomes Phase 1 Variants:

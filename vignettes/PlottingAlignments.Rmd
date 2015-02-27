@@ -27,6 +27,17 @@ output:
 BiocStyle::markdown()
 ```
 
+```{r, echo = FALSE}
+apiKey <- Sys.getenv("GOOGLE_API_KEY")
+if (nchar(apiKey) == 0) {
+  warning(paste("To build this vignette, please setup the environment variable",
+                "GOOGLE_API_KEY with the public API key from your Google",
+                "Developer Console before loading the GoogleGenomics package,",
+                "or run GoogleGenomics::authenticate."))
+  knitr::knit_exit()
+}
+```
+
 # Plotting Alignments
 
 Let's take a look at the reads that overlap [rs9536314](http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=9536314) for sample NA12893 within the [Illumina Platinum Genomes](https://cloud.google.com/genomics/data/platinum-genomes) dataset.  This SNP resides on chromosome 13 at position 33628137 in 0-based coordinates.
