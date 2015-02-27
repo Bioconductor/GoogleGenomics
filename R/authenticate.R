@@ -24,7 +24,8 @@
 #' @param file Client secrets file obtained from Google Developer Console. This
 #'   file could be for a native application or a service account. If this file
 #'   is not present, clientId and clientSecret must be provided for native
-#'   application credentials.
+#'   application credentials. Service account support needs version 0.1-3 or
+#'   greater of \code{\link[PKI]{PKI}}.
 #' @param clientId Client ID from Google Developer Console, overridden if file
 #'   is provided.
 #' @param clientSecret Client Secret from Google Developer Console, overridden
