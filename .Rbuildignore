@@ -2,6 +2,7 @@
 ^\.Rproj\.user$
 ^\.httr-oauth$
 ^\.travis\.yml$
+^inst\/doc\/.*\.md$
 ^shiny$
 ^README\.rst$
 ^CONTRIBUTING\.rst$
