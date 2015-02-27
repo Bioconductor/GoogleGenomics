@@ -16,7 +16,7 @@
   currentOptions <- options()
   defaultOptions <- list(
       google_genomics_endpoint="https://www.googleapis.com/genomics/v1beta2",
-      google_auth_cache=file.path("~", ".google-auth"))
+      google_auth_cache=file.path("~", ".Rgoogle-auth"))
   toset <- !(names(defaultOptions) %in% names(currentOptions))
   if (any(toset)) options(defaultOptions[toset])
 
