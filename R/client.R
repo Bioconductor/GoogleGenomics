@@ -49,6 +49,10 @@ getSearchPage <- function(entityType, body, fields, pageToken) {
     stop("Missing required parameter pageToken")
   }
 
+  if (!authenticated()) {
+    stop("You are not authenticated; see ?GoogleGenomics::authenticate.")
+  }
+
   queryParams <- list()
   queryConfig <- config()
 
@@ -93,13 +97,28 @@ checkResponse <- function(response) {
   # Check for specific status codes for which we would like to return specific
   #   messages.
   if (403 == status_code(response)) {
-    messages <- c(messages, "Do not forget to authenticate.",
-                  "Use authenticate(file='secretsFile.json').",
-                  "See method documentation on how to obtain the secretsFile.")
+    if (.authStore$use_api_key) {
+      messages <- c(messages, paste("Authentication error; please check the",
+                                    "public API key you provided. See",
+                                    "?GoogleGenomics::authenticate for",
+                                    "details."))
+    } else {
+      messages <- c(messages, paste("Authentication error; please try to run",
+                                    "GoogleGenomics::authenticate again. If",
+                                    "the problem persists, please contact",
+                                    "Google Genomics support."))
+    }
+  } else if (400 == status_code(response)) {
+    if (.authStore$use_api_key) {
+      messages <- c(messages, paste("This could be from an incorrect public",
+                                    "API key. See",
+                                    "?GoogleGenomics::authenticate for",
+                                    "details."))
+    }
   }
 
   if (0 != length(messages)) {
-    warning(paste(messages, collapse='\n'), immediate=TRUE)
+    warning(paste(messages, collapse='\n'), immediate.=TRUE)
   }
 
   # Lastly, emit a general message and stop for status code >= 300.

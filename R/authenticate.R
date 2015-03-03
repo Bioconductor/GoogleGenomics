@@ -25,7 +25,7 @@
 #'   file could be for a native application or a service account. If this file
 #'   is not present, clientId and clientSecret must be provided for native
 #'   application credentials. Service account support needs version 0.1-2 or
-#'   greater of \code{\link[PKI]{PKI}}.
+#'   greater of \href{https://github.com/s-u/PKI}{PKI}.
 #' @param clientId Client ID from Google Developer Console, overridden if file
 #'   is provided.
 #' @param clientSecret Client Secret from Google Developer Console, overridden
@@ -100,4 +100,8 @@ authenticate <- function(file, clientId, clientSecret,
 
   message("Configured OAuth token.")
   return(invisible())
+}
+
+authenticated <- function() {
+  return(.authStore$use_api_key || !is.null(.authStore$google_token))
 }
