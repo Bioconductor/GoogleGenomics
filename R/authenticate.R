@@ -92,7 +92,7 @@ authenticate <- function(file, clientId, clientSecret,
         endpoint, app,
         scope=scope,
         use_oob=!invokeBrowser,
-        cache=getOption("google_auth_cache"))
+        cache=getOption("google_auth_cache_httr"))
   } else {
     .authStore$google_token <- oauth_service_token(
         endpoint, clientSecrets, scope=scope)
