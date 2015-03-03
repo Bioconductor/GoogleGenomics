@@ -1,13 +1,17 @@
-# The tests will only be run if there is an environment variable called API_KEY_SERVER containing the public API key.
+# The tests will only be run if there is an environment variable called
+# GOOGLE_API_KEY containing the public API key.
 
-# Configure authentication
-apiKey <- Sys.getenv("API_KEY_SERVER", unset=NA)
+# Get the API key from the environment variable.
+apiKey <- Sys.getenv("GOOGLE_API_KEY")
 if (!is.na(apiKey) && nchar(apiKey)>0) {
   GoogleGenomics::authenticate(apiKey=apiKey)
   # Perform the tests
   library(testthat)
   test_check("GoogleGenomics")
+  message("SUCCESS: All tests pass.")
 } else {
   # Skip the tests
-  message("Public key unavailable for authentication with Google Genomics. Skipping tests...")
+  warning(paste(
+      "Public key unavailable for authentication with Google Genomics.",
+      "Skipping tests..."))
 }

@@ -36,6 +36,12 @@
 #'
 #'     nextPageToken: The token to be used to retrieve the next page of
 #'                    results, if applicable.
+#' @family page fetch functions
+#' @examples
+#' # Authenticated on package load from the env variable GOOGLE_API_KEY.
+#' variantsPage <- getVariantsPage()
+#' summary(variantsPage)
+#' summary(variantsPage$variants[[1]])
 #' @export
 getVariantsPage <- function(datasetId="10473108253681171589",
                             chromosome="22",
@@ -74,9 +80,16 @@ getVariantsPage <- function(datasetId="10473108253681171589",
 #' @param converter A function that takes a list of variant R objects and
 #'                  returns them converted to the desired type.
 #' @return By default, the return value is a list of R objects
-#' corresponding to the JSON objects returned by the Google Genomics
-#' Variants API.  If a converter is passed, object(s) of the type
-#' returned by the converter will be returned by this function.
+#'   corresponding to the JSON objects returned by the Google Genomics
+#'   Variants API.  If a converter is passed, object(s) of the type
+#'   returned by the converter will be returned by this function.
+#' @seealso \code{\link{getReads}} for equivalent function for reads, and
+#'   \code{\link{variantsToVRanges}} for a converter function.
+#' @examples
+#' # Authenticated on package load from the env variable GOOGLE_API_KEY.
+#' variants <- getVariants()
+#' summary(variants)
+#' summary(variants[[1]])
 #' @export
 getVariants <- function(datasetId="10473108253681171589",
                         chromosome="22",
@@ -103,7 +116,7 @@ getVariants <- function(datasetId="10473108253681171589",
                   pageToken))
   }
 
-  message("Variants are now available")
+  message("Variants are now available.")
   variants
 }
 
@@ -122,6 +135,13 @@ getVariants <- function(datasetId="10473108253681171589",
 #' @param oneBasedCoord Convert genomic positions to 1-based coordinates.
 #' @param slStyle The style for seqnames (chrN or N or...).  Default is UCSC.
 #' @return \link[VariantAnnotation]{VRanges}
+#' @family variants converter functions
+#' @examples
+#' # Authenticated on package load from the env variable GOOGLE_API_KEY.
+#' variants1 <- getVariants(converter=variantsToVRanges)
+#' summary(variants1)
+#' variants2 <- variantsToVRanges(getVariants())
+#' print(identical(variants1, variants2))
 #' @export
 variantsToVRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
   if (missing(variants)) {
@@ -141,8 +161,8 @@ variantsToVRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
                        end=as.integer(v$end)),
         ref=as.character(v$referenceBases),
         alt=as.character(v$alternateBases[1]),  # TODO flatten per alt
-        qual=as.numeric(v$quality),
-        filter=as.character(v$filter))
+        QUAL=as.numeric(v$quality),
+        FILTER=as.character(v$filter))
 
     names(ranges) <- as.character(v$names[1])
     ranges
@@ -168,6 +188,13 @@ variantsToVRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
 #' @param oneBasedCoord Convert genomic positions to 1-based coordinates.
 #' @param slStyle The style for seqnames (chrN or N or...).  Default is UCSC.
 #' @return \link[GenomicRanges]{GRanges}
+#' @family variants converter functions
+#' @examples
+#' # Authenticated on package load from the env variable GOOGLE_API_KEY.
+#' variants1 <- getVariants(converter=variantsToGRanges)
+#' summary(variants1)
+#' variants2 <- variantsToGRanges(getVariants())
+#' print(identical(variants1, variants2))
 #' @export
 variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
   if (missing(variants)) {
@@ -191,7 +218,6 @@ variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
         FILTER=as.character(v$filter))
 
     names(ranges) <- as.character(v$names[1])
-
     ranges
   }
   granges <- do.call("c", lapply(variants, variantsToGRangesHelper))
@@ -205,6 +231,7 @@ variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
 #' @param variants A list of R objects corresponding to the JSON objects
 #'   returned by the Google Genomics Variants API.
 #' @return \link[VariantAnnotation]{VCF}
+#' @family variants converter functions
 #' @export
 variantsToVCF <- function(variants) {
   stop("method not yet implemented")

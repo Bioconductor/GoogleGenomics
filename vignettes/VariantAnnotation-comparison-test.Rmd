@@ -1,4 +1,8 @@
-<!-- R Markdown Documentation, DO NOT EDIT THE PLAIN MARKDOWN VERSION OF THIS FILE -->
+---
+title: Reproducing Variant Annotation Results
+output:
+  BiocStyle::html_document
+---
 
 <!-- Copyright 2014 Google Inc. All rights reserved. -->
 
@@ -14,10 +18,29 @@
 <!-- See the License for the specific language governing permissions and -->
 <!-- limitations under the License. -->
 
-Reproducing Variant Annotation Results
----------------------------------------
+<!--
+%% \VignetteEngine{knitr::rmarkdown}
+%% \VignetteIndexEntry{Reproducing Variant Annotation Results}
+-->
 
-Below we compare the results of annotating variants via the [VariantAnnotation](http://www.bioconductor.org/packages/release/bioc/html/VariantAnnotation.html)  [BioConductor](http://www.bioconductor.org/) package.  We compare using data from 1,000 Genomes Phase 1 Variants:
+```{r style, echo = FALSE, results = 'asis'}
+BiocStyle::markdown()
+```
+
+```{r, echo = FALSE}
+apiKey <- Sys.getenv("GOOGLE_API_KEY")
+if (nchar(apiKey) == 0) {
+  warning(paste("To build this vignette, please setup the environment variable",
+                "GOOGLE_API_KEY with the public API key from your Google",
+                "Developer Console before loading the GoogleGenomics package,",
+                "or run GoogleGenomics::authenticate."))
+  knitr::knit_exit()
+}
+```
+
+# Reproducing Variant Annotation Results
+
+Below we compare the results of annotating variants via `r Biocpkg("VariantAnnotation")`.  We compare using data from 1,000 Genomes Phase 1 Variants:
 * as parsed from a VCF file
 * retrieved from the Google Genomics API
 
@@ -25,7 +48,7 @@ Below we compare the results of annotating variants via the [VariantAnnotation](
 
 First we read in the data from the VCF file:
 ```{r}
-require(VariantAnnotation)
+suppressPackageStartupMessages(library(VariantAnnotation))
 fl <- system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
 vcf <- readVcf(fl, "hg19")
 vcf <- renameSeqlevels(vcf, c("22"="chr22"))
@@ -43,7 +66,8 @@ Important data differences to note:
 * There are two variants in the Google Genomics copy of 1,000 Genomes phase 1 variants that are not in `chr22.vcf.gz`.  They are the only two variants within the genomic range with `ALT == <DEL>`.
 
 ```{r}
-require(GoogleGenomics)
+# Authenticated on package load from the env variable GOOGLE_API_KEY.
+suppressPackageStartupMessages(library(GoogleGenomics))
 
 # TODO Right now we're just getting a few variants.  Later update this to retrieve them all.
 system.time({
@@ -60,7 +84,7 @@ Ensure that the data retrieved by each matches:
 ```{r}
 vcf <- vcf[1:length(granges)] # Truncate the VCF data
 
-require(testthat)
+suppressPackageStartupMessages(library(testthat))
 expect_equal(start(granges), start(vcf))
 expect_equal(end(granges), end(vcf))
 expect_equal(as.character(granges$REF), as.character(ref(vcf)))
@@ -71,17 +95,9 @@ expect_equal(granges$FILTER, filt(vcf))
 
 ### Compare the Annotations
 
-```{r eval=FALSE}
-# To install annotation database packages (only need to do this once)
-source("http://bioconductor.org/biocLite.R")
-biocLite("TxDb.Hsapiens.UCSC.hg19.knownGene")
-biocLite("BSgenome.Hsapiens.UCSC.hg19")
-biocLite("org.Hs.eg.db")
-```
-
 Now locate the protein coding variants in each:
 ```{r}
-require(TxDb.Hsapiens.UCSC.hg19.knownGene)
+suppressPackageStartupMessages(library(TxDb.Hsapiens.UCSC.hg19.knownGene))
 txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
 
 
@@ -97,7 +113,7 @@ expect_equal(granges_locations, vcf_locations)
 
 And predict the effect of the protein coding variants:
 ```{r}
-require(BSgenome.Hsapiens.UCSC.hg19)
+suppressPackageStartupMessages(library(BSgenome.Hsapiens.UCSC.hg19))
 vcf_coding <- predictCoding(vcf, txdb, seqSource=Hsapiens)
 vcf_coding
 
@@ -117,7 +133,7 @@ expect_equal(granges_coding$CONSEQUENCE, vcf_coding$CONSEQUENCE)
 
 Add gene information:
 ```{r}
-require(org.Hs.eg.db)
+suppressPackageStartupMessages(library(org.Hs.eg.db))
 annots <- select(org.Hs.eg.db,
                  keys=granges_coding$GENEID,
                  keytype="ENTREZID",
