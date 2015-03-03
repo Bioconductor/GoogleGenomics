@@ -10,38 +10,36 @@ GoogleGenomics  |Build Status|_
 api-client-r
 ========
 
-This R client fetches data from the `Google Genomics API`_ and turns it into a
-GAlignments object provided by the `GenomicRanges package`_.
-
-This GAlignments object is then plotted using `ggbio`_ - but it can also be
-integrated with any of the other R packages that supports GAlignments or GRanges.
+This R client fetches reads and variants data from the `Google Genomics API`_
+and provides converters to obtain `BioConductor`_ S4 classes like GAlignments,
+and GRanges and VRanges.
 
 .. _Google Genomics API: https://developers.google.com/genomics
-.. _GenomicRanges package: http://master.bioconductor.org/packages/release/bioc/html/GenomicRanges.html
-.. _ggbio: http://master.bioconductor.org/packages/release/bioc/html/ggbio.html
+.. _BioConductor: http://www.bioconductor.org/
 
 Getting started
 ---------------
 
 * First you'll need to setup an `R environment <http://www.r-project.org/>`_.
 
-* Then you'll need a valid client ID and secret. Follow the `sign up
+* Then you'll need valid credentials. Follow the `sign up
   instructions <https://developers.google.com/genomics>`_.
-  Download the JSON file, or note down the ``Client ID`` and
-  ``Client secret`` values.
+  Download the JSON file for the native app or the service account, or note
+  down the ``Client ID`` and ``Client secret`` values for the native app. If
+  you only want to access public data, you can simply use the public API key.
 
 * To install the developer version of this package::
 
 .. code:: r
 
   source("http://bioconductor.org/biocLite.R")
-  biocLite()
+  biocLite() # Make sure you are using BioConductor version 3.0 or above.
   options(repos=biocinstallRepos())
   install.packages("devtools")
   devtools::install_github("googlegenomics/api-client-r")
   library(GoogleGenomics)
 
-After loading the package, the function :r:`authenticate` needs to be called once.  
+After loading the package, the function :r:`authenticate` needs to be called once.
 
 See the following examples for more detail:
 
@@ -49,12 +47,12 @@ See the following examples for more detail:
 
 * `Working with Variants <./inst/doc/VariantAnnotation-comparison-test.md>`_
 
-* and also the `integration tests <./tests>`_
+* and also the `integration tests <./tests/testthat>`_
 
 Shiny
 -----
 
-Inside of the `shiny` directory, the genomics-api.R file has
+Inside of the `shiny` directory, some basic functionality has
 been turned into a Shiny app. You can view the hosted version of the
 application on shinyapps.io:
 
@@ -78,5 +76,5 @@ Goals
 
 Current status
 ~~~~~~~~~~~~~~
-This project is in active development - the current code is very minimal and
-a lot of work is left. See GitHub issues for more details.
+This project is in active development - the current code is for a minimum viable package.
+See GitHub issues for more details.
