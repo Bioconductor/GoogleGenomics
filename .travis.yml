@@ -2,6 +2,7 @@ language: objective-c
 
 env:
   global:
+      # Support for PDF manuals is not available in Travis setup.
     - R_BUILD_ARGS='--no-manual'
     - R_CHECK_ARGS='--no-manual'
 
@@ -11,6 +12,11 @@ before_install:
   - ./travis-tool.sh bootstrap
 install:
   - ./travis-tool.sh install_bioc_deps
+
+before_script:
+    # Secure auth credentials can not be made available for pull requests.
+  - if [[ $TRAVIS_PULL_REQUEST != "false" ]]; then export R_BUILD_ARGS="--no-build-vignettes --no-manual"; export R_CHECK_ARGS="--no-vignettes --no-examples --no-manual"; fi
+
 script: ./travis-tool.sh run_tests
 
 after_failure:
