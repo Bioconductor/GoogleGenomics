@@ -34,7 +34,6 @@ variants2 <- variantsToVRanges(getVariants())
 print(identical(variants1, variants2))
 }
 \seealso{
-Other variants converter functions: \code{\link{variantsToGRanges}};
-  \code{\link{variantsToVCF}}
+Other variants converter functions: \code{\link{variantsToGRanges}}
 }
 

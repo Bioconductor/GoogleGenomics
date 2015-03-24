@@ -33,11 +33,6 @@ test_that("Variants are converted to VRanges correctly", {
   expect_equal(class(vranges)[1], "VRanges")
 })
 
-test_that("Converting variants to VCF throws an error", {
-  # Get VCF from the variants API [not yet implemented]
-  expect_error(fetchVariants(converter=variantsToVCF))
-})
-
 test_that("Variants data matches VariantAnnotation package", {
   # Get variants data from VariantAnnotation package
   fl <- system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
