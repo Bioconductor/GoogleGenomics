@@ -2,7 +2,7 @@ context("Variants")
 
 fetchVariants <- function(...) {
   getVariants(datasetId="10473108253681171589", chromosome="22",
-	      start=50300077, end=50301500, ...)
+              start=50300077, end=50301500, ...)
 }
 
 test_that("Raw variants are fetched correctly", {
@@ -13,8 +13,8 @@ test_that("Raw variants are fetched correctly", {
   expect_equal(class(variants)[1], "list")
   expect_equal(names(variants[[1]]), c("variantSetId", "id", "names", "created",
                                        "referenceName", "start", "end",
-                                       "referenceBases", "alternateBases", "quality",
-                                       "filter", "info", "calls"))
+                                       "referenceBases", "alternateBases",
+                                       "quality", "filter", "info", "calls"))
 })
 
 test_that("Variants are converted to GRanges correctly", {

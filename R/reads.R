@@ -114,7 +114,8 @@ getReads <- function(readGroupSetId="CMvnhpKTFhDnk4_9zcKO3_YB",
                            fields=fields,
                            pageToken=pageToken)
     pageToken <- result$nextPageToken
-    # TODO improve performance https://github.com/googlegenomics/api-client-r/issues/17
+    # TODO improve performance,
+    # see https://github.com/googlegenomics/api-client-r/issues/17
     reads <- c(reads, converter(result$reads))
     if (is.null(pageToken)) {
       break
@@ -144,7 +145,8 @@ getCigar <- function(read) {
           read$alignment$cigar,
           function(cigarPiece) {
             paste0(cigarPiece$operationLength,
-                   cigar_enum_map[cigarPiece$operation])}),
+                   cigar_enum_map[cigarPiece$operation])
+          }),
       collapse="")
 }
 
@@ -221,14 +223,14 @@ getFlags <- function(read) {
 #' alignments2 <- readsToGAlignments(getReads())
 #' print(identical(alignments1, alignments2))
 #' @export
-readsToGAlignments <- function(reads, oneBasedCoord=TRUE, slStyle='UCSC') {
+readsToGAlignments <- function(reads, oneBasedCoord=TRUE, slStyle="UCSC") {
 
   if (missing(reads)) {
     return(GAlignments())
   }
 
   # Transform the Genomics API data into a GAlignments object
-  names <- sapply(reads, '[[', 'fragmentName')
+  names <- sapply(reads, "[[", "fragmentName")
   cigars <- sapply(reads, getCigar)
   positions <- sapply(reads, getPosition)
   if (oneBasedCoord) {
@@ -239,11 +241,9 @@ readsToGAlignments <- function(reads, oneBasedCoord=TRUE, slStyle='UCSC') {
 
   isMinusStrand <- bamFlagAsBitMatrix(as.integer(flags),
                                       bitnames="isMinusStrand")
-  total_reads <- length(positions)
-
   alignments <- GAlignments(
       seqnames=Rle(chromosomes),
-      strand=strand(as.vector(ifelse(isMinusStrand, '-', '+'))),
+      strand=strand(as.vector(ifelse(isMinusStrand, "-", "+"))),
       pos=positions, cigar=cigars, names=names, flag=flags)
 
   seqlevelsStyle(alignments) <- slStyle

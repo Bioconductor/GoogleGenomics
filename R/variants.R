@@ -107,7 +107,8 @@ getVariants <- function(datasetId="10473108253681171589",
                               fields=fields,
                               pageToken=pageToken)
     pageToken <- result$nextPageToken
-    # TODO improve performance https://github.com/googlegenomics/api-client-r/issues/17
+    # TODO improve performance,
+    # see https://github.com/googlegenomics/api-client-r/issues/17
     variants <- c(variants, converter(result$variants))
     if (is.null(pageToken)) {
       break
@@ -143,7 +144,7 @@ getVariants <- function(datasetId="10473108253681171589",
 #' variants2 <- variantsToVRanges(getVariants())
 #' print(identical(variants1, variants2))
 #' @export
-variantsToVRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
+variantsToVRanges <- function(variants, oneBasedCoord=TRUE, slStyle="UCSC") {
   if (missing(variants)) {
     return(VRanges())
   }
@@ -196,7 +197,7 @@ variantsToVRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
 #' variants2 <- variantsToGRanges(getVariants())
 #' print(identical(variants1, variants2))
 #' @export
-variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle='UCSC') {
+variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle="UCSC") {
   if (missing(variants)) {
     return(GRanges())
   }

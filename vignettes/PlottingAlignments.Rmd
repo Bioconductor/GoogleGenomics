@@ -57,14 +57,16 @@ Display the basic alignments and coverage data:
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(ggbio))
 alignmentPlot <- autoplot(alignments, aes(color=strand, fill=strand))
-coveragePlot <- ggplot(as(alignments, 'GRanges')) + stat_coverage(color="gray40", fill="skyblue")
-tracks(alignmentPlot, coveragePlot, xlab="Reads overlapping rs9536314 for NA12893")
+coveragePlot <- ggplot(as(alignments, "GRanges")) +
+                stat_coverage(color="gray40", fill="skyblue")
+tracks(alignmentPlot, coveragePlot,
+       xlab="Reads overlapping rs9536314 for NA12893")
 ```
 
 You could also display the spot on the chromosome these alignments came from:
 ```{r ideogram}
 ideogramPlot <- plotIdeogram(genome="hg19", subchr="chr13")
-ideogramPlot + xlim(as(alignments, 'GRanges'))
+ideogramPlot + xlim(as(alignments, "GRanges"))
 ```
 
 ### Provenance
