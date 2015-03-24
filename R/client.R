@@ -85,7 +85,7 @@ getSearchPage <- function(entityType, body, fields, pageToken) {
 }
 
 checkResponse <- function(response) {
-  messages = list()
+  messages <- list()
 
   # Check for error messages in response body.
   # TODO: other API responses can succeed but still include warnings.
@@ -118,7 +118,7 @@ checkResponse <- function(response) {
   }
 
   if (0 != length(messages)) {
-    warning(paste(messages, collapse='\n'), immediate.=TRUE)
+    warning(paste(messages, collapse="\n"), immediate.=TRUE)
   }
 
   # Lastly, emit a general message and stop for status code >= 300.

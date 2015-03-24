@@ -3,7 +3,7 @@
 
 # Get the API key from the environment variable.
 apiKey <- Sys.getenv("GOOGLE_API_KEY")
-if (!is.na(apiKey) && nchar(apiKey)>0) {
+if (!is.na(apiKey) && nchar(apiKey) > 0) {
   GoogleGenomics::authenticate(apiKey=apiKey)
   # Perform the tests
   library(testthat)
