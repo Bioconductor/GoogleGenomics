@@ -226,14 +226,3 @@ variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle="UCSC") {
   seqlevelsStyle(granges) <- slStyle
   granges
 }
-
-#' Convert variants to VCF.
-#'
-#' @param variants A list of R objects corresponding to the JSON objects
-#'   returned by the Google Genomics Variants API.
-#' @return \link[VariantAnnotation]{VCF}
-#' @family variants converter functions
-#' @export
-variantsToVCF <- function(variants) {
-  stop("method not yet implemented")
-}
