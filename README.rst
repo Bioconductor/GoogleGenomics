@@ -14,7 +14,7 @@ This R client fetches reads and variants data from the `Google Genomics API`_
 and provides converters to obtain `BioConductor`_ S4 classes like GAlignments,
 and GRanges and VRanges.
 
-.. _Google Genomics API: https://developers.google.com/genomics
+.. _Google Genomics API: https://cloud.google.com/genomics
 .. _BioConductor: http://www.bioconductor.org/
 
 Getting started
@@ -23,7 +23,7 @@ Getting started
 * First you'll need to setup an `R environment <http://www.r-project.org/>`_.
 
 * Then you'll need valid credentials. Follow the `sign up
-  instructions <https://developers.google.com/genomics>`_.
+  instructions <https://cloud.google.com/genomics/install-genomics-tools#authenticate>`_.
   Download the JSON file for the native app or the service account, or note
   down the ``Client ID`` and ``Client secret`` values for the native app. If
   you only want to access public data, you can simply use the public API key.
