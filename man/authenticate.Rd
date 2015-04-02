@@ -34,7 +34,7 @@ to your Google account. Providing this key overrides all other arguments.}
 NULL (silently) if successful.
 }
 \description{
-Follow the sign up instructions at \url{https://developers.google.com/genomics}
+Follow the sign up instructions at \url{https://cloud.google.com/genomics/install-genomics-tools#authenticate}
   to download the client secrets file, or note the clientId and clientSecret
   pair.
 }

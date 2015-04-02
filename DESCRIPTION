@@ -20,6 +20,6 @@ Suggests:
 Description: Provides an R package to interact with the Google Genomics API.
 VignetteBuilder: knitr
 License: Apache License (== 2.0) | file LICENSE
-URL: https://developers.google.com/genomics/
+URL: https://cloud.google.com/genomics/
 BugReports: https://github.com/googlegenomics/api-client-r/issues
 biocViews: DataImport, ThirdPartyClient
