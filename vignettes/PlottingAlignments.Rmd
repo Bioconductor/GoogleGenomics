@@ -1,0 +1,76 @@
+---
+title: Plotting Alignments
+output:
+  BiocStyle::html_document
+---
+
+<!-- Copyright 2014 Google Inc. All rights reserved. -->
+
+<!-- Licensed under the Apache License, Version 2.0 (the "License"); -->
+<!-- you may not use this file except in compliance with the License. -->
+<!-- You may obtain a copy of the License at -->
+
+<!--     http://www.apache.org/licenses/LICENSE-2.0 -->
+
+<!-- Unless required by applicable law or agreed to in writing, software -->
+<!-- distributed under the License is distributed on an "AS IS" BASIS, -->
+<!-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. -->
+<!-- See the License for the specific language governing permissions and -->
+<!-- limitations under the License. -->
+
+<!--
+%% \VignetteEngine{knitr::rmarkdown}
+%% \VignetteIndexEntry{Plotting Alignments}
+-->
+
+```{r style, echo = FALSE, results = 'asis'}
+BiocStyle::markdown()
+```
+
+```{r, echo = FALSE}
+apiKey <- Sys.getenv("GOOGLE_API_KEY")
+if (nchar(apiKey) == 0) {
+  warning(paste("To build this vignette, please setup the environment variable",
+                "GOOGLE_API_KEY with the public API key from your Google",
+                "Developer Console before loading the GoogleGenomics package,",
+                "or run GoogleGenomics::authenticate."))
+  knitr::knit_exit()
+}
+```
+
+# Plotting Alignments
+
+Let's take a look at the reads that overlap [rs9536314](http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=9536314) for sample NA12893 within the [Illumina Platinum Genomes](https://cloud.google.com/genomics/data/platinum-genomes) dataset.  This SNP resides on chromosome 13 at position 33628137 in 0-based coordinates.
+```{r}
+# Authenticated on package load from the env variable GOOGLE_API_KEY.
+suppressPackageStartupMessages(library(GoogleGenomics))
+
+reads <- getReads(readGroupSetId="CMvnhpKTFhDyy__v0qfPpkw",
+                  chromosome="chr13",
+                  start=33628130,
+                  end=33628145)
+alignments <- readsToGAlignments(reads)
+```
+
+Display the basic alignments and coverage data:
+```{r coverage}
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(ggbio))
+alignmentPlot <- autoplot(alignments, aes(color=strand, fill=strand))
+coveragePlot <- ggplot(as(alignments, "GRanges")) +
+                stat_coverage(color="gray40", fill="skyblue")
+tracks(alignmentPlot, coveragePlot,
+       xlab="Reads overlapping rs9536314 for NA12893")
+```
+
+You could also display the spot on the chromosome these alignments came from:
+```{r ideogram}
+ideogramPlot <- plotIdeogram(genome="hg19", subchr="chr13")
+ideogramPlot + xlim(as(alignments, "GRanges"))
+```
+
+### Provenance
+Package versions used:
+```{r}
+sessionInfo()
+```
