@@ -34,9 +34,9 @@
 #' reads <- getSearchPage("reads", body, NULL, NULL)
 #' summary(reads)
 #' @export
-getSearchPage <- function(entityType, body, fields, pageToken) {
-
-  if (missing(entityType)) {
+getSearchPage <- function(entityType, body, fields, pageToken,meth1=paste(tolower(entityType),"search",sep='/')) {
+print(paste0("method:",meth1))
+  if (missing(entityType)&missing(meth1)) {
     stop("Missing required parameter entityType")
   }
   if (missing(body)) {
@@ -69,10 +69,9 @@ getSearchPage <- function(entityType, body, fields, pageToken) {
     queryConfig <- config(token=.authStore$google_token)
   }
 
-  message(paste("Fetching", entityType, "page."))
+  message(paste("Fetching", meth1, "page."))
   response <- POST(paste(getOption("google_genomics_endpoint"),
-                         tolower(entityType),
-                         "search",
+                         meth1,
                          sep="/"),
                    query=queryParams,
                    body=toJSON(body),
@@ -82,6 +81,56 @@ getSearchPage <- function(entityType, body, fields, pageToken) {
   checkResponse(response)
 
   content(response)
+}
+getAnyPage <- function(entityType, body, fields, pageToken,json.body,content.auto=TRUE) {
+  
+  if (missing(entityType)) {
+    stop("Missing required parameter entityType")
+  }
+  if (missing(body)&missing(json.body)) {
+    stop("Missing required parameter body  or json")
+  }
+  if (missing(fields)) {
+    stop("Missing required parameter fields")
+  }
+  if (missing(pageToken)) {
+    stop("Missing required parameter pageToken")
+  }
+  
+  if (!authenticated()) {
+    stop("You are not authenticated; see ?GoogleGenomics::authenticate.")
+  }
+  
+  queryParams <- list()
+  queryConfig <- config()
+  
+  if (!is.null(fields)) {
+    if (!grepl("nextPageToken", fields)) {
+      fields <- paste(fields, "nextPageToken", sep=",")
+    }
+    queryParams <- list(fields=fields)
+  }
+  
+  if (.authStore$use_api_key) {
+    queryParams <- c(queryParams, key=.authStore$api_key)
+  } else {
+    queryConfig <- config(token=.authStore$google_token)
+  }
+ if(missing(json.body)) json.body=toJSON(body) 
+  message(paste("Fetching", entityType, "page. With:",json.body))
+  response <- POST(paste(getOption("google_genomics_endpoint"),
+                         tolower(entityType),
+                         sep="/"),
+                   query=queryParams,
+                   body=json.body,
+                   queryConfig,
+                   add_headers("Content-Type"="application/json"))
+  
+  checkResponse(response)
+  
+if(content.auto) response=  content(response)
+
+response
 }
 
 checkResponse <- function(response) {

@@ -52,7 +52,7 @@
 #' }
 #' @export
 authenticate <- function(file, clientId, clientSecret,
-                         invokeBrowser, apiKey) {
+                         invokeBrowser, apiKey,scope =c("https://www.googleapis.com/auth/genomics","https://www.googleapis.com/auth/devstorage.read_write")) {
   # If API key is provided, use it and ignore everything else.
   if (!missing(apiKey)) {
     stopifnot(is.character(apiKey) && nchar(apiKey) > 0)
@@ -81,7 +81,7 @@ authenticate <- function(file, clientId, clientSecret,
 
   # Get oauth token.
   endpoint <- oauth_endpoints("google")
-  scope <- "https://www.googleapis.com/auth/genomics"
+  
   if (!serviceAccount) {
     if (missing(invokeBrowser)) {
       invokeBrowser <- "httpuv" %in% rownames(installed.packages())
