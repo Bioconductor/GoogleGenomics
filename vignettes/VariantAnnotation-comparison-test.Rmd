@@ -101,7 +101,7 @@ suppressPackageStartupMessages(library(TxDb.Hsapiens.UCSC.hg19.knownGene))
 txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
 
 
-rd <- rowData(vcf)
+rd <- rowRanges(vcf)
 vcf_locations <- locateVariants(rd, txdb, CodingVariants())
 vcf_locations
 

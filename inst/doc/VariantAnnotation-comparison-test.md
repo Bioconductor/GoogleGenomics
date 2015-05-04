@@ -36,7 +36,7 @@ vcf
 ```
 ## class: CollapsedVCF 
 ## dim: 10376 5 
-## rowData(vcf):
+## rowRanges(vcf):
 ##   GRanges with 5 metadata columns: paramRangeID, REF, ALT, QUAL, FILTER
 ## info(vcf):
 ##   DataFrame with 22 columns: LDAF, AVGPOST, RSQ, ERATE, THETA, CIEND, C...
@@ -175,7 +175,7 @@ require(TxDb.Hsapiens.UCSC.hg19.knownGene)
 txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
 
 
-rd <- rowData(vcf)
+rd <- rowRanges(vcf)
 vcf_locations <- locateVariants(rd, txdb, CodingVariants())
 vcf_locations
 ```
