@@ -58,22 +58,3 @@ will skip running unit tests and vignettes. If you set up Travis for your fork, 
 Travis build in the pull request will speed up the review process. If your pull request fails to
 pass tests, review the test log, make changes and then push them to your feature branch to be tested
 again.
-
-
-Contributor License Agreements
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-All pull requests are welcome. Before we can submit them though, there is a legal hurdle we have to jump.
-You'll need to fill out either the individual or corporate Contributor License Agreement
-(CLA).
-
-* If you are an individual writing original source code and you're sure you
-  own the intellectual property, then you'll need to sign an `individual CLA
-  <https://developers.google.com/open-source/cla/individual>`_.
-* If you work for a company that wants to allow you to contribute your work,
-  then you'll need to sign a `corporate CLA
-  <https://developers.google.com/open-source/cla/corporate>`_.
-
-Follow either of the two links above to access the appropriate CLA and
-instructions for how to sign and return it. Once we receive it, we'll be able to
-accept your pull requests.
