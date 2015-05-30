@@ -45,7 +45,7 @@ With the environment variable set, build the package and run checks as follows:
 .. code:: sh
 
   export GOOGLE_API_KEY=<your public API key>
-  R CMD build api-client-r
+  R CMD build GoogleGenomics
   R CMD check GoogleGenomics_<version>.tar.gz
 
 Optionally, you can also enable Travis for your fork and set up the environment variable in your
