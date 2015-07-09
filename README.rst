@@ -30,7 +30,7 @@ Getting started
   source("http://bioconductor.org/biocLite.R")
   useDevel(TRUE) # Skip this step if you do not want the devel version.
   # Make sure you are using BioConductor version 3.0 from the output of the above steps.
-  
+
   biocLite("GoogleGenomics")
   library(GoogleGenomics)
 
@@ -39,9 +39,9 @@ Alternatively, you can save the public key in the environment variable ``GOOGLE_
 
 See the following examples for more detail:
 
-* `Working with Reads <./inst/doc/PlottingAlignments.md>`_
+* `Working with Reads <http://bioconductor.org/packages/devel/bioc/vignettes/GoogleGenomics/inst/doc/PlottingAlignments.html>`_
 
-* `Working with Variants <./inst/doc/VariantAnnotation-comparison-test.md>`_
+* `Working with Variants <http://bioconductor.org/packages/devel/bioc/vignettes/GoogleGenomics/inst/doc/VariantAnnotation-comparison-test.html>`_
 
 * and also the `integration tests <./tests/testthat>`_
 
