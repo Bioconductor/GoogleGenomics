@@ -38,17 +38,73 @@ if (nchar(apiKey) == 0) {
 }
 ```
 
-# Reproducing Variant Annotation Results
+## Working with Variants
+
+[Google Genomics](http://cloud.google.com/genomics) implements the [GA4GH](http://ga4gh.org/) variants API and this R package can retrieve data from that implementation.  For more detail, see https://cloud.google.com/genomics/v1beta2/reference/variants
+
+
+```{r message=FALSE}
+library(GoogleGenomics)
+# This vignette is authenticated on package load from the env variable GOOGLE_API_KEY.
+# When running interactively, call the authenticate method.
+# ?authenticate
+```
+
+By default, this function retrieves variants for a small genomic region from the [1,000 Genomes](http://googlegenomics.readthedocs.org/en/latest/use_cases/discover_public_data/1000_genomes.html) phase 1 variants.
+```{r}
+variants <- getVariants()
+length(variants)
+```
+
+We can see that `r length(variants)` individual variants were returned and that the JSON response was deserialized into an R list object:
+```{r}
+class(variants)
+mode(variants)
+```
+
+The top level field names are:
+```{r}
+names(variants[[1]])
+```
+
+The variant contains nested calls:
+```{r}
+length(variants[[1]]$calls)
+```
+
+With top level call field names:
+```{r}
+names(variants[[1]]$calls[[1]])
+```
+
+And examining a call for a particular variant:
+```{r}
+variants[[1]]$referenceName
+variants[[1]]$start
+variants[[1]]$alternateBases
+variants[[1]]$calls[[1]]
+```
+
+This is good, but this data becomes **much** more useful when it is converted to Bioconductor data types.  For example, we can convert variants in this list representation to VRanges from `r Biocpkg("VariantAnnotation")`: 
+```{r}
+variantsToVRanges(variants)
+```
+
+## Reproducing Variant Annotation Results
 
 Below we compare the results of annotating variants via `r Biocpkg("VariantAnnotation")`.  We compare using data from 1,000 Genomes Phase 1 Variants:
-* as parsed from a VCF file
-* retrieved from the Google Genomics API
+
+ * as parsed from a VCF file
+ * retrieved from the Google Genomics API
 
 ### VCF Data
 
 First we read in the data from the VCF file:
+```{r message=FALSE}
+library(VariantAnnotation)
+```
+
 ```{r}
-suppressPackageStartupMessages(library(VariantAnnotation))
 fl <- system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
 vcf <- readVcf(fl, "hg19")
 vcf <- renameSeqlevels(vcf, c("22"="chr22"))
@@ -62,29 +118,32 @@ The file `chr22.vcf.gz` within package VariantAnnotation holds data for 5 of the
 ### Google Genomics Data
 
 Important data differences to note:
-* VCF data uses 1-based coordinates but data from the GA4GH APIs is 0-based.
-* There are two variants in the Google Genomics copy of 1,000 Genomes phase 1 variants that are not in `chr22.vcf.gz`.  They are the only two variants within the genomic range with `ALT == <DEL>`.
+
+ * VCF data uses 1-based coordinates but data from the GA4GH APIs is 0-based.
+ * There are two variants in the Google Genomics copy of 1,000 Genomes phase 1 variants that are not in `chr22.vcf.gz`.  They are the only two variants within the genomic range with `ALT == <DEL>`.
 
 ```{r}
-# Authenticated on package load from the env variable GOOGLE_API_KEY.
-suppressPackageStartupMessages(library(GoogleGenomics))
-
-# TODO Right now we're just getting a few variants.  Later update this to retrieve them all.
-system.time({
+# We're just getting the first few variants so that this runs quickly.
+# If we wanted to get them all, we sould set end=50999964.
 granges <- getVariants(datasetId="10473108253681171589",
                        chromosome="22",
                        start=50300077,
-                       end=50303000,         # TODO end=50999964
+                       end=50303000,
                        converter=variantsToGRanges)
-})
 ```
 
 ### Compare the Loaded Data
 Ensure that the data retrieved by each matches:
 ```{r}
-vcf <- vcf[1:length(granges)] # Truncate the VCF data
+vcf <- vcf[1:length(granges)] # Truncate the VCF data so that it is the same 
+                              # set as what was retrieved from the API.
+```
 
-suppressPackageStartupMessages(library(testthat))
+```{r message=FALSE}
+library(testthat)
+```
+
+```{r}
 expect_equal(start(granges), start(vcf))
 expect_equal(end(granges), end(vcf))
 expect_equal(as.character(granges$REF), as.character(ref(vcf)))
@@ -96,10 +155,12 @@ expect_equal(granges$FILTER, filt(vcf))
 ### Compare the Annotations
 
 Now locate the protein coding variants in each:
-```{r}
-suppressPackageStartupMessages(library(TxDb.Hsapiens.UCSC.hg19.knownGene))
-txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+```{r message=FALSE}
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+```
 
+```{r}
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
 
 rd <- rowRanges(vcf)
 vcf_locations <- locateVariants(rd, txdb, CodingVariants())
@@ -112,8 +173,11 @@ expect_equal(granges_locations, vcf_locations)
 ```
 
 And predict the effect of the protein coding variants:
+```{r message=FALSE}
+library(BSgenome.Hsapiens.UCSC.hg19)
+```
+
 ```{r}
-suppressPackageStartupMessages(library(BSgenome.Hsapiens.UCSC.hg19))
 vcf_coding <- predictCoding(vcf, txdb, seqSource=Hsapiens)
 vcf_coding
 
@@ -132,8 +196,11 @@ expect_equal(granges_coding$CONSEQUENCE, vcf_coding$CONSEQUENCE)
 ```
 
 Add gene information:
+```{r message=FALSE}
+library(org.Hs.eg.db)
+```
+
 ```{r}
-suppressPackageStartupMessages(library(org.Hs.eg.db))
 annots <- select(org.Hs.eg.db,
                  keys=granges_coding$GENEID,
                  keytype="ENTREZID",
@@ -141,9 +208,7 @@ annots <- select(org.Hs.eg.db,
 cbind(elementMetadata(granges_coding), annots)
 ```
 
-### Provenance
-Package versions used:
+## Provenance
 ```{r}
 sessionInfo()
 ```
-

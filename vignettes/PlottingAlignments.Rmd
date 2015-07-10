@@ -38,24 +38,64 @@ if (nchar(apiKey) == 0) {
 }
 ```
 
-# Plotting Alignments
+## Working with Reads
 
-Let's take a look at the reads that overlap [rs9536314](http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=9536314) for sample NA12893 within the [Illumina Platinum Genomes](https://cloud.google.com/genomics/data/platinum-genomes) dataset.  This SNP resides on chromosome 13 at position 33628137 in 0-based coordinates.
-```{r}
-# Authenticated on package load from the env variable GOOGLE_API_KEY.
-suppressPackageStartupMessages(library(GoogleGenomics))
-
-reads <- getReads(readGroupSetId="CMvnhpKTFhDyy__v0qfPpkw",
-                  chromosome="chr13",
-                  start=33628130,
-                  end=33628145)
-alignments <- readsToGAlignments(reads)
+[Google Genomics](http://cloud.google.com/genomics) implements the [GA4GH](http://ga4gh.org/) reads API and this R package can retrieve data from that implementation.  For more detail, see https://cloud.google.com/genomics/v1beta2/reference/reads
+```{r message=FALSE}
+library(GoogleGenomics)
+# This vignette is authenticated on package load from the env variable GOOGLE_API_KEY.
+# When running interactively, call the authenticate method.
+# ?authenticate
 ```
 
-Display the basic alignments and coverage data:
+By default, this function retrieves reads for a small genomic region for one sample in [1,000 Genomes](http://googlegenomics.readthedocs.org/en/latest/use_cases/discover_public_data/1000_genomes.html).
+```{r}
+reads <- getReads()
+length(reads)
+```
+
+We can see that `r length(reads)` individual reads were returned and that the JSON response was deserialized into an R list object:
+```{r}
+class(reads)
+mode(reads)
+```
+
+The top level field names are:
+```{r}
+names(reads[[1]])
+```
+
+And examining the alignment we see:
+```{r}
+reads[[1]]$alignedSequence
+reads[[1]]$alignment$position$referenceName
+reads[[1]]$alignment$position$position
+```
+
+This is good, but this data becomes **much** more useful when it is converted to Bioconductor data types.  For example, we can convert reads in this list representation to `r Biocpkg("GAlignments")`:
+```{r}
+readsToGAlignments(reads)
+```
+
+## Plotting Alignments
+
+Let's take a look at the reads that overlap [rs9536314](http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=9536314) for sample NA12893 within the [Illumina Platinum Genomes](http://googlegenomics.readthedocs.org/en/latest/use_cases/discover_public_data/platinum_genomes.html) dataset.  This SNP resides on chromosome 13 at position 33628137 in 0-based coordinates.
+```{r}
+alignments <- getReads(readGroupSetId="CMvnhpKTFhDyy__v0qfPpkw",
+                       chromosome="chr13",
+                       start=33628130,
+                       end=33628145,
+                       converter=readsToGAlignments)
+alignments
+```
+
+Notice that we passed the converter to the getReads method so that we're immediately working with GAlignments which means that we can start taking advantage of other Bioconductor functionality:
+```{r message=FALSE}
+library(ggbio)
+```
+
+We can display the basic alignments and coverage data:
 ```{r coverage}
-suppressPackageStartupMessages(library(ggplot2))
-suppressPackageStartupMessages(library(ggbio))
 alignmentPlot <- autoplot(alignments, aes(color=strand, fill=strand))
 coveragePlot <- ggplot(as(alignments, "GRanges")) +
                 stat_coverage(color="gray40", fill="skyblue")
@@ -63,14 +103,13 @@ tracks(alignmentPlot, coveragePlot,
        xlab="Reads overlapping rs9536314 for NA12893")
 ```
 
-You could also display the spot on the chromosome these alignments came from:
+And also display the ideogram for the corresponding location on the chromosome:
 ```{r ideogram}
 ideogramPlot <- plotIdeogram(genome="hg19", subchr="chr13")
 ideogramPlot + xlim(as(alignments, "GRanges"))
 ```
 
-### Provenance
-Package versions used:
+## Provenance
 ```{r}
 sessionInfo()
 ```
