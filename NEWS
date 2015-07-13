@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.1.2
+------------------------
+Added additional introductory material to the vignettes.
+
+CHANGES IN VERSION 1.1.1
+------------------------
+use rowRanges() instead of defunct rowData()
+
 CHANGES IN VERSION 1.0.0
 ------------------------
 
