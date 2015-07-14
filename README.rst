@@ -1,14 +1,11 @@
 GoogleGenomics  |Build Status|_
 ==============================
 
-.. |Build Status| image:: http://img.shields.io/travis/googlegenomics/api-client-r.svg?style=flat
-.. _Build Status: https://travis-ci.org/googlegenomics/api-client-r
+.. |Build Status| image:: http://img.shields.io/travis/Bioconductor/GoogleGenomics.svg?style=flat
+.. _Build Status: https://travis-ci.org/Bioconductor/GoogleGenomics
 
 .. role:: r(code)
    :language: r
-
-api-client-r
-========
 
 This R client fetches reads and variants data from the `Google Genomics API`_
 and provides converters to obtain `BioConductor`_ S4 classes like GAlignments,
@@ -20,9 +17,7 @@ and GRanges and VRanges.
 Getting started
 ---------------
 
-* First you'll need to setup an `R environment <http://www.r-project.org/>`_.
-
-* Then you'll need valid credentials. Follow the `sign up
+* You'll need valid credentials. Follow the `sign up
   instructions <https://cloud.google.com/genomics/install-genomics-tools#authenticate>`_.
   Download the JSON file for the native app or the service account, or note
   down the ``Client ID`` and ``Client secret`` values for the native app. If
@@ -33,13 +28,14 @@ Getting started
 .. code:: r
 
   source("http://bioconductor.org/biocLite.R")
-  biocLite() # Make sure you are using BioConductor version 3.0 or above.
-  options(repos=biocinstallRepos())
-  install.packages("devtools")
-  devtools::install_github("googlegenomics/api-client-r")
+  useDevel(TRUE) # Skip this step if you do not want the devel version.
+  # Make sure you are using BioConductor version 3.0 from the output of the above steps.
+  
+  biocLite("GoogleGenomics")
   library(GoogleGenomics)
 
 After loading the package, the function :r:`authenticate` needs to be called once.
+Alternatively, you can save the public key in the environment variable ``GOOGLE_API_KEY``.
 
 See the following examples for more detail:
 
@@ -58,7 +54,7 @@ application on shinyapps.io:
 
 http://googlegenomics.shinyapps.io/reads
 
-See the `README <https://github.com/googlegenomics/api-client-r/tree/master/shiny>`_ for more information.
+See the `README <https://github.com/Bioconductor/GoogleGenomics/tree/master/shiny>`_ for more information.
 
 
 Project status
