@@ -26,8 +26,8 @@ shinyUI(fluidPage(
           value = 'CMvnhpKTFhCbiObuzvm7nOoB'),
       textInput('chr', label = 'Reference name', value = '19'),
       numericInput('position', label = '0-based Position', value = '29564500'),
-      div(a(href = "http://github.com/googlegenomics/api-client-r",
-          "http://github.com/googlegenomics/api-client-r"))
+      div(a(href = "http://github.com/Bioconductor/GoogleGenomics",
+          "http://github.com/Bioconductor/GoogleGenomics"))
     ),
 
     mainPanel(

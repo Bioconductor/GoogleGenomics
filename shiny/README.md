@@ -7,7 +7,7 @@ Read data from the Google Genomics API
   ```
   devtools::install_github("shiny", "rstudio")
   library(shiny)
-  runGitHub("api-client-r", "googlegenomics", subdir = "shiny")
+  runGitHub("GoogleGenomics", "Bioconductor", subdir = "shiny")
   ```
 
   You'll need the same client ID and secret values that you used 
@@ -40,9 +40,9 @@ for getting your environment set up. From then on:
   ```
   library(shinyapps)
   library(shiny)
-  runApp("path/to/api-client-r/shiny")
+  runApp("path/to/GoogleGenomics/shiny")
   ```
 * And when everything is final, deploy it:
   ```
-  deployApp("path/to/api-client-r/shiny", "reads")
+  deployApp("path/to/GoogleGenomics/shiny", "reads")
   ```
