@@ -38,11 +38,11 @@ if (nchar(apiKey) == 0) {
 }
 ```
 
-# Working with Reads
+## Working with Reads
 
 [Google Genomics](http://cloud.google.com/genomics) implements the [GA4GH](http://ga4gh.org/) reads API and this R package can retrieve data from that implementation.  For more detail, see https://cloud.google.com/genomics/v1beta2/reference/reads
 ```{r message=FALSE}
-require(GoogleGenomics)
+library(GoogleGenomics)
 # This vignette is authenticated on package load from the env variable GOOGLE_API_KEY.
 # When running interactively, call the authenticate method.
 # ?authenticate
@@ -72,12 +72,12 @@ reads[[1]]$alignment$position$referenceName
 reads[[1]]$alignment$position$position
 ```
 
-This is good, but this data becomes **way** more useful when it is converted to native Bioconductor data types.  For example, we can convert reads in this list representation to `r Biocpkg("GAlignments")`:
+This is good, but this data becomes **much** more useful when it is converted to Bioconductor data types.  For example, we can convert reads in this list representation to `r Biocpkg("GAlignments")`:
 ```{r}
 readsToGAlignments(reads)
 ```
 
-# Plotting Alignments
+## Plotting Alignments
 
 Let's take a look at the reads that overlap [rs9536314](http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=9536314) for sample NA12893 within the [Illumina Platinum Genomes](http://googlegenomics.readthedocs.org/en/latest/use_cases/discover_public_data/platinum_genomes.html) dataset.  This SNP resides on chromosome 13 at position 33628137 in 0-based coordinates.
 ```{r}
@@ -91,7 +91,7 @@ alignments
 
 Notice that we passed the converter to the getReads method so that we're immediately working with GAlignments which means that we can start taking advantage of other Bioconductor functionality:
 ```{r message=FALSE}
-require(ggbio)
+library(ggbio)
 ```
 
 We can display the basic alignments and coverage data:
@@ -109,7 +109,7 @@ ideogramPlot <- plotIdeogram(genome="hg19", subchr="chr13")
 ideogramPlot + xlim(as(alignments, "GRanges"))
 ```
 
-### Provenance
+## Provenance
 ```{r}
 sessionInfo()
 ```
