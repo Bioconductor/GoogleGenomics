@@ -1,0 +1,157 @@
+---
+title: Annotating Variants
+output:
+  BiocStyle::html_document
+---
+
+<!-- Copyright 2014 Google Inc. All rights reserved. -->
+
+<!-- Licensed under the Apache License, Version 2.0 (the "License"); -->
+<!-- you may not use this file except in compliance with the License. -->
+<!-- You may obtain a copy of the License at -->
+
+<!--     http://www.apache.org/licenses/LICENSE-2.0 -->
+
+<!-- Unless required by applicable law or agreed to in writing, software -->
+<!-- distributed under the License is distributed on an "AS IS" BASIS, -->
+<!-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. -->
+<!-- See the License for the specific language governing permissions and -->
+<!-- limitations under the License. -->
+
+<!--
+%% \VignetteEngine{knitr::rmarkdown}
+%% \VignetteIndexEntry{Annotating Variants}
+-->
+
+```{r style, echo = FALSE, results = 'asis'}
+BiocStyle::markdown()
+```
+
+```{r, echo=FALSE, results="hide"}
+# Ensure that any errors cause the Vignette build to fail.
+library(knitr)
+opts_chunk$set(error=FALSE)
+```
+
+```{r, echo = FALSE}
+apiKey <- Sys.getenv("GOOGLE_API_KEY")
+if (nchar(apiKey) == 0) {
+  warning(paste("To build this vignette, please setup the environment variable",
+                "GOOGLE_API_KEY with the public API key from your Google",
+                "Developer Console before loading the GoogleGenomics package,",
+                "or run GoogleGenomics::authenticate."))
+  knitr::knit_exit()
+}
+```
+
+## Working with Variants
+
+[Google Genomics](http://cloud.google.com/genomics) implements the [GA4GH](http://ga4gh.org/) variants API and this R package can retrieve data from that implementation.  For more detail, see https://cloud.google.com/genomics/v1beta2/reference/variants
+
+
+```{r message=FALSE}
+library(GoogleGenomics)
+# This vignette is authenticated on package load from the env variable GOOGLE_API_KEY.
+# When running interactively, call the authenticate method.
+# ?authenticate
+```
+
+By default, this function retrieves variants for a small genomic region from the [1,000 Genomes](http://googlegenomics.readthedocs.org/en/latest/use_cases/discover_public_data/1000_genomes.html) phase 1 variants.
+```{r}
+variants <- getVariants()
+length(variants)
+```
+
+We can see that `r length(variants)` individual variants were returned and that the JSON response was deserialized into an R list object:
+```{r}
+class(variants)
+mode(variants)
+```
+
+The top level field names are:
+```{r}
+names(variants[[1]])
+```
+
+The variant contains nested calls:
+```{r}
+length(variants[[1]]$calls)
+```
+
+With top level call field names:
+```{r}
+names(variants[[1]]$calls[[1]])
+```
+
+And examining a call for a particular variant:
+```{r}
+variants[[1]]$referenceName
+variants[[1]]$start
+variants[[1]]$alternateBases
+variants[[1]]$calls[[1]]
+```
+
+This is good, but this data becomes **much** more useful when it is converted to Bioconductor data types.  For example, we can convert variants in this list representation to VRanges from `r Biocpkg("VariantAnnotation")`: 
+```{r}
+variantsToVRanges(variants)
+```
+
+## Annotating Variants
+
+Next let's use package `r Biocpkg("VariantAnnotation")` to annotate some specific 1,000 Genomes Phase 1 variants.
+
+```{r message=FALSE}
+library(VariantAnnotation)
+```
+
+Note that the parameters `start` and `end` are expressed in 0-based coordinates per the GA4GH specification but the Bioconductor data type converters in `r Biocpkg("GoogleGenomics")`, by default, transform the returned data to 1-based coordinates.
+```{r}
+granges <- getVariants(datasetId="10473108253681171589",
+                       chromosome="22",
+                       start=50300077,
+                       end=50303000,
+                       converter=variantsToGRanges)
+```
+
+Now locate the protein coding variants in each:
+```{r message=FALSE}
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+```
+
+```{r}
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+granges_locations <- locateVariants(granges, txdb, CodingVariants())
+granges_locations
+```
+
+And predict the effect of the protein coding variants:
+```{r message=FALSE}
+library(BSgenome.Hsapiens.UCSC.hg19)
+```
+
+```{r}
+granges_coding <- predictCoding(rep(granges, elementLengths(granges$ALT)),
+                                txdb,
+                                seqSource=Hsapiens,
+                                varAllele=unlist(granges$ALT, use.names=FALSE))
+
+granges_coding
+```
+
+Finally, add gene information:
+```{r message=FALSE}
+library(org.Hs.eg.db)
+```
+
+```{r}
+annots <- select(org.Hs.eg.db,
+                 keys=granges_coding$GENEID,
+                 keytype="ENTREZID",
+                 columns=c("SYMBOL", "GENENAME","ENSEMBL"))
+cbind(elementMetadata(granges_coding), annots)
+```
+
+## Provenance
+```{r}
+sessionInfo()
+```
