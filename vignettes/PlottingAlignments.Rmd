@@ -87,6 +87,8 @@ readsToGAlignments(reads)
 
 Let's take a look at the reads that overlap [rs9536314](http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=9536314) for sample NA12893 within the [Illumina Platinum Genomes](http://googlegenomics.readthedocs.org/en/latest/use_cases/discover_public_data/platinum_genomes.html) dataset.  This SNP resides on chromosome 13 at position 33628137 in 0-based coordinates.
 ```{r}
+# Change the values of 'chromosome', 'start', or 'end' here if you wish to plot 
+# alignments from a different portion of the genome.
 alignments <- getReads(readGroupSetId="CMvnhpKTFhDyy__v0qfPpkw",
                        chromosome="chr13",
                        start=33628130,
@@ -95,7 +97,8 @@ alignments <- getReads(readGroupSetId="CMvnhpKTFhDyy__v0qfPpkw",
 alignments
 ```
 
-Notice that we passed the converter to the getReads method so that we're immediately working with GAlignments which means that we can start taking advantage of other Bioconductor functionality:
+Notice that we passed the converter to the getReads method so that we're immediately working with GAlignments which means that we can start taking advantage of other Bioconductor functionality.  Also keep in mind that the parameters `start` and `end` are expressed in 0-based coordinates per the GA4GH specification but the Bioconductor data type converters in `r Biocpkg("GoogleGenomics")`, by default, transform the returned data to 1-based coordinates.
+
 ```{r message=FALSE}
 library(ggbio)
 ```
