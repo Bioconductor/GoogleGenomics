@@ -41,7 +41,9 @@ See the following examples for more detail:
 
 * `Working with Reads <http://bioconductor.org/packages/devel/bioc/vignettes/GoogleGenomics/inst/doc/PlottingAlignments.html>`_
 
-* `Working with Variants <http://bioconductor.org/packages/devel/bioc/vignettes/GoogleGenomics/inst/doc/VariantAnnotation-comparison-test.html>`_
+* `Working with Variants <http://bioconductor.org/packages/devel/bioc/vignettes/GoogleGenomics/inst/doc/AnnotatingVariants.html>`_
+
+* `Variant Annotation Comparison Test <http://bioconductor.org/packages/devel/bioc/vignettes/GoogleGenomics/inst/doc/VariantAnnotation-comparison-test.html>`_
 
 * and also the `integration tests <./tests/testthat>`_
 
