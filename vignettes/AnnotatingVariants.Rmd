@@ -130,7 +130,7 @@ library(BSgenome.Hsapiens.UCSC.hg19)
 ```
 
 ```{r}
-granges_coding <- predictCoding(rep(granges, elementLengths(granges$ALT)),
+granges_coding <- predictCoding(rep(granges, elementNROWS(granges$ALT)),
                                 txdb,
                                 seqSource=Hsapiens,
                                 varAllele=unlist(granges$ALT, use.names=FALSE))

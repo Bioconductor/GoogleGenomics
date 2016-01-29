@@ -3,13 +3,13 @@ import(httr)
 importFrom(rjson, fromJSON, toJSON)
 
 ## Bioc utility functions and S4 constructors ##
+import(S4Vectors)
 importFrom(Biostrings, DNAStringSet, DNAStringSetList)
 importFrom(GenomeInfoDb, "seqlevelsStyle<-")
 importFrom(GenomicAlignments, GAlignments)
 importFrom(GenomicRanges, GRanges)
 importFrom(IRanges, IRanges)
 importFrom(Rsamtools, bamFlagAsBitMatrix)
-importFrom(S4Vectors, Rle)
 importFrom(VariantAnnotation, strand, VRanges)
 
 #### Exports ####

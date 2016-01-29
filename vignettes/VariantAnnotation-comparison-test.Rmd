@@ -143,7 +143,7 @@ library(BSgenome.Hsapiens.UCSC.hg19)
 vcf_coding <- predictCoding(vcf, txdb, seqSource=Hsapiens)
 vcf_coding
 
-granges_coding <- predictCoding(rep(granges, elementLengths(granges$ALT)),
+granges_coding <- predictCoding(rep(granges, elementNROWS(granges$ALT)),
                                 txdb,
                                 seqSource=Hsapiens,
                                 varAllele=unlist(granges$ALT, use.names=FALSE))
