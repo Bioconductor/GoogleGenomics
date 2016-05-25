@@ -117,7 +117,7 @@ getReads <- function(readGroupSetId="CMvnhpKTFhDnk4_9zcKO3_YB",
     # TODO improve performance,
     # see https://github.com/Bioconductor/GoogleGenomics/issues/17
     reads <- c(reads, converter(result$reads))
-    if (is.null(pageToken)) {
+    if (is.null(pageToken) || pageToken == "") {
       break
     }
     message(paste("Continuing read query with the nextPageToken:", pageToken))
