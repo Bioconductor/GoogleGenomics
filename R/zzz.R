@@ -15,7 +15,7 @@
 .onLoad <- function(libname, pkgname) {
   currentOptions <- options()
   defaultOptions <- list(
-      google_genomics_endpoint="https://www.googleapis.com/genomics/v1beta2",
+      google_genomics_endpoint="https://genomics.googleapis.com/v1",
       google_auth_cache_httr=file.path("~", ".r-google-auth-httr"))
   toset <- !(names(defaultOptions) %in% names(currentOptions))
   if (any(toset)) options(defaultOptions[toset])
