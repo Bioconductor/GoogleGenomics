@@ -110,7 +110,7 @@ getVariants <- function(datasetId="10473108253681171589",
     # TODO improve performance,
     # see https://github.com/Bioconductor/GoogleGenomics/issues/17
     variants <- c(variants, converter(result$variants))
-    if (is.null(pageToken)) {
+    if (is.null(pageToken) || pageToken == "") {
       break
     }
     message(paste("Continuing variant query with the nextPageToken:",
