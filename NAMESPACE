@@ -12,6 +12,9 @@ importFrom(Rsamtools, bamFlagAsBitMatrix)
 importFrom(S4Vectors, Rle)
 importFrom(VariantAnnotation, strand, VRanges)
 
+## Utility imports ##
+importFrom(utils, installed.packages)
+
 #### Exports ####
 
 ## Authentication ##
