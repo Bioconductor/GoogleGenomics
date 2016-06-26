@@ -12,6 +12,9 @@ importFrom(IRanges, IRanges)
 importFrom(Rsamtools, bamFlagAsBitMatrix)
 importFrom(VariantAnnotation, strand, VRanges)
 
+## Utility imports ##
+importFrom(utils, installed.packages)
+
 #### Exports ####
 
 ## Authentication ##
