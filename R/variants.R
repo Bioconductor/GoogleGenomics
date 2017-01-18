@@ -315,7 +315,7 @@ gr = as(rep(gr, each=clens[1]), "VRanges")
 #
 sampleNames(gr) = unlist(sids)
 #
-# add genotype field FIXME
+# add genotype field FIXME -- may not reflect actual content of GT field in VCF
 #
 gr$GT = gs
 #
