@@ -1,5 +1,5 @@
 Package: GoogleGenomics
-Version: 1.5.3
+Version: 1.5.4
 Date: 2017-01-18
 Title: R Client for Google Genomics API
 Authors@R: c(person("Cassie", "Doll", role = c("aut")),
@@ -18,7 +18,9 @@ Imports:
     httr,
     rjson,
     Rsamtools,
-    S4Vectors (>= 0.9.25)
+    S4Vectors (>= 0.9.25),
+    Biobase,
+    methods
 Suggests:
     BiocStyle,
     httpuv,

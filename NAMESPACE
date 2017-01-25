@@ -1,8 +1,10 @@
 ## Network connection related imports ##
 import(httr)
 importFrom(rjson, fromJSON, toJSON)
+import(methods)
 
 ## Bioc utility functions and S4 constructors ##
+importFrom(Biobase, "sampleNames<-")
 import(S4Vectors)
 importFrom(Biostrings, DNAStringSet, DNAStringSetList)
 importFrom(GenomeInfoDb, "seqlevelsStyle<-")
