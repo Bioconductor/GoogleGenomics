@@ -8,7 +8,7 @@ fetchVariants <- function(...) {
 test_that("Raw variants are fetched correctly", {
   # Get raw variants from Variants API
   variants <- fetchVariants()
-  expect_equal(length(variaseqvarnts), 27)
+  expect_equal(length(variants), 27)
   expect_equal(mode(variants), "list")
   expect_equal(class(variants)[1], "list")
   expect_equal(names(variants[[1]]), c("variantSetId", "id", "names", "created",
