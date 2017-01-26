@@ -8,4 +8,5 @@ r: bioc-release
 # Secure auth credentials can not be made available for pull requests.
 r_build_args:
 r_check_args: "$(if [[ $TRAVIS_PULL_REQUEST != 'false' ]]; then echo '--no-examples'; fi)"
-
+r_github_packages:
+  - cran/survival
