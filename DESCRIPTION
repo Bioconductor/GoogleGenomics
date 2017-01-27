@@ -9,8 +9,7 @@ Authors@R: c(person("Cassie", "Doll", role = c("aut")),
 Depends:
     R (>= 3.1.0),
     GenomicAlignments (>= 1.0.1),
-    VariantAnnotation,
-    survival (>= 2.40-1)
+    VariantAnnotation
 Imports:
     Biostrings,
     GenomeInfoDb,
@@ -38,5 +37,5 @@ VignetteBuilder: knitr
 License: Apache License (== 2.0) | file LICENSE
 URL: https://cloud.google.com/genomics/
 BugReports: https://github.com/Bioconductor/GoogleGenomics/issues
-biocViews: DataImport, ThirdPartyClient, genetics
+biocViews: DataImport, ThirdPartyClient, Genetics
 RoxygenNote: 5.0.1
