@@ -8,3 +8,4 @@ shiny/shinyapps
 *.Rproj
 *.html
 *.tex
+.DS_Store

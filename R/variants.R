@@ -226,3 +226,101 @@ variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle="UCSC") {
   seqlevelsStyle(granges) <- slStyle
   granges
 }
+
+#' Elaborate the result of getVariants as a VRanges with all
+#' calls for all samples
+
+#' @param datasetId The dataset ID.
+#' @param chromosome The chromosome.
+#' @param start Start position on the chromosome in 0-based coordinates.
+#' @param end End position on the chromosome in 0-based coordinates.
+#' @param fields A subset of fields to retrieve.  The default (NULL) will
+#'               return all fields.
+#' @param converter A function that takes a list of variant R objects and
+#'                  returns them converted to the desired type.
+#' @param oneBasedCoord Convert returned addresses to 1-based address system
+#' @examples
+#' # default to generate VRanges
+#' getVariantCalls()
+#' @export
+#'
+
+getVariantCalls = function(datasetId = "10473108253681171589", 
+    chromosome = "22", 
+    start = 16051400, end = 16051500, fields = NULL, converter = c,
+    oneBasedCoord = TRUE)  {
+#
+# this function is an elementary approach to obtaining
+# all calls in a GoogleGenomics 'getVariants' call
+#
+# fields in a getVariants list element
+# [1] "variantSetId"   "id"             "names"          "created"       
+# [5] "referenceName"  "start"          "end"            "referenceBases"
+# [9] "alternateBases" "quality"        "filter"         "info"          
+#[13] "calls"         
+#
+# subfields in the call field
+#[1] "callSetId"          "callSetName"        "genotype"          
+#[4] "phaseset"           "genotypeLikelihood" "info"              
+#
+# call getVariants
+ggv = getVariants(datasetId = datasetId, chromosome=chromosome,
+    start = start, end = end, fields = fields, converter = converter )
+#
+#
+# obtain start, end, chr, and base for each variant in requested range
+#
+sts = as.numeric(sapply(ggv, function(x) x$start))
+ens = as.numeric(sapply(ggv, function(x) x$end))
+chrs = sapply(ggv, function(x) x$referenceName)
+refs = sapply(ggv, function(x) x$referenceBases)
+alts = sapply(ggv, function(x) x$alternateBases)
+#
+# variant names could be one per alt
+#
+vnames = sapply(ggv, "[[", "names")
+allnames = apply(vnames,2,function(x) paste(unique(x), collapse=";"))
+#
+# determine counts and values of variant calls in range (all samples)
+#
+clens = sapply(ggv, function(x) length(x$calls))
+calls = lapply(ggv, function(x) x$calls)
+#
+#
+# retrieve all sample identifiers for each variant
+# and confirm that they are consistently ordered for all variants
+# fail if they are not
+#
+sids = lapply(calls, sapply, function(x)x$callSetName) # sample names
+if (length(sids)>1)
+  for (j in 2:length(sids)) stopifnot(all.equal(sids[[1]], sids[[j]]))
+#
+# begin a GRanges with structural and base information
+#
+if (oneBasedCoord) sts=sts+1
+gr = GRanges(chrs, IRanges(sts,ens), ref=refs, 
+       alt=sapply(alts, paste, collapse="")) # any multinucleotide alts collapsed
+#
+# obtain all genotype calls, current assumption is "unphased" -- need more info
+# from VCF content, might be in the JSON -- FIXME
+#
+gs = unlist(lapply(calls, sapply, function(x)paste(unlist(x$genotype), 
+    collapse="/")))
+#
+# obtain initial VRanges
+#
+gr = as(rep(gr, each=clens[1]), "VRanges")
+#
+# bind sample names
+#
+sampleNames(gr) = unlist(sids)
+#
+# add genotype field FIXME -- may not reflect actual content of GT field in VCF
+#
+gr$GT = gs
+#
+# bind on variant names
+#
+names(gr) = rep(allnames, each=clens[1])
+gr
+}

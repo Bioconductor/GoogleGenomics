@@ -1,6 +1,6 @@
 Package: GoogleGenomics
-Version: 1.5.2
-Date: 2015-07-13
+Version: 1.5.4
+Date: 2017-01-18
 Title: R Client for Google Genomics API
 Authors@R: c(person("Cassie", "Doll", role = c("aut")),
              person("Nicole", "Deflaux", role = c("aut")),
@@ -11,15 +11,31 @@ Depends:
     GenomicAlignments (>= 1.0.1),
     VariantAnnotation
 Imports:
-    Biostrings, GenomeInfoDb, GenomicRanges, IRanges, httr, rjson, Rsamtools,
-    S4Vectors (>= 0.9.25)
+    Biostrings,
+    GenomeInfoDb,
+    GenomicRanges,
+    IRanges,
+    httr,
+    rjson,
+    Rsamtools,
+    S4Vectors (>= 0.9.25),
+    Biobase,
+    methods
 Suggests:
-    BiocStyle, httpuv, knitr, rmarkdown, testthat,
-    ggbio, ggplot2,
-    BSgenome.Hsapiens.UCSC.hg19, org.Hs.eg.db, TxDb.Hsapiens.UCSC.hg19.knownGene
+    BiocStyle,
+    httpuv,
+    knitr,
+    rmarkdown,
+    testthat,
+    ggbio,
+    ggplot2,
+    BSgenome.Hsapiens.UCSC.hg19,
+    org.Hs.eg.db,
+    TxDb.Hsapiens.UCSC.hg19.knownGene
 Description: Provides an R package to interact with the Google Genomics API.
 VignetteBuilder: knitr
 License: Apache License (== 2.0) | file LICENSE
 URL: https://cloud.google.com/genomics/
 BugReports: https://github.com/Bioconductor/GoogleGenomics/issues
-biocViews: DataImport, ThirdPartyClient
+biocViews: DataImport, ThirdPartyClient, Genetics
+RoxygenNote: 5.0.1
