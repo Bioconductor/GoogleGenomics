@@ -1,9 +1,11 @@
 ## Network connection related imports ##
 import(httr)
+import(methods)
 importFrom(rjson, fromJSON, toJSON)
 
 ## Bioc utility functions and S4 constructors ##
 import(S4Vectors)
+importFrom(Biobase, "sampleNames<-")
 importFrom(Biostrings, DNAStringSet, DNAStringSetList)
 importFrom(GenomeInfoDb, "seqlevelsStyle<-")
 importFrom(GenomicAlignments, GAlignments)
@@ -30,6 +32,8 @@ export(readsToGAlignments)
 
 ## Variants ##
 export(getVariantsPage)
+export(getVariantCalls)
 export(getVariants)
 export(variantsToGRanges)
 export(variantsToVRanges)
+

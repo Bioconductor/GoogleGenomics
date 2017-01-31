@@ -9,3 +9,7 @@ r: bioc-release
 r_build_args:
 r_check_args: "$(if [[ $TRAVIS_PULL_REQUEST != 'false' ]]; then echo '--no-examples'; fi)"
 
+# survival version >= 2.40.1 is needed by HMisc.
+r_github_packages:
+  - cran/survival 
+
