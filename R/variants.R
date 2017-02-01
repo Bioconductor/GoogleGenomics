@@ -279,7 +279,11 @@ alts = sapply(ggv, function(x) x$alternateBases)
 # variant names could be one per alt
 #
 vnames = sapply(ggv, "[[", "names")
-allnames = apply(vnames,2,function(x) paste(unique(x), collapse=";"))
+if (is.matrix(vnames))
+  allnames = apply(vnames,2,function(x) paste(unique(x), collapse=";"))
+else if (is.list(vnames))
+  allnames = sapply(vnames, function(x)
+    if (is.character(unlist(x))) paste(unique(x), collapse=";") else NA)
 #
 # determine counts and values of variant calls in range (all samples)
 #
