@@ -1,5 +1,5 @@
 Package: GoogleGenomics
-Version: 1.7.2
+Version: 1.7.3
 Date: 2017-01-18
 Title: R Client for Google Genomics API
 Authors@R: c(person("Cassie", "Doll", role = c("aut")),

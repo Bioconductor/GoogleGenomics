@@ -239,6 +239,7 @@ variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle="UCSC") {
 #' @param converter A function that takes a list of variant R objects and
 #'                  returns them converted to the desired type.
 #' @param oneBasedCoord Convert returned addresses to 1-based address system
+#' @param nullAction either \code{"stop"} or \code{"warn"} telling how to deal with event in which request yields no variants; for \code{"warn"} we return NULL
 #' @examples
 #' # default to generate VRanges
 #' getVariantCalls()
@@ -248,7 +249,7 @@ variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle="UCSC") {
 getVariantCalls = function(datasetId = "10473108253681171589", 
     chromosome = "22", 
     start = 16051400, end = 16051500, fields = NULL, converter = c,
-    oneBasedCoord = TRUE)  {
+    oneBasedCoord = TRUE, nullAction = "stop")  {
 #
 # this function is an elementary approach to obtaining
 # all calls in a GoogleGenomics 'getVariants' call
@@ -271,6 +272,13 @@ ggv = getVariants(datasetId = datasetId, chromosome=chromosome,
 # obtain start, end, chr, and base for each variant in requested range
 #
 sts = as.numeric(sapply(ggv, function(x) x$start))
+if (length(sts) == 0) {
+  if (nullAction == "warn") {
+    warning("no variants in this interval")
+    return(NULL)
+  }
+  else stop("no variants in this interval")
+}
 ens = as.numeric(sapply(ggv, function(x) x$end))
 chrs = sapply(ggv, function(x) x$referenceName)
 refs = sapply(ggv, function(x) x$referenceBases)
@@ -279,7 +287,11 @@ alts = sapply(ggv, function(x) x$alternateBases)
 # variant names could be one per alt
 #
 vnames = sapply(ggv, "[[", "names")
-allnames = apply(vnames,2,function(x) paste(unique(x), collapse=";"))
+if (is.matrix(vnames))
+  allnames = apply(vnames, 2, function(x) paste(unique(x), collapse=";"))
+else if (is.list(vnames))
+  allnames = sapply(vnames, function(x)
+    {if (is.character(unlist(x))) paste(unique(x), collapse=";") else NA})
 #
 # determine counts and values of variant calls in range (all samples)
 #
