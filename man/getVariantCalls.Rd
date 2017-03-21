@@ -7,7 +7,7 @@ calls for all samples}
 \usage{
 getVariantCalls(datasetId = "10473108253681171589", chromosome = "22",
   start = 16051400, end = 16051500, fields = NULL, converter = c,
-  oneBasedCoord = TRUE)
+  oneBasedCoord = TRUE, nullaction = "stop")
 }
 \arguments{
 \item{datasetId}{The dataset ID.}
@@ -25,6 +25,8 @@ return all fields.}
 returns them converted to the desired type.}
 
 \item{oneBasedCoord}{Convert returned addresses to 1-based address system}
+
+\item{nullaction}{either \code{"stop"} or \code{"warn"} telling how to deal with event in which request yields no variants; for \code{"warn"} we return NULL}
 }
 \description{
 Elaborate the result of getVariants as a VRanges with all
