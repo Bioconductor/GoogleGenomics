@@ -239,6 +239,7 @@ variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle="UCSC") {
 #' @param converter A function that takes a list of variant R objects and
 #'                  returns them converted to the desired type.
 #' @param oneBasedCoord Convert returned addresses to 1-based address system
+#' @param nullaction either \code{"stop"} or \code{"warn"} telling how to deal with event in which request yields no variants; for \code{"warn"} we return NULL
 #' @examples
 #' # default to generate VRanges
 #' getVariantCalls()
@@ -248,7 +249,7 @@ variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle="UCSC") {
 getVariantCalls = function(datasetId = "10473108253681171589", 
     chromosome = "22", 
     start = 16051400, end = 16051500, fields = NULL, converter = c,
-    oneBasedCoord = TRUE)  {
+    oneBasedCoord = TRUE, nullaction="stop")  {
 #
 # this function is an elementary approach to obtaining
 # all calls in a GoogleGenomics 'getVariants' call
@@ -271,6 +272,13 @@ ggv = getVariants(datasetId = datasetId, chromosome=chromosome,
 # obtain start, end, chr, and base for each variant in requested range
 #
 sts = as.numeric(sapply(ggv, function(x) x$start))
+if (length(sts)==0) {
+  if (nullaction=="warn") {
+      warning("no variants in this interval")
+      return(NULL)
+      }
+  else stop("no variants in this interval")
+  }
 ens = as.numeric(sapply(ggv, function(x) x$end))
 chrs = sapply(ggv, function(x) x$referenceName)
 refs = sapply(ggv, function(x) x$referenceBases)
