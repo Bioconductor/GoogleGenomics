@@ -24,6 +24,7 @@ export(authenticate)
 
 ## Generic Search ##
 export(getSearchPage)
+export(getAnyPage)
 
 ## Reads ##
 export(getReadsPage)
