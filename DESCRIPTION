@@ -5,7 +5,7 @@ Title: R Client for Google Genomics API
 Authors@R: c(person("Cassie", "Doll", role = c("aut")),
              person("Nicole", "Deflaux", role = c("aut")),
              person("Siddhartha", "Bagaria", role = c("aut", "cre"),
-                    email="sidb@google.com"))
+                    email="bagaria.siddhartha@gmail.com"))
 Depends:
     R (>= 3.1.0),
     GenomicAlignments (>= 1.0.1),
