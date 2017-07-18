@@ -42,20 +42,37 @@
 #' variantsPage <- getVariantsPage()
 #' summary(variantsPage)
 #' summary(variantsPage$variants[[1]])
-#' @export
-getVariantsPage <- function(datasetId="10473108253681171589",
-                            chromosome="22",
-                            start=16051400,
-                            end=16051500,
-                            fields=NULL,
-                            pageToken=NULL) {
-
-  body <- list(variantSetIds=list(datasetId), referenceName=chromosome,
-               start=start, end=end, pageToken=pageToken)
+getVariantsPage <- function(datasetId = "10473108253681171589",
+                            chromosome = "22",
+                            start = 16051400,
+                            end = 16051500,
+                            fields = NULL,
+                            pageToken = NULL) {
+  body <-
+    list(
+      variantSetIds = list(datasetId),
+      referenceName = chromosome,
+      start = start,
+      end = end,
+      pageToken = pageToken
+    )
 
   results <- getSearchPage("variants", body, fields, pageToken)
 
-  list(variants=results$variants, nextPageToken=results$nextPageToken)
+  list(variants = results$variants,
+       nextPageToken = results$nextPageToken)
+}
+
+streamVariants <- function(datasetId, chromosome, start, end) {
+  if (missing(datasetId) || missing(chromosome) ||
+      missing(start) || missing(end)) {
+    stop("All arguments need to be provided to streamVariants.")
+  }
+
+  body <- list(variantSetId = datasetId, referenceName = chromosome,
+               start = start, end = end)
+
+  callGRPCMethod("StreamVariants", toJSON(body))
 }
 
 #' Get variants from Google Genomics.
@@ -79,6 +96,7 @@ getVariantsPage <- function(datasetId="10473108253681171589",
 #'               return all fields.
 #' @param converter A function that takes a list of variant R objects and
 #'                  returns them converted to the desired type.
+#' @param useGRPC Whether to use GRPC mechanism to query.
 #' @return By default, the return value is a list of R objects
 #'   corresponding to the JSON objects returned by the Google Genomics
 #'   Variants API.  If a converter is passed, object(s) of the type
@@ -90,22 +108,33 @@ getVariantsPage <- function(datasetId="10473108253681171589",
 #' variants <- getVariants()
 #' summary(variants)
 #' summary(variants[[1]])
-#' @export
-getVariants <- function(datasetId="10473108253681171589",
-                        chromosome="22",
-                        start=16051400,
-                        end=16051500,
-                        fields=NULL,
-                        converter=c) {
+getVariants <- function(datasetId = "10473108253681171589",
+                        chromosome = "22",
+                        start = 16051400,
+                        end = 16051500,
+                        fields = NULL,
+                        converter = c,
+                        useGRPC = getOption("google_genomics_use_grpc")) {
+  if (isTRUE(useGRPC)) {
+    stopifnot(isGRPCAvailable())
+    result <- streamVariants(datasetId, chromosome, start, end)
+    if (is.null(result)) {
+      stop("Something went wrong. Check printed messages above.")
+    }
+    return(converter(fromJSON(result)$variants))
+  }
+
   pageToken <- NULL
   variants <- converter()
   repeat {
-    result <- getVariantsPage(datasetId=datasetId,
-                              chromosome=chromosome,
-                              start=start,
-                              end=end,
-                              fields=fields,
-                              pageToken=pageToken)
+    result <- getVariantsPage(
+      datasetId = datasetId,
+      chromosome = chromosome,
+      start = start,
+      end = end,
+      fields = fields,
+      pageToken = pageToken
+    )
     pageToken <- result$nextPageToken
     # TODO improve performance,
     # see https://github.com/Bioconductor/GoogleGenomics/issues/17
@@ -113,8 +142,10 @@ getVariants <- function(datasetId="10473108253681171589",
     if (is.null(pageToken) || pageToken == "") {
       break
     }
-    message(paste("Continuing variant query with the nextPageToken:",
-                  pageToken))
+    message(paste(
+      "Continuing variant query with the nextPageToken:",
+      pageToken
+    ))
   }
 
   message("Variants are now available.")
@@ -143,36 +174,40 @@ getVariants <- function(datasetId="10473108253681171589",
 #' summary(variants1)
 #' variants2 <- variantsToVRanges(getVariants())
 #' print(identical(variants1, variants2))
-#' @export
-variantsToVRanges <- function(variants, oneBasedCoord=TRUE, slStyle="UCSC") {
-  if (missing(variants)) {
-    return(VRanges())
-  }
-
-  variantsToVRangesHelper <- function(v) {
-    if (TRUE == oneBasedCoord) {
-      position <- as.integer(v$start) + 1
-    } else {
-      position <- as.integer(v$start)
+variantsToVRanges <-
+  function(variants,
+           oneBasedCoord = TRUE,
+           slStyle = "UCSC") {
+    if (missing(variants)) {
+      return(VRanges())
     }
 
-    ranges <- VRanges(
-        seqnames=Rle(as.character(v$referenceName), 1),
-        ranges=IRanges(start=position,
-                       end=as.integer(v$end)),
-        ref=as.character(v$referenceBases),
-        alt=as.character(v$alternateBases[1]),  # TODO flatten per alt
-        QUAL=as.numeric(v$quality),
-        FILTER=as.character(v$filter))
+    variantsToVRangesHelper <- function(v) {
+      if (TRUE == oneBasedCoord) {
+        position <- as.integer(v$start) + 1
+      } else {
+        position <- as.integer(v$start)
+      }
 
-    names(ranges) <- as.character(v$names[1])
-    ranges
+      ranges <- VRanges(
+        seqnames = Rle(as.character(v$referenceName), 1),
+        ranges = IRanges(start = position,
+                         end = as.integer(v$end)),
+        ref = as.character(v$referenceBases),
+        alt = as.character(v$alternateBases[1]),
+        # TODO flatten per alt
+        QUAL = as.numeric(v$quality),
+        FILTER = as.character(v$filter)
+      )
+
+      names(ranges) <- as.character(v$names[1])
+      ranges
+    }
+    vranges <- do.call("c", lapply(variants, variantsToVRangesHelper))
+
+    seqlevelsStyle(vranges) <- slStyle
+    vranges
   }
-  vranges <- do.call("c", lapply(variants, variantsToVRangesHelper))
-
-  seqlevelsStyle(vranges) <- slStyle
-  vranges
-}
 
 #' Convert variants to GRanges.
 #'
@@ -196,8 +231,9 @@ variantsToVRanges <- function(variants, oneBasedCoord=TRUE, slStyle="UCSC") {
 #' summary(variants1)
 #' variants2 <- variantsToGRanges(getVariants())
 #' print(identical(variants1, variants2))
-#' @export
-variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle="UCSC") {
+variantsToGRanges <- function(variants,
+                              oneBasedCoord = TRUE,
+                              slStyle = "UCSC") {
   if (missing(variants)) {
     return(GRanges())
   }
@@ -210,18 +246,20 @@ variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle="UCSC") {
     }
 
     ranges <- GRanges(
-        seqnames=Rle(as.character(v$referenceName), 1),
-        ranges=IRanges(start=position,
-                       end=as.integer(v$end)),
-        REF=DNAStringSet(v$referenceBases),
-        ALT=DNAStringSetList(v$alternateBases),
-        QUAL=as.numeric(v$quality),
-        FILTER=as.character(v$filter))
+      seqnames = Rle(as.character(v$referenceName), 1),
+      ranges = IRanges(start = position,
+                       end = as.integer(v$end)),
+      REF = DNAStringSet(v$referenceBases),
+      ALT = DNAStringSetList(v$alternateBases),
+      QUAL = as.numeric(v$quality),
+      FILTER = as.character(v$filter)
+    )
 
     names(ranges) <- as.character(v$names[1])
     ranges
   }
-  granges <- do.call("c", lapply(variants, variantsToGRangesHelper))
+  granges <-
+    do.call("c", lapply(variants, variantsToGRangesHelper))
 
   seqlevelsStyle(granges) <- slStyle
   granges
@@ -229,7 +267,7 @@ variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle="UCSC") {
 
 #' Elaborate the result of getVariants as a VRanges with all
 #' calls for all samples
-
+#'
 #' @param datasetId The dataset ID.
 #' @param chromosome The chromosome.
 #' @param start Start position on the chromosome in 0-based coordinates.
@@ -239,100 +277,125 @@ variantsToGRanges <- function(variants, oneBasedCoord=TRUE, slStyle="UCSC") {
 #' @param converter A function that takes a list of variant R objects and
 #'                  returns them converted to the desired type.
 #' @param oneBasedCoord Convert returned addresses to 1-based address system
-#' @param nullAction either \code{"stop"} or \code{"warn"} telling how to deal with event in which request yields no variants; for \code{"warn"} we return NULL
+#' @param nullAction either \code{"stop"} or \code{"warn"} telling how to deal
+#'                   with event in which request yields no variants; for
+#'                   \code{"warn"} we return NULL
+#' @return By default, the return value is a VRanges object.
+#'         If a converter is passed, object(s) of the type returned by the
+#'         converter will be returned by this function.
 #' @examples
-#' # default to generate VRanges
+#' \dontrun{
 #' getVariantCalls()
-#' @export
-#'
+#' }
+getVariantCalls <- function(datasetId = "10473108253681171589",
+                            chromosome = "22",
+                            start = 16051400,
+                            end = 16051500,
+                            fields = NULL,
+                            converter = c,
+                            oneBasedCoord = TRUE,
+                            nullAction = "stop")  {
+  # This function is an elementary approach to obtaining
+  # all calls in a GoogleGenomics 'getVariants' call
+  #
+  # fields in a getVariants list element
+  #  [1] "variantSetId"   "id"             "names"          "created"
+  #  [5] "referenceName"  "start"          "end"            "referenceBases"
+  #  [9] "alternateBases" "quality"        "filter"         "info"
+  # [13] "calls"
+  #
+  # subfields in the call field
+  #  [1] "callSetId"          "callSetName"        "genotype"
+  #  [4] "phaseset"           "genotypeLikelihood" "info"
+  #
+  # call getVariants
+  ggv <- getVariants(
+    datasetId = datasetId,
+    chromosome = chromosome,
+    start = start,
+    end = end,
+    fields = fields,
+    converter = converter
+  )
 
-getVariantCalls = function(datasetId = "10473108253681171589", 
-    chromosome = "22", 
-    start = 16051400, end = 16051500, fields = NULL, converter = c,
-    oneBasedCoord = TRUE, nullAction = "stop")  {
-#
-# this function is an elementary approach to obtaining
-# all calls in a GoogleGenomics 'getVariants' call
-#
-# fields in a getVariants list element
-# [1] "variantSetId"   "id"             "names"          "created"       
-# [5] "referenceName"  "start"          "end"            "referenceBases"
-# [9] "alternateBases" "quality"        "filter"         "info"          
-#[13] "calls"         
-#
-# subfields in the call field
-#[1] "callSetId"          "callSetName"        "genotype"          
-#[4] "phaseset"           "genotypeLikelihood" "info"              
-#
-# call getVariants
-ggv = getVariants(datasetId = datasetId, chromosome=chromosome,
-    start = start, end = end, fields = fields, converter = converter )
-#
-#
-# obtain start, end, chr, and base for each variant in requested range
-#
-sts = as.numeric(sapply(ggv, function(x) x$start))
-if (length(sts) == 0) {
-  if (nullAction == "warn") {
-    warning("no variants in this interval")
-    return(NULL)
+  # obtain start, end, chr, and base for each variant in requested range
+  sts <- as.numeric(sapply(ggv, function(x)
+    x$start))
+  if (length(sts) == 0) {
+    if (nullAction == "warn") {
+      warning("no variants in this interval")
+      return(NULL)
+    }
+    else
+      stop("no variants in this interval")
   }
-  else stop("no variants in this interval")
-}
-ens = as.numeric(sapply(ggv, function(x) x$end))
-chrs = sapply(ggv, function(x) x$referenceName)
-refs = sapply(ggv, function(x) x$referenceBases)
-alts = sapply(ggv, function(x) x$alternateBases)
-#
-# variant names could be one per alt
-#
-vnames = sapply(ggv, "[[", "names")
-if (is.matrix(vnames))
-  allnames = apply(vnames, 2, function(x) paste(unique(x), collapse=";"))
-else if (is.list(vnames))
-  allnames = sapply(vnames, function(x)
-    {if (is.character(unlist(x))) paste(unique(x), collapse=";") else NA})
-#
-# determine counts and values of variant calls in range (all samples)
-#
-clens = sapply(ggv, function(x) length(x$calls))
-calls = lapply(ggv, function(x) x$calls)
-#
-#
-# retrieve all sample identifiers for each variant
-# and confirm that they are consistently ordered for all variants
-# fail if they are not
-#
-sids = lapply(calls, sapply, function(x)x$callSetName) # sample names
-if (length(sids)>1)
-  for (j in 2:length(sids)) stopifnot(all.equal(sids[[1]], sids[[j]]))
-#
-# begin a GRanges with structural and base information
-#
-if (oneBasedCoord) sts=sts+1
-gr = GRanges(chrs, IRanges(sts,ens), ref=refs, 
-       alt=sapply(alts, paste, collapse="")) # any multinucleotide alts collapsed
-#
-# obtain all genotype calls, current assumption is "unphased" -- need more info
-# from VCF content, might be in the JSON -- FIXME
-#
-gs = unlist(lapply(calls, sapply, function(x)paste(unlist(x$genotype), 
-    collapse="/")))
-#
-# obtain initial VRanges
-#
-gr = as(rep(gr, each=clens[1]), "VRanges")
-#
-# bind sample names
-#
-sampleNames(gr) = unlist(sids)
-#
-# add genotype field FIXME -- may not reflect actual content of GT field in VCF
-#
-gr$GT = gs
-#
-# bind on variant names
-#
-names(gr) = rep(allnames, each=clens[1])
-gr
+  ens <- as.numeric(sapply(ggv, function(x)
+    x$end))
+  chrs <- sapply(ggv, function(x)
+    x$referenceName)
+  refs <- sapply(ggv, function(x)
+    x$referenceBases)
+  alts <- sapply(ggv, function(x)
+    x$alternateBases)
+
+  # variant names could be one per alt
+  vnames <- sapply(ggv, "[[", "names")
+  if (is.matrix(vnames)) {
+    allnames <- apply(vnames, 2, function(x)
+      paste(unique(x), collapse = ";"))
+  } else if (is.list(vnames)) {
+    allnames <- sapply(vnames, function(x) {
+      if (is.character(unlist(x)))
+        paste(unique(x), collapse = ";")
+      else
+        NA
+    })
+  }
+
+  # determine counts and values of variant calls in range (all samples)
+  clens <- sapply(ggv, function(x)
+    length(x$calls))
+  calls <- lapply(ggv, function(x)
+    x$calls)
+
+  # retrieve all sample identifiers for each variant
+  # and confirm that they are consistently ordered for all variants
+  # fail if they are not
+  sids <- lapply(calls, sapply, function(x)
+    x$callSetName) # sample names
+  if (length(sids) > 1) {
+    for (j in 2:length(sids))
+      stopifnot(all.equal(sids[[1]], sids[[j]]))
+  }
+
+  # begin a GRanges with structural and base information
+  if (oneBasedCoord) {
+    sts <- sts + 1
+  }
+  gr <- GRanges(chrs,
+               IRanges(sts, ens),
+               ref = refs,
+               # any multinucleotide alts collapsed
+               alt = sapply(alts, paste, collapse = ""))
+
+  # obtain all genotype calls, current assumption is "unphased" -- need more
+  # info from VCF content, might be in the JSON -- FIXME
+  gs <- unlist(lapply(calls, sapply, function(x)
+    paste(unlist(x$genotype),
+          collapse = "/")))
+
+  # obtain initial VRanges
+  gr <- as(rep(gr, each = clens[1]), "VRanges")
+
+  # bind sample names
+  sampleNames(gr) <- unlist(sids)
+
+  # add genotype field FIXME -- may not reflect actual content of GT field in
+  # VCF
+  gr$GT <- gs
+
+  # bind on variant names
+  names(gr) <- rep(allnames, each = clens[1])
+
+  gr
 }

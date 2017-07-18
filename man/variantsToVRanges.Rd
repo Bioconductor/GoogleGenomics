@@ -36,4 +36,3 @@ print(identical(variants1, variants2))
 \seealso{
 Other variants converter functions: \code{\link{variantsToGRanges}}
 }
-

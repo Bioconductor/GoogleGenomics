@@ -1,0 +1,2 @@
+#define HAVE_GRPC @HAVE_GRPC@
+

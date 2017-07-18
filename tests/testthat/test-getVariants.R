@@ -11,10 +11,11 @@ test_that("Raw variants are fetched correctly", {
   expect_equal(length(variants), 27)
   expect_equal(mode(variants), "list")
   expect_equal(class(variants)[1], "list")
-  expect_equal(names(variants[[1]]), c("variantSetId", "id", "names", "created",
-                                       "referenceName", "start", "end",
-                                       "referenceBases", "alternateBases",
-                                       "quality", "filter", "info", "calls"))
+  expect_equal(0, length(setdiff(names(variants[[1]]),
+                                 c("variantSetId", "id", "names", "created",
+                                   "referenceName", "start", "end",
+                                   "referenceBases", "alternateBases",
+                                   "quality", "filter", "info", "calls"))))
 })
 
 test_that("Variants are converted to GRanges correctly", {

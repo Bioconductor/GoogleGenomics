@@ -1,0 +1,15 @@
+CXX_STD = CXX11
+
+PKG_CPPFLAGS = @CPPFLAGS@
+PKG_LIBS = @LIBS@
+
+# Do not compile gRPC related code.
+ifeq "@HAVE_GRPC@" "0"
+OBJECTS = init.o
+
+# Compile and link the generated protocol buffer code included with this package.
+else
+SOURCES = $(wildcard *.cc google/*/*.cc google/*/*/*.cc)
+OBJECTS = $(patsubst %.cc, %.o, $(SOURCES))
+
+endif

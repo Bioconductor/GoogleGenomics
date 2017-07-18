@@ -33,7 +33,6 @@
 #'              start=16051400, end=16051500, pageToken=NULL)
 #' reads <- getSearchPage("reads", body, NULL, NULL)
 #' summary(reads)
-#' @export
 getSearchPage <- function(entityType, body, fields, pageToken) {
 
   if (missing(entityType)) {

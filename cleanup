@@ -1,0 +1,4 @@
+#!/bin/sh
+
+rm -f config.* src/Makevars src/config.h
+rm -f src/*.so src/*.o src/google/*/*.o src/google/*/*/*.o

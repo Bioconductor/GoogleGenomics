@@ -47,7 +47,6 @@ summary(variantsPage)
 summary(variantsPage$variants[[1]])
 }
 \seealso{
-Other page fetch functions: \code{\link{getReadsPage}},
-  \code{\link{getSearchPage}}
+Other page fetch functions: \code{\link{callGRPCMethod}},
+  \code{\link{getReadsPage}}, \code{\link{getSearchPage}}
 }
-
