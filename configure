@@ -584,6 +584,9 @@ PACKAGE_URL=''
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 HAVE_GRPC
+GRPC_PLUGIN
+PROTOC_BINARY
+PKGCONFIG
 CXXCPP
 OBJEXT
 EXEEXT
@@ -592,6 +595,7 @@ CPPFLAGS
 LDFLAGS
 CXXFLAGS
 CXX
+PROTO_HEADER_PATH
 target_alias
 host_alias
 build_alias
@@ -639,13 +643,17 @@ with_grpc_lib
       ac_precious_vars='build_alias
 host_alias
 target_alias
+PROTO_HEADER_PATH
 CXX
 CXXFLAGS
 LDFLAGS
 LIBS
 CPPFLAGS
 CCC
-CXXCPP'
+CXXCPP
+PKGCONFIG
+PROTOC_BINARY
+GRPC_PLUGIN'
 
 
 # Initialize some variables set by options.
@@ -1260,6 +1268,8 @@ Optional Packages:
                           the location of GRPC libraries
 
 Some influential environment variables:
+  PROTO_HEADER_PATH
+              "Location of protobuf header files"
   CXX         C++ compiler command
   CXXFLAGS    C++ compiler flags
   LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
@@ -1268,6 +1278,10 @@ Some influential environment variables:
   CPPFLAGS    (Objective) C/C++ preprocessor flags, e.g. -I<include dir> if
               you have headers in a nonstandard directory <include dir>
   CXXCPP      C++ preprocessor
+  PKGCONFIG   "Whether pkg-config exists or not"
+  PROTOC_BINARY
+              "Absolute path of the protoc binary"
+  GRPC_PLUGIN "Absolute path of the grpc plugin binary"
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -1832,6 +1846,8 @@ LIBS=`"${R_HOME}/bin/R" CMD CONFIG LDFLAGS`
 CPPFLAGS="${CPPFLAGS} -I."
 
 
+
+
 # Check whether --with-grpc-include was given.
 if test "${with_grpc_include+set}" = set; then :
   withval=$with_grpc_include; grpc_include_path=$withval
@@ -1839,9 +1855,11 @@ fi
 
 if test -n "$grpc_include_path"; then
   CPPFLAGS="${CPPFLAGS} -I${grpc_include_path}"
+  PROTO_HEADER_PATH="-I${grpc_include_path}"
 else
   if test -n "${GRPC_INCLUDE_PATH}"; then
     CPPFLAGS="${CPPFLAGS} -I${GRPC_INCLUDE_PATH}"
+    PROTO_HEADER_PATH="-I${GRPC_INCLUDE_PATH}"
   fi
 fi
 
@@ -1859,6 +1877,7 @@ else
   fi
 fi
 
+DEFAULT_LIBS="${LIBS}"
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -2509,8 +2528,53 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
-DEFAULT_LIBS="${LIBS}"
-LIBS="${LIBS} -lprotobuf"
+
+PKGCONFIG=0
+# Extract the first word of "pkg-config", so it can be a program name with args.
+set dummy pkg-config; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_PKGCONFIG+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$PKGCONFIG"; then
+  ac_cv_prog_PKGCONFIG="$PKGCONFIG" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_PKGCONFIG="1"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+PKGCONFIG=$ac_cv_prog_PKGCONFIG
+if test -n "$PKGCONFIG"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PKGCONFIG" >&5
+$as_echo "$PKGCONFIG" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+if test "${PKGCONFIG}" -eq 1 && pkg-config --exists protobuf; then
+  CPPFLAGS="${CPPFLAGS} "`pkg-config --cflags protobuf`
+  PROTO_HEADER_PATH=`pkg-config --cflags-only-I protobuf`
+  LIBS="${LIBS} "`pkg-config --libs protobuf`
+else
+  LIBS="${LIBS} -lprotobuf"
+fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if ProtoBuf version >= 3.0.0" >&5
 $as_echo_n "checking if ProtoBuf version >= 3.0.0... " >&6; }
 if test "$cross_compiling" = yes; then :
@@ -2522,6 +2586,7 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <google/protobuf/stubs/common.h>
+                #include <google/protobuf/descriptor.pb.h>
 int
 main ()
 {
@@ -2543,8 +2608,57 @@ fi
 
 
 HAVE_GRPC=0
-if test  ${HAVE_PROTOBUF} -eq 1  ; then
-  LIBS="${LIBS} -lgrpc -lgrpc++"
+if test "${HAVE_PROTOBUF}" -eq 1; then
+
+  # Extract the first word of "protoc", so it can be a program name with args.
+set dummy protoc; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_PROTOC_BINARY+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $PROTOC_BINARY in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PROTOC_BINARY="$PROTOC_BINARY" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PROTOC_BINARY="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_PROTOC_BINARY" && ac_cv_path_PROTOC_BINARY="as_fn_error $? "\"protoc binary not found in $PATH\"" "$LINENO" 5"
+  ;;
+esac
+fi
+PROTOC_BINARY=$ac_cv_path_PROTOC_BINARY
+if test -n "$PROTOC_BINARY"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PROTOC_BINARY" >&5
+$as_echo "$PROTOC_BINARY" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+
+    if test "${PKGCONFIG}" -eq 1 && pkg-config --exists grpc grpc; then
+    CPPFLAGS="${CPPFLAGS} "`pkg-config --cflags grpc grpc++`
+    LIBS="${LIBS} "`pkg-config --libs grpc grpc++`
+  else
+    LIBS="${LIBS} -lgrpc -lgrpc++"
+  fi
+
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking gRPC" >&5
 $as_echo_n "checking gRPC... " >&6; }
   if test "$cross_compiling" = yes; then :
@@ -2575,26 +2689,139 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 
+  fi
+
+
+
+if test "${HAVE_GRPC}" -eq 1; then
+  # Extract the first word of "grpc_cpp_plugin", so it can be a program name with args.
+set dummy grpc_cpp_plugin; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_GRPC_PLUGIN+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $GRPC_PLUGIN in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_GRPC_PLUGIN="$GRPC_PLUGIN" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_GRPC_PLUGIN="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_GRPC_PLUGIN" && ac_cv_path_GRPC_PLUGIN="as_fn_error $? "\"grpc_cpp_plugin binary not found in $PATH\"" "$LINENO" 5"
+  ;;
+esac
+fi
+GRPC_PLUGIN=$ac_cv_path_GRPC_PLUGIN
+if test -n "$GRPC_PLUGIN"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $GRPC_PLUGIN" >&5
+$as_echo "$GRPC_PLUGIN" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
 fi
 
-if test  ${HAVE_GRPC} -eq 0  ; then
+
+
+    if test -z "${PROTO_HEADER_PATH}"; then
+    as_ac_File=`$as_echo "ac_cv_file_"/usr/include/google/protobuf/descriptor.proto"" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for \"/usr/include/google/protobuf/descriptor.proto\"" >&5
+$as_echo_n "checking for \"/usr/include/google/protobuf/descriptor.proto\"... " >&6; }
+if eval \${$as_ac_File+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r ""/usr/include/google/protobuf/descriptor.proto""; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+eval ac_res=\$$as_ac_File
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
+  PROTO_HEADER_PATH="-I/usr/include"
+fi
+
+    as_ac_File=`$as_echo "ac_cv_file_"/usr/local/include/google/protobuf/descriptor.proto"" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for \"/usr/local/include/google/protobuf/descriptor.proto\"" >&5
+$as_echo_n "checking for \"/usr/local/include/google/protobuf/descriptor.proto\"... " >&6; }
+if eval \${$as_ac_File+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r ""/usr/local/include/google/protobuf/descriptor.proto""; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+eval ac_res=\$$as_ac_File
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
+  PROTO_HEADER_PATH="-I/usr/local/include"
+fi
+
+    as_ac_File=`$as_echo "ac_cv_file_"/opt/local/include/google/protobuf/descriptor.proto"" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for \"/opt/local/include/google/protobuf/descriptor.proto\"" >&5
+$as_echo_n "checking for \"/opt/local/include/google/protobuf/descriptor.proto\"... " >&6; }
+if eval \${$as_ac_File+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r ""/opt/local/include/google/protobuf/descriptor.proto""; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+eval ac_res=\$$as_ac_File
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
+  PROTO_HEADER_PATH="-I/opt/local/include"
+fi
+
+    if test -z "${PROTO_HEADER_PATH}"; then
+      HAVE_GRPC=0
+    fi
+  fi
+fi
+
+if test "${HAVE_GRPC}" -eq 0; then
   LIBS=${DEFAULT_LIBS}
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: \"
 gRPC installation could not be found,
 or protocol buffer library is not >= 3.0.0.
 If your installation is in a non-standard location,
-please set the environment variables
-GRPC_INCLUDE_PATH and GRPC_LIBS_PATH.
-See configure.vars argument in install.packages.\"" >&5
+please see installation instructions at
+https://github.com/Bioconductor/GoogleGenomics/blob/master/README.rst
+\"" >&5
 $as_echo "$as_me: WARNING: \"
 gRPC installation could not be found,
 or protocol buffer library is not >= 3.0.0.
 If your installation is in a non-standard location,
-please set the environment variables
-GRPC_INCLUDE_PATH and GRPC_LIBS_PATH.
-See configure.vars argument in install.packages.\"" >&2;}
-else
-  CPPFLAGS="${CPPFLAGS} -DHAVE_GRPC"
+please see installation instructions at
+https://github.com/Bioconductor/GoogleGenomics/blob/master/README.rst
+\"" >&2;}
 fi
 
 

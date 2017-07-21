@@ -9,7 +9,11 @@
 extern "C" {
 
 SEXP builtWithGRPC() {
-  return Rf_ScalarLogical(HAVE_GRPC);
+#ifdef HAVE_GRPC
+  return Rf_ScalarLogical(true);
+#else
+  return Rf_ScalarLogical(false);
+#endif
 }
 
 #ifdef HAVE_GRPC

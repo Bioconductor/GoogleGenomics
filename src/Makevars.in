@@ -1,15 +1,41 @@
 CXX_STD = CXX11
 
-PKG_CPPFLAGS = @CPPFLAGS@
 PKG_LIBS = @LIBS@
 
 # Do not compile gRPC related code.
 ifeq "@HAVE_GRPC@" "0"
+
+PKG_CPPFLAGS = @CPPFLAGS@
 OBJECTS = init.o
 
 # Compile and link the generated protocol buffer code included with this package.
 else
-SOURCES = $(wildcard *.cc google/*/*.cc google/*/*/*.cc)
-OBJECTS = $(patsubst %.cc, %.o, $(SOURCES))
+
+PKG_CPPFLAGS = @CPPFLAGS@ -DHAVE_GRPC
+
+PROTO_SOURCES = $(wildcard google/*/*.proto google/*/*/*.proto)
+PROTO_CC = $(patsubst %.proto, %.pb.cc, $(PROTO_SOURCES))
+PROTO_OBJECTS = $(patsubst %.proto, %.pb.o, $(PROTO_SOURCES))
+
+SERVICE_CC = $(patsubst %.proto, %.grpc.pb.cc, $(PROTO_SOURCES))
+# SERVICE_OBJECTS = $(patsubst %.proto, %.grpc.pb.o, $(PROTO_SOURCES))
+SERVICES = $(addprefix google/genomics/v1/, annotations datasets reads references variants)
+SERVICE_OBJECTS = $(addsuffix .grpc.pb.o, $(SERVICES))
+
+PACKAGE_OBJECTS = $(patsubst %.cc, %.o, $(wildcard *.cc)) 
+
+OBJECTS = $(PROTO_OBJECTS) $(SERVICE_OBJECTS) $(PACKAGE_OBJECTS)
+
+.PHONY: all clean protolib
+
+$(SHLIB): $(OBJECTS)
+
+$(PROTO_CC) $(SERVICE_CC): protolib
+
+protolib: $(PROTO_SOURCES)
+	@PROTOC_BINARY@ @PROTO_HEADER_PATH@ -I. --cpp_out=. --grpc_out=. --plugin=protoc-gen-grpc=@GRPC_PLUGIN@ $?
+
+clean:
+	rm $(PROTO_CC) $(PROTO_CC:.cc=.h) $(SERVICE_CC) $(SERVICE_CC:.cc=.h) $(OBJECTS)
 
 endif

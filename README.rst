@@ -19,71 +19,75 @@ and GRanges and VRanges.
 .. _gRPC: https://grpc.io/
 .. _Homebrew: https://brew.sh/
 
-Getting started
----------------
+Installing
+----------
 
-* Installation
+Use the Bioconductor repositories to install this package.
 
-  Use the Bioconductor repositories to install this package.
+If you have `gRPC`_ installed, you will be able to access the entire v1
+Google Genomics API through the :r:`callGRPCMethod` function provided in
+the package. Without gRPC support, you will still be able to query reads
+and variants; see the vignettes for sample usage.
 
-  If you have `gRPC`_ installed, you will be able to access the entire v1
-  Google Genomics API through the :r:`callGRPCMethod` function provided in
-  the package. Without gRPC support, you will still be able to query reads
-  and variants; see the vignettes for sample usage.
+The set of fields returned might be different with gRPC but all essential
+fields should be present in both methods, and will have the same names.
 
-  The set of fields returned might be different with gRPC but all essential
-  fields should be present in both methods, and will have the same names.
+There is no gRPC support available for Windows currently.
 
-  There is no gRPC support available for Windows currently.
+* [Optional] Installing gRPC
 
-  * [Optional] gRPC installation
+  For MacOS with the `Homebrew`_ package manager system set up, you can simply
+  use :sh:`brew install grpc`. No additional steps are needed and you can skip
+  to installing the R package.
 
-    Please refer to `these instructions
-    <https://github.com/grpc/grpc/blob/master/INSTALL.md>`_ for installing from
-    source for all platforms. Also make sure to install the latest protobuf
-    libraries from within the grpc source code directory by:
+  For installing from source for all platforms, please refer to
+  `these instructions <https://github.com/grpc/grpc/blob/master/INSTALL.md>`_.
+  Also make sure to install the latest protobuf libraries from within the grpc
+  source code directory by:
 
-    :sh:`make -C third_party/protobuf install`
+  :sh:`make -C third_party/protobuf install`
 
-    For MacOS with the `Homebrew`_ package manager system set up, instead of
-    the instructions above, you can simply use :sh:`brew install grpc`.
+  Be sure to select :r:`type="source"` when installing the R package below.
+  Depending on your gRPC and protobuf install location, you may need to
+  specify the path manually (or install :sh:`pkg-config` on your system,
+  so we can ask it where the files are located).
+  For example, if your install location is :sh:`/opt/local/`:
 
-    Be sure to select :r:`type="source"` when installing the R package below.
-    Depending on your gRPC and protobuf install location, you may need to
-    specify the path manually.
-    For example, if your install location is :sh:`/opt/local/`:
+  .. code:: r
 
-    .. code:: r
-    
-      biocLite("GoogleGenomics", type="source",
-               configure.args=paste("--with-grpc-include='/opt/local/include'",
-                                    "--with-grpc-lib='/opt/local/lib'"))
+    biocLite("GoogleGenomics", type="source",
+             configure.args=paste("--with-grpc-include='/opt/local/include'",
+                                  "--with-grpc-lib='/opt/local/lib'"))
 
-    Or from github:
+  Or from github:
 
-    .. code:: r
+  .. code:: r
 
-      devtools::install_github("Bioconductor/GoogleGenomics", force=TRUE,
-          args=paste0("--configure-args='",
-                      "--with-grpc-include=/opt/local/include ",
-                      "--with-grpc-lib=/opt/local/lib'"))
+    devtools::install_github("Bioconductor/GoogleGenomics", force=TRUE,
+        args=paste0("--configure-args='",
+                    "--with-grpc-include=/opt/local/include ",
+                    "--with-grpc-lib=/opt/local/lib'"))
 
-  * Package installation
+* Installing R package
 
-    .. code:: r
+  .. code:: r
 
-      source("http://bioconductor.org/biocLite.R")
-      useDevel(TRUE) # Skip this step if you do not want the devel version.
+    source("http://bioconductor.org/biocLite.R")
+    useDevel(TRUE) # Skip this step if you do not want the devel version.
 
-      biocLite("GoogleGenomics")  # If gRPC is not installed.
-      biocLite("GoogleGenomics", type="source")  # If gRPC is installed.
-      library(GoogleGenomics)
+    biocLite("GoogleGenomics")  # If gRPC is not installed.
+    biocLite("GoogleGenomics", type="source")  # If gRPC is installed.
+    library(GoogleGenomics)
 
-* Authentication
+Authentication
+--------------
 
-  Call :r:`authenticate` to set up credentials. Check the function
-  documentation for details on various available options. The function will
-  return :r:`TRUE` on successful authentication.
+Call :r:`authenticate` to set up credentials. Check the function
+documentation for details on various available options. The function will
+return :r:`TRUE` on successful authentication.
+
+Examples
+--------
 
 See the following examples for more detail:
 

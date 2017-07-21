@@ -37,6 +37,7 @@ Suggests:
     org.Hs.eg.db,
     TxDb.Hsapiens.UCSC.hg19.knownGene
 Description: Provides an R package to interact with the Google Genomics API.
+SystemRequirements: GNU make
 VignetteBuilder: knitr
 License: Apache License (== 2.0) | file LICENSE
 URL: https://cloud.google.com/genomics/

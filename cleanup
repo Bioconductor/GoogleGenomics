@@ -1,4 +1,5 @@
 #!/bin/sh
 
 rm -f config.* src/Makevars src/config.h
-rm -f src/*.so src/*.o src/google/*/*.o src/google/*/*/*.o
+rm -f src/*.so src/*.o
+find src -iname '*.pb.*' | xargs rm -f
