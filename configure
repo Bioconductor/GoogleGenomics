@@ -595,7 +595,6 @@ CPPFLAGS
 LDFLAGS
 CXXFLAGS
 CXX
-PROTO_HEADER_PATH
 target_alias
 host_alias
 build_alias
@@ -638,12 +637,12 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 with_grpc_include
-with_grpc_lib
+with_grpc_libs
+with_grpc_bin
 '
       ac_precious_vars='build_alias
 host_alias
 target_alias
-PROTO_HEADER_PATH
 CXX
 CXXFLAGS
 LDFLAGS
@@ -1264,12 +1263,12 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-grpc-include=INCLUDE_PATH
                           the location of GRPC header files
-  --with-grpc-lib=LIB_PATH
+  --with-grpc-libs=LIB_PATH
                           the location of GRPC libraries
+  --with-grpc-bin=BIN_PATH
+                          the location of GRPC binaries
 
 Some influential environment variables:
-  PROTO_HEADER_PATH
-              "Location of protobuf header files"
   CXX         C++ compiler command
   CXXFLAGS    C++ compiler flags
   LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
@@ -1847,33 +1846,44 @@ CPPFLAGS="${CPPFLAGS} -I."
 
 
 
-
 # Check whether --with-grpc-include was given.
 if test "${with_grpc_include+set}" = set; then :
   withval=$with_grpc_include; grpc_include_path=$withval
 fi
 
-if test -n "$grpc_include_path"; then
+if test -n "${grpc_include_path}"; then
   CPPFLAGS="${CPPFLAGS} -I${grpc_include_path}"
-  PROTO_HEADER_PATH="-I${grpc_include_path}"
 else
   if test -n "${GRPC_INCLUDE_PATH}"; then
     CPPFLAGS="${CPPFLAGS} -I${GRPC_INCLUDE_PATH}"
-    PROTO_HEADER_PATH="-I${GRPC_INCLUDE_PATH}"
   fi
 fi
 
 
-# Check whether --with-grpc-lib was given.
-if test "${with_grpc_lib+set}" = set; then :
-  withval=$with_grpc_lib; grpc_lib_path=$withval
+# Check whether --with-grpc-libs was given.
+if test "${with_grpc_libs+set}" = set; then :
+  withval=$with_grpc_libs; grpc_libs_path=$withval
 fi
 
-if test -n "$grpc_lib_path"; then
-  LIBS="${LIBS} -L$grpc_lib_path"
+if test -n "${grpc_libs_path}"; then
+  LIBS="${LIBS} -L${grpc_libs_path}"
 else
   if test -n "${GRPC_LIBS_PATH}"; then
     LIBS="${LIBS} -L${GRPC_LIBS_PATH}"
+  fi
+fi
+
+
+# Check whether --with-grpc-bin was given.
+if test "${with_grpc_bin+set}" = set; then :
+  withval=$with_grpc_bin; grpc_bin_path=$withval
+fi
+
+if test -n "${grpc_bin_path}"; then
+  PATH="${grpc_bin_path}:${PATH}"
+else
+  if test -n "${GRPC_BIN_PATH}"; then
+    PATH="${GRPC_BIN_PATH}:${PATH}"
   fi
 fi
 
@@ -2569,7 +2579,6 @@ fi
 
 if test "${PKGCONFIG}" -eq 1 && pkg-config --exists protobuf; then
   CPPFLAGS="${CPPFLAGS} "`pkg-config --cflags protobuf`
-  PROTO_HEADER_PATH=`pkg-config --cflags-only-I protobuf`
   LIBS="${LIBS} "`pkg-config --libs protobuf`
 else
   LIBS="${LIBS} -lprotobuf"
@@ -2735,75 +2744,6 @@ $as_echo "no" >&6; }
 fi
 
 
-
-    if test -z "${PROTO_HEADER_PATH}"; then
-    as_ac_File=`$as_echo "ac_cv_file_"/usr/include/google/protobuf/descriptor.proto"" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for \"/usr/include/google/protobuf/descriptor.proto\"" >&5
-$as_echo_n "checking for \"/usr/include/google/protobuf/descriptor.proto\"... " >&6; }
-if eval \${$as_ac_File+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  test "$cross_compiling" = yes &&
-  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-if test -r ""/usr/include/google/protobuf/descriptor.proto""; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-eval ac_res=\$$as_ac_File
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
-  PROTO_HEADER_PATH="-I/usr/include"
-fi
-
-    as_ac_File=`$as_echo "ac_cv_file_"/usr/local/include/google/protobuf/descriptor.proto"" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for \"/usr/local/include/google/protobuf/descriptor.proto\"" >&5
-$as_echo_n "checking for \"/usr/local/include/google/protobuf/descriptor.proto\"... " >&6; }
-if eval \${$as_ac_File+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  test "$cross_compiling" = yes &&
-  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-if test -r ""/usr/local/include/google/protobuf/descriptor.proto""; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-eval ac_res=\$$as_ac_File
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
-  PROTO_HEADER_PATH="-I/usr/local/include"
-fi
-
-    as_ac_File=`$as_echo "ac_cv_file_"/opt/local/include/google/protobuf/descriptor.proto"" | $as_tr_sh`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for \"/opt/local/include/google/protobuf/descriptor.proto\"" >&5
-$as_echo_n "checking for \"/opt/local/include/google/protobuf/descriptor.proto\"... " >&6; }
-if eval \${$as_ac_File+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  test "$cross_compiling" = yes &&
-  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
-if test -r ""/opt/local/include/google/protobuf/descriptor.proto""; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-eval ac_res=\$$as_ac_File
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-if eval test \"x\$"$as_ac_File"\" = x"yes"; then :
-  PROTO_HEADER_PATH="-I/opt/local/include"
-fi
-
-    if test -z "${PROTO_HEADER_PATH}"; then
-      HAVE_GRPC=0
-    fi
-  fi
 fi
 
 if test "${HAVE_GRPC}" -eq 0; then

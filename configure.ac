@@ -17,7 +17,6 @@ LIBS=`"${R_HOME}/bin/R" CMD CONFIG LDFLAGS`
 
 CPPFLAGS="${CPPFLAGS} -I."
 
-AC_ARG_VAR(PROTO_HEADER_PATH, "Location of protobuf header files")
 
 dnl Check for user supplied include paths, from a configure option or
 dnl from an environment variable
@@ -25,26 +24,37 @@ AC_ARG_WITH([grpc-include],
             AC_HELP_STRING([--with-grpc-include=INCLUDE_PATH],
                            [the location of GRPC header files]),
             [grpc_include_path=$withval])
-if test -n "$grpc_include_path"; then
+if test -n "${grpc_include_path}"; then
   CPPFLAGS="${CPPFLAGS} -I${grpc_include_path}"
-  PROTO_HEADER_PATH="-I${grpc_include_path}"
 else
   if test -n "${GRPC_INCLUDE_PATH}"; then
     CPPFLAGS="${CPPFLAGS} -I${GRPC_INCLUDE_PATH}"
-    PROTO_HEADER_PATH="-I${GRPC_INCLUDE_PATH}"
   fi
 fi
 
 dnl Same for library search paths
-AC_ARG_WITH([grpc-lib],
-            AC_HELP_STRING([--with-grpc-lib=LIB_PATH],
+AC_ARG_WITH([grpc-libs],
+            AC_HELP_STRING([--with-grpc-libs=LIB_PATH],
                            [the location of GRPC libraries]),
-            [grpc_lib_path=$withval])
-if test -n "$grpc_lib_path"; then
-  LIBS="${LIBS} -L$grpc_lib_path"
+            [grpc_libs_path=$withval])
+if test -n "${grpc_libs_path}"; then
+  LIBS="${LIBS} -L${grpc_libs_path}"
 else
   if test -n "${GRPC_LIBS_PATH}"; then
     LIBS="${LIBS} -L${GRPC_LIBS_PATH}"
+  fi
+fi
+
+dnl Same for binary search paths
+AC_ARG_WITH([grpc-bin],
+            AC_HELP_STRING([--with-grpc-bin=BIN_PATH],
+                           [the location of GRPC binaries]),
+            [grpc_bin_path=$withval])
+if test -n "${grpc_bin_path}"; then
+  PATH="${grpc_bin_path}:${PATH}"
+else
+  if test -n "${GRPC_BIN_PATH}"; then
+    PATH="${GRPC_BIN_PATH}:${PATH}"
   fi
 fi
 
@@ -58,7 +68,6 @@ PKGCONFIG=0
 AC_CHECK_PROG(PKGCONFIG, pkg-config, 1)
 if test "${PKGCONFIG}" -eq 1 && pkg-config --exists protobuf; then
   CPPFLAGS="${CPPFLAGS} "`pkg-config --cflags protobuf`
-  PROTO_HEADER_PATH=`pkg-config --cflags-only-I protobuf`
   LIBS="${LIBS} "`pkg-config --libs protobuf`
 else
   LIBS="${LIBS} -lprotobuf"
@@ -100,19 +109,6 @@ dnl Some final checks
 if test "${HAVE_GRPC}" -eq 1; then
   AC_PATH_PROG(GRPC_PLUGIN, grpc_cpp_plugin,
                AC_MSG_ERROR("grpc_cpp_plugin binary not found in $PATH"))
-
-  dnl Try some common directories for protobuf header paths
-  if test -z "${PROTO_HEADER_PATH}"; then
-    AC_CHECK_FILE("/usr/include/google/protobuf/descriptor.proto",
-                  PROTO_HEADER_PATH="-I/usr/include")
-    AC_CHECK_FILE("/usr/local/include/google/protobuf/descriptor.proto",
-                  PROTO_HEADER_PATH="-I/usr/local/include")
-    AC_CHECK_FILE("/opt/local/include/google/protobuf/descriptor.proto",
-                  PROTO_HEADER_PATH="-I/opt/local/include")
-    if test -z "${PROTO_HEADER_PATH}"; then
-      HAVE_GRPC=0
-    fi
-  fi
 fi
 
 if test "${HAVE_GRPC}" -eq 0; then

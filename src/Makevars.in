@@ -33,7 +33,8 @@ $(SHLIB): $(OBJECTS)
 $(PROTO_CC) $(SERVICE_CC): protolib
 
 protolib: $(PROTO_SOURCES)
-	@PROTOC_BINARY@ @PROTO_HEADER_PATH@ -I. --cpp_out=. --grpc_out=. --plugin=protoc-gen-grpc=@GRPC_PLUGIN@ $?
+	@PROTOC_BINARY@ $(filter -I%, $(CPPFLAGS)) -I. --cpp_out=. --grpc_out=. \
+  --plugin=protoc-gen-grpc=@GRPC_PLUGIN@ $?
 
 clean:
 	rm $(PROTO_CC) $(PROTO_CC:.cc=.h) $(SERVICE_CC) $(SERVICE_CC:.cc=.h) $(OBJECTS)

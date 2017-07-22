@@ -13,6 +13,8 @@ config.status
 config.log
 *.o
 *.so
+*.pb.cc
+*.pb.h
 src/Makevars
 src/config.h
 src/symbols.rds
