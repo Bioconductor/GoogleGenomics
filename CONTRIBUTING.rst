@@ -1,5 +1,5 @@
 How to contribute
-===================================
+=================
 
 First of all, thank you for contributing!
 
@@ -58,3 +58,10 @@ will skip running unit tests and vignettes. If you set up Travis for your fork, 
 Travis build in the pull request will speed up the review process. If your pull request fails to
 pass tests, review the test log, make changes and then push them to your feature branch to be tested
 again.
+
+
+C++ Code
+--------
+
+If you want to change the C++ code, follow the `README <src/README.rst>`_ inside the
+src directory.
