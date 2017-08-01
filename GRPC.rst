@@ -35,12 +35,24 @@ Linux
   Install from source (see below).
 
 Source
-  For installing from source for all platforms, please refer to
-  `these instructions <https://github.com/grpc/grpc/blob/master/INSTALL.md>`_.
-  Also make sure to install the latest protobuf libraries from within the grpc
-  source code directory by:
+  You may need these prerequisites to install from source:
 
-  :sh:`make -C third_party/protobuf install`
+  .. code:: sh
+
+    [sudo] apt-get install build-essential autoconf libtool
+    
+  Download the current release version of gRPC and install with the included
+  SSL libraries. Using the system SSL libraries may not work for you if your
+  particular version has not been tested with gRPC.
+
+  .. code:: sh
+
+    git clone -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc
+    cd grpc
+    git submodule update --init
+    [sudo] make HAS_SYSTEM_OPENSSL_NPN=false HAS_SYSTEM_OPENSSL_ALPN=false install
+    [sudo] make -C third_party/protobuf install
+
 
 R Package setup
 ---------------
@@ -98,4 +110,5 @@ Limitations
   gRPC but all essential fields should be present in both methods, and will
   have the same names.
 
-- API key mode of authentication does not work with gRPC currently.
+- API key mode of authentication does not work with gRPC.
+

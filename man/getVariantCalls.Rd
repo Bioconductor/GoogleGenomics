@@ -5,12 +5,12 @@
 \title{Elaborate the result of getVariants as a VRanges with all
 calls for all samples}
 \usage{
-getVariantCalls(datasetId = "10473108253681171589", chromosome = "22",
+getVariantCalls(variantSetId = "10473108253681171589", chromosome = "22",
   start = 16051400, end = 16051500, fields = NULL, converter = c,
   oneBasedCoord = TRUE, nullAction = "stop")
 }
 \arguments{
-\item{datasetId}{The dataset ID.}
+\item{variantSetId}{The dataset ID.}
 
 \item{chromosome}{The chromosome.}
 
@@ -31,7 +31,7 @@ with event in which request yields no variants; for
 \code{"warn"} we return NULL}
 }
 \value{
-By default, the return value is a VRanges object. 
+By default, the return value is a VRanges object.
         If a converter is passed, object(s) of the type returned by the
         converter will be returned by this function.
 }

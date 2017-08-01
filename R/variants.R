@@ -21,7 +21,7 @@
 #' By default, this function gets variants from a small section of 1000
 #' Genomes phase 1 variants.
 #'
-#' @param datasetId The dataset ID.
+#' @param variantSetId The dataset ID.
 #' @param chromosome The chromosome.
 #' @param start Start position on the chromosome in 0-based coordinates.
 #' @param end End position on the chromosome in 0-based coordinates.
@@ -42,7 +42,7 @@
 #' variantsPage <- getVariantsPage()
 #' summary(variantsPage)
 #' summary(variantsPage$variants[[1]])
-getVariantsPage <- function(datasetId = "10473108253681171589",
+getVariantsPage <- function(variantSetId = "10473108253681171589",
                             chromosome = "22",
                             start = 16051400,
                             end = 16051500,
@@ -50,7 +50,7 @@ getVariantsPage <- function(datasetId = "10473108253681171589",
                             pageToken = NULL) {
   body <-
     list(
-      variantSetIds = list(datasetId),
+      variantSetIds = list(variantSetId),
       referenceName = chromosome,
       start = start,
       end = end,
@@ -63,13 +63,13 @@ getVariantsPage <- function(datasetId = "10473108253681171589",
        nextPageToken = results$nextPageToken)
 }
 
-streamVariants <- function(datasetId, chromosome, start, end) {
-  if (missing(datasetId) || missing(chromosome) ||
+streamVariants <- function(variantSetId, chromosome, start, end) {
+  if (missing(variantSetId) || missing(chromosome) ||
       missing(start) || missing(end)) {
     stop("All arguments need to be provided to streamVariants.")
   }
 
-  body <- list(variantSetId = datasetId, referenceName = chromosome,
+  body <- list(variantSetId = variantSetId, referenceName = chromosome,
                start = start, end = end)
 
   callGRPCMethod("StreamVariants", toJSON(body))
@@ -88,7 +88,7 @@ streamVariants <- function(datasetId, chromosome, start, end) {
 #' The converter function should return an empty container of the desired type
 #' if called without any arguments.
 #'
-#' @param datasetId The dataset ID.
+#' @param variantSetId The dataset ID.
 #' @param chromosome The chromosome.
 #' @param start Start position on the chromosome in 0-based coordinates.
 #' @param end End position on the chromosome in 0-based coordinates.
@@ -108,7 +108,7 @@ streamVariants <- function(datasetId, chromosome, start, end) {
 #' variants <- getVariants()
 #' summary(variants)
 #' summary(variants[[1]])
-getVariants <- function(datasetId = "10473108253681171589",
+getVariants <- function(variantSetId = "10473108253681171589",
                         chromosome = "22",
                         start = 16051400,
                         end = 16051500,
@@ -117,7 +117,7 @@ getVariants <- function(datasetId = "10473108253681171589",
                         useGRPC = getOption("google_genomics_use_grpc")) {
   if (isTRUE(useGRPC)) {
     stopifnot(isGRPCAvailable())
-    result <- streamVariants(datasetId, chromosome, start, end)
+    result <- streamVariants(variantSetId, chromosome, start, end)
     if (is.null(result)) {
       stop("Something went wrong. Check printed messages above.")
     }
@@ -128,7 +128,7 @@ getVariants <- function(datasetId = "10473108253681171589",
   variants <- converter()
   repeat {
     result <- getVariantsPage(
-      datasetId = datasetId,
+      variantSetId = variantSetId,
       chromosome = chromosome,
       start = start,
       end = end,
@@ -268,7 +268,7 @@ variantsToGRanges <- function(variants,
 #' Elaborate the result of getVariants as a VRanges with all
 #' calls for all samples
 #'
-#' @param datasetId The dataset ID.
+#' @param variantSetId The dataset ID.
 #' @param chromosome The chromosome.
 #' @param start Start position on the chromosome in 0-based coordinates.
 #' @param end End position on the chromosome in 0-based coordinates.
@@ -287,7 +287,7 @@ variantsToGRanges <- function(variants,
 #' \dontrun{
 #' getVariantCalls()
 #' }
-getVariantCalls <- function(datasetId = "10473108253681171589",
+getVariantCalls <- function(variantSetId = "10473108253681171589",
                             chromosome = "22",
                             start = 16051400,
                             end = 16051500,
@@ -310,7 +310,7 @@ getVariantCalls <- function(datasetId = "10473108253681171589",
   #
   # call getVariants
   ggv <- getVariants(
-    datasetId = datasetId,
+    variantSetId = variantSetId,
     chromosome = chromosome,
     start = start,
     end = end,

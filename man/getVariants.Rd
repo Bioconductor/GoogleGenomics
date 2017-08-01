@@ -4,12 +4,12 @@
 \alias{getVariants}
 \title{Get variants from Google Genomics.}
 \usage{
-getVariants(datasetId = "10473108253681171589", chromosome = "22",
+getVariants(variantSetId = "10473108253681171589", chromosome = "22",
   start = 16051400, end = 16051500, fields = NULL, converter = c,
   useGRPC = getOption("google_genomics_use_grpc"))
 }
 \arguments{
-\item{datasetId}{The dataset ID.}
+\item{variantSetId}{The dataset ID.}
 
 \item{chromosome}{The chromosome.}
 

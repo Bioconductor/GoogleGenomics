@@ -1,7 +1,7 @@
 context("Variants")
 
 fetchVariants <- function(...) {
-  getVariants(datasetId="10473108253681171589", chromosome="22",
+  getVariants(variantSetId="10473108253681171589", chromosome="22",
               start=50300077, end=50301500, ...)
 }
 

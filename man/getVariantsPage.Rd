@@ -4,11 +4,11 @@
 \alias{getVariantsPage}
 \title{Get one page of variants from Google Genomics.}
 \usage{
-getVariantsPage(datasetId = "10473108253681171589", chromosome = "22",
+getVariantsPage(variantSetId = "10473108253681171589", chromosome = "22",
   start = 16051400, end = 16051500, fields = NULL, pageToken = NULL)
 }
 \arguments{
-\item{datasetId}{The dataset ID.}
+\item{variantSetId}{The dataset ID.}
 
 \item{chromosome}{The chromosome.}
 

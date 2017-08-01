@@ -59,7 +59,7 @@ defaultGcloudCredsPath <- function() {
 #'
 #'   3. For public data, use a public API key from the project that you want to
 #'   access. You can either set the GOOGLE_API_KEY environment variable, or
-#'   provide the apiKey argument. Currently, does not work with gRPC.
+#'   provide the apiKey argument. Does not work with gRPC.
 #'
 #'   4. Download secrets file (native application or service account) or
 #'   provide the clientId and clientSecret pair. See
@@ -135,7 +135,6 @@ authenticate <- function(file, clientId, clientSecret, invokeBrowser,
     .authStore$use_api_key <- TRUE
     .authStore$api_key <- apiKey
 
-    # TODO: GRPC does not work with API keys at the moment.
     if (isTRUE(getOption("google_genomics_use_grpc"))) {
       warning(paste0("Removing gRPC as default because gRPC ",
                      "does not work with API keys."))
