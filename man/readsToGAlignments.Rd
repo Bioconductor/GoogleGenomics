@@ -33,4 +33,3 @@ summary(alignments1)
 alignments2 <- readsToGAlignments(getReads())
 print(identical(alignments1, alignments2))
 }
-

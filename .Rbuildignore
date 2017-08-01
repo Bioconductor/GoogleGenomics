@@ -6,3 +6,5 @@
 ^shiny$
 ^README\.rst$
 ^CONTRIBUTING\.rst$
+\.pb\.cc$
+\.pb\.h$

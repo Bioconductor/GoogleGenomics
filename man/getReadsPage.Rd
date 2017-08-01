@@ -55,7 +55,7 @@ summary(readsPage)
 summary(readsPage$reads[[1]])
 }
 \seealso{
-Other page fetch functions: \code{\link{getSearchPage}},
+Other page fetch functions: \code{\link{callGRPCMethod}},
+  \code{\link{getSearchPage}},
   \code{\link{getVariantsPage}}
 }
-

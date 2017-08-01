@@ -2,14 +2,17 @@ language: r
 sudo: false
 cache: packages
 
+# For RProtoBuf dependency in Suggests.
+addons:
+  apt:
+    packages:
+      - libprotobuf-dev
+      - libprotoc-dev
+
 # Package caching only makes sense for the release versions.
 r: bioc-release
 
-# Secure auth credentials can not be made available for pull requests.
+warnings_are_errors: false
 r_build_args:
+# Secure auth credentials can not be made available for pull requests.
 r_check_args: "$(if [[ $TRAVIS_PULL_REQUEST != 'false' ]]; then echo '--no-examples'; fi)"
-
-# survival version >= 2.40.1 is needed by HMisc.
-r_github_packages:
-  - cran/survival 
-

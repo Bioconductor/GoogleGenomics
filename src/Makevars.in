@@ -1,0 +1,56 @@
+# Copyright 2017 GoogleGenomics R package authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the 'License');
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an 'AS IS' BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+CXX_STD = CXX11
+
+PKG_LIBS = @LIBS@
+
+# Do not compile gRPC related code.
+ifeq "@HAVE_GRPC@" "0"
+
+PKG_CPPFLAGS = @CPPFLAGS@
+OBJECTS = init.o
+
+# Compile and link the generated protocol buffer code included with this package.
+else
+
+PKG_CPPFLAGS = @CPPFLAGS@ -DHAVE_GRPC
+
+PROTO_SOURCES = $(wildcard google/*/*.proto google/*/*/*.proto)
+PROTO_CC = $(patsubst %.proto, %.pb.cc, $(PROTO_SOURCES))
+PROTO_OBJECTS = $(patsubst %.proto, %.pb.o, $(PROTO_SOURCES))
+
+SERVICE_CC = $(patsubst %.proto, %.grpc.pb.cc, $(PROTO_SOURCES))
+# SERVICE_OBJECTS = $(patsubst %.proto, %.grpc.pb.o, $(PROTO_SOURCES))
+SERVICES = $(addprefix google/genomics/v1/, annotations datasets reads references variants)
+SERVICE_OBJECTS = $(addsuffix .grpc.pb.o, $(SERVICES))
+
+PACKAGE_OBJECTS = $(patsubst %.cc, %.o, $(wildcard *.cc)) 
+
+OBJECTS = $(PROTO_OBJECTS) $(SERVICE_OBJECTS) $(PACKAGE_OBJECTS)
+
+.PHONY: all clean protolib
+
+$(SHLIB): $(OBJECTS)
+
+$(PROTO_CC) $(SERVICE_CC): protolib
+
+protolib: $(PROTO_SOURCES)
+	@PROTOC_BINARY@ $(filter -I%, $(CPPFLAGS)) -I. --cpp_out=. --grpc_out=. \
+  --plugin=protoc-gen-grpc=@GRPC_PLUGIN@ $?
+
+clean:
+	rm $(PROTO_CC) $(PROTO_CC:.cc=.h) $(SERVICE_CC) $(SERVICE_CC:.cc=.h) $(OBJECTS)
+
+endif

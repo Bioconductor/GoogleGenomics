@@ -1,7 +1,7 @@
 context("VariantCalls")
 
 fetchVariantCalls <- function(...) {
-  getVariantCalls(datasetId = "10473108253681171589", chromosome = "22",
+  getVariantCalls(variantSetId = "10473108253681171589", chromosome = "22",
                   start = 50300077, end = 50301500, fields = NULL, converter = c,
                   oneBasedCoord = TRUE)
 }
