@@ -5,7 +5,8 @@
 \title{Get reads from Google Genomics.}
 \usage{
 getReads(readGroupSetId = "CMvnhpKTFhDnk4_9zcKO3_YB", chromosome = "22",
-  start = 16051400, end = 16051500, fields = NULL, converter = c)
+  start = 16051400, end = 16051500, fields = NULL, converter = c,
+  useGRPC = getOption("google_genomics_use_grpc"))
 }
 \arguments{
 \item{readGroupSetId}{The read group set ID.}
@@ -21,6 +22,8 @@ return all fields.}
 
 \item{converter}{A function that takes a list of read R objects and returns
 them converted to the desired type.}
+
+\item{useGRPC}{Whether to use GRPC mechanism to query.}
 }
 \value{
 By default, the return value is a list of R objects
@@ -37,8 +40,8 @@ By default, this function gets reads for a small genomic region for one
 sample in 1,000 Genomes.
 
 Optionally pass a converter as appropriate for your use case.  By passing it
-to this method, only the converted objects will be accumulated in memory. The
-converter function should return an empty container of the desired type
+to this method, only the converted objects will be accumulated in memory.
+The converter function should return an empty container of the desired type
 if called without any arguments.
 }
 \examples{
@@ -50,4 +53,3 @@ summary(reads[[1]])
 \seealso{
 \code{\link{getVariants}}
 }
-

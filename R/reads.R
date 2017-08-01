@@ -50,7 +50,6 @@
 #' readsPage <- getReadsPage()
 #' summary(readsPage)
 #' summary(readsPage$reads[[1]])
-#' @export
 getReadsPage <- function(readGroupSetId="CMvnhpKTFhDnk4_9zcKO3_YB",
                          chromosome="22",
                          start=16051400,
@@ -66,6 +65,18 @@ getReadsPage <- function(readGroupSetId="CMvnhpKTFhDnk4_9zcKO3_YB",
   list(reads=results$alignments, nextPageToken=results$nextPageToken)
 }
 
+streamReads <- function(readGroupSetId, chromosome, start, end) {
+  if (missing(readGroupSetId) || missing(chromosome) ||
+      missing(start) || missing(end)) {
+    stop("All arguments need to be provided to streamReads.")
+  }
+
+  body <- list(readGroupSetId = readGroupSetId, referenceName = chromosome,
+               start = start, end = end)
+
+  callGRPCMethod("StreamReads", toJSON(body))
+}
+
 #' Get reads from Google Genomics.
 #'
 #' This function will return all of the reads that comprise the requested
@@ -75,8 +86,8 @@ getReadsPage <- function(readGroupSetId="CMvnhpKTFhDnk4_9zcKO3_YB",
 #' sample in 1,000 Genomes.
 #'
 #' Optionally pass a converter as appropriate for your use case.  By passing it
-#' to this method, only the converted objects will be accumulated in memory. The
-#' converter function should return an empty container of the desired type
+#' to this method, only the converted objects will be accumulated in memory.
+#' The converter function should return an empty container of the desired type
 #' if called without any arguments.
 #'
 #' @param readGroupSetId The read group set ID.
@@ -87,6 +98,7 @@ getReadsPage <- function(readGroupSetId="CMvnhpKTFhDnk4_9zcKO3_YB",
 #'               return all fields.
 #' @param converter A function that takes a list of read R objects and returns
 #'                  them converted to the desired type.
+#' @param useGRPC Whether to use GRPC mechanism to query.
 #' @return By default, the return value is a list of R objects
 #' corresponding to the JSON objects returned by the Google Genomics
 #' Reads API.  If a converter is passed, object(s) of the type
@@ -97,13 +109,22 @@ getReadsPage <- function(readGroupSetId="CMvnhpKTFhDnk4_9zcKO3_YB",
 #' reads <- getReads()
 #' summary(reads)
 #' summary(reads[[1]])
-#' @export
 getReads <- function(readGroupSetId="CMvnhpKTFhDnk4_9zcKO3_YB",
                      chromosome="22",
                      start=16051400,
                      end=16051500,
                      fields=NULL,
-                     converter=c) {
+                     converter=c,
+                     useGRPC = getOption("google_genomics_use_grpc")) {
+  if (isTRUE(useGRPC)) {
+    stopifnot(isGRPCAvailable())
+    result <- streamReads(readGroupSetId, chromosome, start, end)
+    if (is.null(result)) {
+      stop("Something went wrong. Check printed messages above.")
+    }
+    return(converter(fromJSON(result)$alignments))
+  }
+
   pageToken <- NULL
   reads <- converter()
   repeat {
@@ -222,7 +243,6 @@ getFlags <- function(read) {
 #' summary(alignments1)
 #' alignments2 <- readsToGAlignments(getReads())
 #' print(identical(alignments1, alignments2))
-#' @export
 readsToGAlignments <- function(reads, oneBasedCoord=TRUE, slStyle="UCSC") {
 
   if (missing(reads)) {

@@ -6,10 +6,5 @@
 \alias{GoogleGenomics-package}
 \title{A basic R package for Google Genomics API.}
 \description{
-This project is in active development - the current code is very minimal and
-a lot of work is left.
-}
-\details{
 For more details, read the package README.
 }
-

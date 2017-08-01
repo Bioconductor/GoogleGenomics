@@ -4,14 +4,15 @@
 \alias{authenticate}
 \title{Configure how to authenticate for Google Genomics API.}
 \usage{
-authenticate(file, clientId, clientSecret, invokeBrowser, apiKey)
+authenticate(file, clientId, clientSecret, invokeBrowser,
+  apiKey = Sys.getenv("GOOGLE_API_KEY"),
+  gcloudCredsPath = defaultGcloudCredsPath(), tryGCEServiceAccount = TRUE)
 }
 \arguments{
 \item{file}{Client secrets file obtained from Google Developer Console. This
 file could be for a native application or a service account. If this file
 is not present, clientId and clientSecret must be provided for native
-application credentials. Service account support needs version 0.1-2 or
-greater of \href{https://github.com/s-u/PKI}{PKI}.}
+application credentials.}
 
 \item{clientId}{Client ID from Google Developer Console, overridden if file
 is provided.}
@@ -29,14 +30,44 @@ Google account if not logged in already.}
 \item{apiKey}{Public API key that can be used to call the Genomics API for
 public datasets. This method of authentication does not need you to login
 to your Google account. Providing this key overrides all other arguments.}
+
+\item{gcloudCredsPath}{Path to the generated json file with application
+default credentials.}
+
+\item{tryGCEServiceAccount}{If TRUE, will try checking if this is a GCE VM
+instance with a valid service account. If valid credentials are found,
+will use them over all other options.}
 }
 \value{
-NULL (silently) if successful.
+TRUE if successful, FALSE if not.
 }
 \description{
-Follow the sign up instructions at \url{https://cloud.google.com/genomics/install-genomics-tools#authenticate}
-  to download the client secrets file, or note the clientId and clientSecret
-  pair.
+Follow the sign up instructions at
+  \url{https://cloud.google.com/genomics/install-genomics-tools}.
+}
+\details{
+There are four primary ways, in order of preference, of authenticating:
+
+1. When running on Google Compute Engine, configure your VM to be
+  authenticated at the time of initial setup. See
+  \url{https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances#using}.
+
+2. Use the gcloud tool to generate application default credentials. If the
+  generated file is not in its standard location, you can set the environment
+  variable GOOGLE_APPLICATION_CREDENTIALS with its path, or provide the
+  gcloudCredsPath argument.
+
+3. For public data, use a public API key from the project that you want to
+  access. You can either set the GOOGLE_API_KEY environment variable, or
+  provide the apiKey argument. Does not work with gRPC.
+
+4. Download secrets file (native application or service account) or
+  provide the clientId and clientSecret pair. See
+  \url{https://cloud.google.com/genomics/downloading-credentials-for-api-access}.
+  Native application credentials should only be used when accessing data for
+  which your own account is not authorized.
+
+This method is called with default arguments at package load time.
 }
 \examples{
 apiKey <- Sys.getenv("GOOGLE_API_KEY")
@@ -44,9 +75,9 @@ if (!is.na(apiKey) && nchar(apiKey)>0) {
   authenticate(apiKey=apiKey)
 }
 \dontrun{
+authenticate()
 authenticate(file="clientSecrets.json")
 authenticate(file="clientSecrets.json", invokeBrowser=FALSE)
 authenticate(clientId="abc", clientSecret="xyz", invokeBrowser=FALSE)
 }
 }
-

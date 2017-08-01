@@ -33,7 +33,6 @@ reads <- getSearchPage("reads", body, NULL, NULL)
 summary(reads)
 }
 \seealso{
-Other page fetch functions: \code{\link{getReadsPage}},
-  \code{\link{getVariantsPage}}
+Other page fetch functions: \code{\link{callGRPCMethod}},
+  \code{\link{getReadsPage}}, \code{\link{getVariantsPage}}
 }
-

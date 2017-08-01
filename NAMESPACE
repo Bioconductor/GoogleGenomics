@@ -1,4 +1,6 @@
-## Network connection related imports ##
+useDynLib(GoogleGenomics, .registration = TRUE, .fixes = "C_")
+
+## API related imports ##
 import(httr)
 import(methods)
 importFrom(rjson, fromJSON, toJSON)
@@ -21,9 +23,15 @@ importFrom(utils, installed.packages)
 
 ## Authentication ##
 export(authenticate)
+export(defaultGcloudCredsPath)
 
 ## Generic Search ##
 export(getSearchPage)
+
+## gRPC ##
+export(callGRPCMethod)
+export(getRProtoBufDefaultObject)
+export(isGRPCAvailable)
 
 ## Reads ##
 export(getReadsPage)
@@ -36,4 +44,3 @@ export(getVariantCalls)
 export(getVariants)
 export(variantsToGRanges)
 export(variantsToVRanges)
-

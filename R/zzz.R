@@ -16,14 +16,12 @@
   currentOptions <- options()
   defaultOptions <- list(
       google_genomics_endpoint="https://genomics.googleapis.com/v1",
-      google_auth_cache_httr=file.path("~", ".r-google-auth-httr"))
+      google_auth_cache_httr=file.path("~", ".r-google-auth-httr"),
+      google_genomics_use_grpc=isGRPCAvailable())
   toset <- !(names(defaultOptions) %in% names(currentOptions))
   if (any(toset)) options(defaultOptions[toset])
 
-  apiKey <- Sys.getenv("GOOGLE_API_KEY", unset=NA)
-  if (!is.na(apiKey) && nchar(apiKey) > 0) {
-    authenticate(apiKey=apiKey)
-  }
+  authenticate()
 
   invisible()
 }

@@ -4,11 +4,12 @@
 \alias{getVariants}
 \title{Get variants from Google Genomics.}
 \usage{
-getVariants(datasetId = "10473108253681171589", chromosome = "22",
-  start = 16051400, end = 16051500, fields = NULL, converter = c)
+getVariants(variantSetId = "10473108253681171589", chromosome = "22",
+  start = 16051400, end = 16051500, fields = NULL, converter = c,
+  useGRPC = getOption("google_genomics_use_grpc"))
 }
 \arguments{
-\item{datasetId}{The dataset ID.}
+\item{variantSetId}{The dataset ID.}
 
 \item{chromosome}{The chromosome.}
 
@@ -21,6 +22,8 @@ return all fields.}
 
 \item{converter}{A function that takes a list of variant R objects and
 returns them converted to the desired type.}
+
+\item{useGRPC}{Whether to use GRPC mechanism to query.}
 }
 \value{
 By default, the return value is a list of R objects
@@ -51,4 +54,3 @@ summary(variants[[1]])
 \code{\link{getReads}} for equivalent function for reads, and
   \code{\link{variantsToVRanges}} for a converter function.
 }
-

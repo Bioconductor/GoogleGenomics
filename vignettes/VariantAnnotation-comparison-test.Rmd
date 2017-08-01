@@ -87,7 +87,7 @@ library(GoogleGenomics)
 ```{r}
 # We're just getting the first few variants so that this runs quickly.
 # If we wanted to get them all, we sould set end=50999964.
-granges <- getVariants(datasetId="10473108253681171589",
+granges <- getVariants(variantSetId="10473108253681171589",
                        chromosome="22",
                        start=50300077,
                        end=50303000,

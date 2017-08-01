@@ -106,7 +106,7 @@ library(VariantAnnotation)
 
 Note that the parameters `start` and `end` are expressed in 0-based coordinates per the GA4GH specification but the Bioconductor data type converters in `r Biocpkg("GoogleGenomics")`, by default, transform the returned data to 1-based coordinates.
 ```{r}
-granges <- getVariants(datasetId="10473108253681171589",
+granges <- getVariants(variantSetId="10473108253681171589",
                        chromosome="22",
                        start=50300077,
                        end=50303000,
