@@ -89,7 +89,7 @@ Let's take a look at the reads that overlap [rs9536314](http://www.ncbi.nlm.nih.
 ```{r}
 # Change the values of 'chromosome', 'start', or 'end' here if you wish to plot 
 # alignments from a different portion of the genome.
-alignments <- getReads(readGroupSetId="CMvnhpKTFhDyy__v0qfPpkw",
+alignments <- getReads(readGroupSetId="CMvnhpKTFhD3he72j4KZuyc",
                        chromosome="chr13",
                        start=33628130,
                        end=33628145,
