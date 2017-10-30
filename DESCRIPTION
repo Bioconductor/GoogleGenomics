@@ -1,5 +1,5 @@
 Package: GoogleGenomics
-Version: 1.99.2
+Version: 2.1.0
 Title: R Client for Google Genomics API
 Author: Cassie Doll, Nicole Deflaux
 Maintainer: Siddhartha Bagaria <bagaria.siddhartha@gmail.com>
