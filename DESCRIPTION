@@ -1,5 +1,5 @@
 Package: GoogleGenomics
-Version: 2.3.0
+Version: 2.3.1
 Title: R Client for Google Genomics API
 Author: Cassie Doll, Nicole Deflaux
 Maintainer: Siddhartha Bagaria <bagaria.siddhartha@gmail.com>
@@ -43,3 +43,4 @@ URL: https://cloud.google.com/genomics/
 BugReports: https://github.com/Bioconductor/GoogleGenomics/issues
 biocViews: DataImport, ThirdPartyClient, Genetics
 RoxygenNote: 6.0.1
+PackageStatus: Deprecated
